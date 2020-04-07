@@ -4,14 +4,23 @@ import re
 import numpy as np
 import pandas as pd
 
-def read_dbs(filepath):
-    """Import a .dbs file as a DataFrame."""
-    headers = np.genfromtxt(filepath, delimiter='\t', dtype=str, max_rows=1)
-    return pd.read_table(filepath, header=0, names=headers, usecols=headers)
-
 def addfunccols(df, func):
     """Add results of `apply()` to a DataFrame as new columns."""
     return pd.concat([df, df.apply(func, axis=1)], axis=1, sort=False)
+
+def _dbs_datetime(dbsx):
+    """Convert date and time from .dbs file into a NumPy datetime."""
+    dspl = dbsx['date'].split('/')
+    return pd.Series({'analysisdate':
+        np.datetime64('-'.join(('20'+dspl[2], dspl[0], dspl[1])) + 'T' +
+                      dbsx['time'])})
+
+def read_dbs(filepath):
+    """Import a .dbs file as a DataFrame."""
+    headers = np.genfromtxt(filepath, delimiter='\t', dtype=str, max_rows=1)
+    dbs = pd.read_table(filepath, header=0, names=headers, usecols=headers)
+    dbs = addfunccols(dbs, _dbs_datetime)
+    return dbs
 
 def read_logfile(filepath, methods=['3C standard']):
     """Import a logfile.bak as a DataFrame."""
