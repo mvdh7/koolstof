@@ -1,4 +1,6 @@
-# <span style='color:k'>koolstof</span>
+# koolstof
+
+[![PyPI version](https://badge.fury.io/py/koolstof.svg)](https://badge.fury.io/py/koolstof)
 
 Miscellaneous tools for marine carbonate chemistry.
 
@@ -12,7 +14,7 @@ Import:
 import koolstof as ks
 ```
 
-## <span style='color:k'>koolstof</span>.vindta
+## ks.vindta
 
 Import and parse the data files produced by the [Marianda VINDTA 3C](http://www.marianda.com/index.php?site=products&subsite=vindta3c).
 
