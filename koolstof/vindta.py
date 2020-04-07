@@ -13,10 +13,11 @@ def addfunccols(df, func):
     """Add results of `apply()` to a DataFrame as new columns."""
     return pd.concat([df, df.apply(func, axis=1)], axis=1, sort=False)
 
-def read_logfile(filepath, methods='(3C standard|3C standardRWS)'):
+def read_logfile(filepath, methods=['3C standard']):
     """Import a logfile.bak as a DataFrame."""
     # Compile regexs for reading logfile
-    re_method = re.compile(r'{}\.mth run started '.format(methods))
+    re_method = re.compile(r'(' + r'|'.join(methods) +
+                           r')\.mth run started '.format(methods))
     re_datetime = re.compile('started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})')
     re_bottle = re.compile(r'(bottle)?\t([^\t]*)\t')
     re_crm = re.compile(r'CRM\t([^\t]*)\t')
@@ -32,11 +33,13 @@ def read_logfile(filepath, methods='(3C standard|3C standardRWS)'):
         'table': [],
         'totalcounts': [],
         'runtime': [],
+        'method': [],
     }
     # Parse file line by line
     for i, line in enumerate(logf):
         if re_method.match(line):
             logdf['logfileline'].append(i)
+            logdf['method'].append(re_method.findall(line)[0])
             # Get analysis date and time
             ldt = re_datetime.findall(line)[0]
             ldt = np.datetime64('{}-{}-{}T{}:{}'.format(
