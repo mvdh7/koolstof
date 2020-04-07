@@ -27,3 +27,11 @@ Import a VINDTA .dbs file as a [Pandas DataFrame](https://pandas.pydata.org/pand
 ```python
 dbs = ks.vindta.read_dbs(filepath)
 ```
+
+### vindta.addfunccols
+
+Append new columns to a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) `df` containing the results of `df.apply(func)`.
+
+```python
+df = ks.vindta.addfunccols(df, func)
+```
