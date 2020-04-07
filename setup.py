@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name = 'koolstof',
-    version = '0.0.1',
+    version = '0.1.0',
     author = 'Matthew P. Humphreys',
     author_email = 'm.p.humphreys@icloud.com',
     description = 'Miscellaneous tools for marine carbonate chemistry',
