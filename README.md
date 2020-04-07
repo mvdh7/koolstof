@@ -35,3 +35,13 @@ Append new columns to a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs
 ```python
 df = ks.vindta.addfunccols(df, func)
 ```
+
+### vindta.read_logfile
+
+Import a VINDTA logfile.bak as a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html).
+
+```python
+logfile = ks.vindta.read_logfile(filepath, methods=['3C standard'])
+```
+
+Optional input `methods` allows you to specify your own set of method file names that should be treated as DIC samples, as a list of strings excluding the .mth extension.
