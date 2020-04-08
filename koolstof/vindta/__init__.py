@@ -1,5 +1,8 @@
 """Import and parse the data files produced by the Marianda VINDTA 3C."""
 
+__all__ = ['plot']
+from . import plot
+
 import re
 import numpy as np
 import pandas as pd
