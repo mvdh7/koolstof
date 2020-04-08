@@ -33,8 +33,10 @@ dbs = ks.vindta.read_dbs(filepath)
 Append new columns to a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) `df` containing the results of `df.apply(func)`.
 
 ```python
-df = ks.vindta.addfunccols(df, func)
+df = ks.vindta.addfunccols(df, func, *args)
 ```
+
+The function input should have the signature `func(x, *args)` where `x` refers to each row of `df`.
 
 ### vindta.read_logfile
 
@@ -45,3 +47,11 @@ logfile = ks.vindta.read_logfile(filepath, methods=['3C standard'])
 ```
 
 Optional input `methods` allows you to specify your own set of method file names that should be treated as DIC samples, as a list of strings excluding the .mth extension.
+
+### vindta.logfile2dbs
+
+Get the iloc index in `logfile` corresponding to each row in a `dbs` by matching both the bottle name and analysis time.
+
+```python
+dbs = ks.vindta.logfile2dbs(dbs, logfile)
+```

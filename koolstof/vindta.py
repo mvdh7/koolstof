@@ -4,9 +4,10 @@ import re
 import numpy as np
 import pandas as pd
 
-def addfunccols(df, func):
+def addfunccols(df, func, *args):
     """Add results of `apply()` to a DataFrame as new columns."""
-    return pd.concat([df, df.apply(func, axis=1)], axis=1, sort=False)
+    return pd.concat([df, df.apply(lambda x: func(x, *args), axis=1)], axis=1,
+                     sort=False)
 
 def _dbs_datetime(dbsx):
     """Convert date and time from .dbs file into a NumPy datetime."""
@@ -81,3 +82,20 @@ def read_logfile(filepath, methods=['3C standard']):
     # Convert lists to arrays and put logfile into DataFrame
     logdf = {k: np.array(v) for k, v in logdf.items()}
     return pd.DataFrame(logdf)
+
+def _logfile2dbs(x, logfile):
+    if x.bottle in logfile.bottle.values:
+        xix = np.where((x.bottle == logfile.bottle) &
+                       (x.analysisdate == logfile.analysisdate))[0]
+        assert len(xix) == 1, \
+            ('More than one (or no) name/date matches found between dbs and ' +
+              'logfile! @ dbs iloc {}'.format(x.name))
+        xix = xix[0]
+    else:
+        xix = np.nan
+    return pd.Series({'logfile_iloc': xix})
+
+def logfile2dbs(dbs, logfile):
+    """Get index in `logfile` corresponding to each row in `dbs`."""
+    dbs = addfunccols(dbs, _logfile2dbs, logfile)
+    return dbs
