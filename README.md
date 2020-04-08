@@ -55,3 +55,22 @@ Get the iloc index in `logfile` corresponding to each row in a `dbs` by matching
 ```python
 dbs = ks.vindta.logfile2dbs(dbs, logfile)
 ```
+
+### vindta.plot
+
+Quickly make some standard figures that assist with calibrating and QCing VINDTA datasets.
+
+You must first create your own axes to plot onto and to pass into these functions as the input `ax`, e.g.:
+
+```python
+from matplotlib import pyplot as plt
+fig, ax = plt.subplots()
+```
+
+#### plot.increments
+
+Plot coulometer increments minute-by-minute for all samples that appear in both the `dbs` and the `logfile`.
+
+```python
+ax = ks.vindta.plot.increments(ax, dbs, logfile)
+```
