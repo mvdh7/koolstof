@@ -102,3 +102,16 @@ def logfile2dbs(dbs, logfile):
     """Get index in `logfile` corresponding to each row in `dbs`."""
     dbs = addfunccols(dbs, _logfile2dbs, logfile)
     return dbs
+
+def _get_blanks(x, logfile):
+    assert 'logfile_iloc' in x.index, \
+        'You must first run `ks.vindta.logfile2dbs()`.'
+    lft = logfile.iloc[x.logfile_iloc].table
+    L = lft['minutes'] >= 6
+    blank = np.mean(lft['increments'][L])
+    return pd.Series({'blank_here': blank})
+
+def get_blanks(dbs, logfile):
+    """Get sample-by-sample blank values."""
+    dbs = addfunccols(dbs, _get_blanks, logfile)
+    return dbs
