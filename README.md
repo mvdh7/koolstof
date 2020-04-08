@@ -20,7 +20,7 @@ Import and parse the data files produced by the [Marianda VINDTA 3C](http://www.
 
 **This module is totally unofficial and in no way endorsed by Marianda!**
 
-### vindta.read_dbs
+### ks.vindta.read_dbs
 
 Import a VINDTA .dbs file as a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html).
 
@@ -28,7 +28,7 @@ Import a VINDTA .dbs file as a [Pandas DataFrame](https://pandas.pydata.org/pand
 dbs = ks.vindta.read_dbs(filepath)
 ```
 
-### vindta.addfunccols
+### ks.vindta.addfunccols
 
 Append new columns to a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) `df` containing the results of `df.apply(func)`.
 
@@ -38,7 +38,7 @@ df = ks.vindta.addfunccols(df, func, *args)
 
 The function input should have the signature `func(x, *args)` where `x` refers to each row of `df`.
 
-### vindta.read_logfile
+### ks.vindta.read_logfile
 
 Import a VINDTA logfile.bak as a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html).
 
@@ -48,7 +48,7 @@ logfile = ks.vindta.read_logfile(filepath, methods=['3C standard'])
 
 Optional input `methods` allows you to specify your own set of method file names that should be treated as DIC samples, as a list of strings excluding the .mth extension.
 
-### vindta.logfile2dbs
+### ks.vindta.logfile2dbs
 
 Get the iloc index in `logfile` corresponding to each row in a `dbs` by matching both the bottle name and analysis time.
 
@@ -56,7 +56,7 @@ Get the iloc index in `logfile` corresponding to each row in a `dbs` by matching
 dbs = ks.vindta.logfile2dbs(dbs, logfile)
 ```
 
-### vindta.get_blanks
+### ks.vindta.get_blanks
 
 Calculate the sample-by-sample blank values from the logfile.
 
@@ -66,7 +66,7 @@ dbs = ks.vindta.get_blanks(dbs, logfile, usefrom=6)
 
 `usefrom` determines which minute of each coulometric analysis to start measuring the blank from.
 
-### vindta.plot
+## ks.vindta.plot
 
 Quickly make some standard figures that assist with calibrating and QCing VINDTA datasets.
 
@@ -77,7 +77,7 @@ from matplotlib import pyplot as plt
 fig, ax = plt.subplots()
 ```
 
-#### plot.increments
+### ks.vindta.plot.increments
 
 Plot coulometer increments minute-by-minute for all samples that appear in both the `dbs` and the `logfile`.
 
@@ -89,7 +89,7 @@ ax = ks.vindta.plot.increments(ax, dbs, logfile, c='xkcd:navy', alpha=0.25, **kw
 
 Any additional `kwargs` are passed on to `plt.plot` to generate the plotted lines.
 
-#### plot.blanks
+### ks.vindta.plot.blanks
 
 Plot sample-by-sample coulometer blank values against analysis date.
 
