@@ -71,6 +71,22 @@ fig, ax = plt.subplots()
 
 Plot coulometer increments minute-by-minute for all samples that appear in both the `dbs` and the `logfile`.
 
+> You must first run `ks.vindta.logfile2dbs()` to get the field `logfile_iloc` in `dbs`!
+
 ```python
-ax = ks.vindta.plot.increments(ax, dbs, logfile)
+ax = ks.vindta.plot.increments(ax, dbs, logfile, c='xkcd:navy', alpha=0.25, **kwargs)
 ```
+
+Any additional `kwargs` are passed on to `plt.plot` to generate the plotted lines.
+
+#### plot.blanks
+
+Plot sample-by-sample coulometer blank values against analysis date.
+
+> You must first run `ks.vindta.get_blanks()` to calculate the sample-by-sample blank values!
+
+```python
+ax = ks.vindta.plot.blanks(ax, dbs, c='xkcd:navy', alpha=0.5, **kwargs)
+```
+
+Any additional `kwargs` are passed on to `plt.scatter` to generate the plotted data points.
