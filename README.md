@@ -89,9 +89,9 @@ ax = ks.vindta.plot.increments(ax, dbs, logfile, c='xkcd:navy', alpha=0.25, **kw
 
 Any additional `kwargs` are passed on to `plt.plot` to generate the plotted lines.
 
-*Example figure:*
-
-![ks.vindta.plot.increments](img/ks_vindta_plot_increments.png "ks.vindta.plot.increments example")
+> *Example figure:*
+>
+> ![ks.vindta.plot.increments](img/ks_vindta_plot_increments.png "ks.vindta.plot.increments example")
 
 ### ks.vindta.plot.blanks
 
@@ -105,6 +105,6 @@ ax = ks.vindta.plot.blanks(ax, dbs, c='xkcd:navy', alpha=0.5, **kwargs)
 
 Any additional `kwargs` are passed on to `plt.scatter` to generate the plotted data points.
 
-*Example figure:*
-
-![ks.vindta.plot.blanks](img/ks_vindta_plot_blanks.png "ks.vindta.plot.blanks example")
+> *Example figure:*
+>
+> ![ks.vindta.plot.blanks](img/ks_vindta_plot_blanks.png "ks.vindta.plot.blanks example")
