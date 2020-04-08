@@ -14,6 +14,7 @@ setuptools.setup(
     install_requires = [
         'numpy>=1.14',
         'pandas>=1',
+        'matplotlib>=3',
     ],
     long_description = long_description,
     long_description_content_type = 'text/markdown',
