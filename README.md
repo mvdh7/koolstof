@@ -56,6 +56,16 @@ Get the iloc index in `logfile` corresponding to each row in a `dbs` by matching
 dbs = ks.vindta.logfile2dbs(dbs, logfile)
 ```
 
+### vindta.get_blanks
+
+Calculate the sample-by-sample blank values from the logfile.
+
+```python
+dbs = ks.vindta.get_blanks(dbs, logfile, usefrom=6)
+```
+
+`usefrom` determines which minute of each coulometric analysis to start measuring the blank from.
+
 ### vindta.plot
 
 Quickly make some standard figures that assist with calibrating and QCing VINDTA datasets.
