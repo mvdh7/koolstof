@@ -1,4 +1,5 @@
 """Make figures to assist calibration and QC of VINDTA datasets."""
+from numpy import timedelta64
 
 def increments(ax, dbs, logfile):
     """Plot coulometer increments by the minute, focussing on the tails."""
@@ -12,4 +13,11 @@ def increments(ax, dbs, logfile):
     ax.set_xlabel('Run time / minutes')
     ax.set_ylabel('Increments / per minute')
     return ax
-    
+
+def blanks(ax, dbs):
+    """Plot sample-by-sample blank values."""
+    assert 'blank_here' in dbs.columns, \
+        'You must first run `ks.vindta.get_blanks()`.'
+    dbs.plot.scatter('analysisdate', 'blank_here', ax=ax)
+    ax.set_xlim([min(dbs.analysisdate) - timedelta64(3, 'h'),
+                 max(dbs.analysisdate) + timedelta64(3, 'h')])
