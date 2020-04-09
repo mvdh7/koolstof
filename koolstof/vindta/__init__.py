@@ -23,6 +23,7 @@ def read_dbs(filepath):
     """Import a .dbs file as a DataFrame."""
     headers = np.genfromtxt(filepath, delimiter='\t', dtype=str, max_rows=1)
     dbs = pd.read_table(filepath, header=0, names=headers, usecols=headers)
+    dbs['filepath'] = filepath
     dbs = addfunccols(dbs, _dbs_datetime)
     return dbs
 
