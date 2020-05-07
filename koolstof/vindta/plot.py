@@ -2,37 +2,45 @@
 from numpy import timedelta64
 import matplotlib.dates as mdates
 
-def increments(ax, dbs, logfile, c='xkcd:navy', alpha=0.25, **kwargs):
+
+def increments(ax, dbs, logfile, c="xkcd:navy", alpha=0.25, **kwargs):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional `kwargs` are passed to `plt.plot()`.
     """
-    assert 'logfile_iloc' in dbs.columns, \
-        'You must first run `ks.vindta.logfile2dbs()`.'
+    assert (
+        "logfile_iloc" in dbs.columns
+    ), "You must first run `ks.vindta.logfile2dbs()`."
     fymax = 1.0
     for ix, i in enumerate(dbs.logfile_iloc.values):
         if ~dbs.bad_dic.iloc[ix]:
-            ax.plot('minutes', 'increments', data=logfile.table[i], c=c,
-                    alpha=alpha, )
-            fymax = max([fymax, max(logfile.table[i]['increments'][-3:])])
-    ax.set_xlim([0, dbs['run time'].max()])
-    ax.set_ylim([0, fymax*1.25])
-    ax.set_xlabel('Run time / minutes')
-    ax.set_ylabel('Increments / per minute')
+            ax.plot(
+                "minutes", "increments", data=logfile.table[i], c=c, alpha=alpha,
+            )
+            fymax = max([fymax, max(logfile.table[i]["increments"][-3:])])
+    ax.set_xlim([0, dbs["run time"].max()])
+    ax.set_ylim([0, fymax * 1.25])
+    ax.set_xlabel("Run time / minutes")
+    ax.set_ylabel("Increments / per minute")
     return ax
 
-def blanks(ax, dbs, c='xkcd:navy', alpha=0.5, **kwargs):
+
+def blanks(ax, dbs, c="xkcd:navy", alpha=0.5, **kwargs):
     """Plot sample-by-sample blank values.
     Any additional `kwargs` are passed to `plt.scatter()`.
     """
-    assert 'blank_here' in dbs.columns, \
-        'You must first run `ks.vindta.get_blanks()`.'
-    dbs[~dbs.bad_dic].plot.scatter('analysisdate', 'blank_here', ax=ax, c=c,
-                                   alpha=alpha, **kwargs)
-    ax.set_xlim([min(dbs.analysisdate) - timedelta64(3, 'h'),
-                 max(dbs.analysisdate) + timedelta64(3, 'h')])
+    assert "blank_here" in dbs.columns, "You must first run `ks.vindta.get_blanks()`."
+    dbs[~dbs.bad_dic].plot.scatter(
+        "analysisdate", "blank_here", ax=ax, c=c, alpha=alpha, **kwargs
+    )
+    ax.set_xlim(
+        [
+            min(dbs.analysisdate) - timedelta64(3, "h"),
+            max(dbs.analysisdate) + timedelta64(3, "h"),
+        ]
+    )
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d'))
-    ax.set_xlabel('Day of month')
-    ax.set_ylim([0, max(dbs[~dbs.bad_dic].blank_here)*1.05])
-    ax.set_ylabel('Sample blank / per minute')
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d"))
+    ax.set_xlabel("Day of month")
+    ax.set_ylim([0, max(dbs[~dbs.bad_dic].blank_here) * 1.05])
+    ax.set_ylabel("Sample blank / per minute")
     return ax
