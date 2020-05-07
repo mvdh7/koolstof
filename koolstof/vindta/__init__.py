@@ -32,7 +32,7 @@ def read_logfile(filepath, methods=['3C standard']):
     # Compile regexs for reading logfile
     re_method = re.compile(r'(' + r'|'.join(methods) +
                            r')\.mth run started '.format(methods))
-    re_datetime = re.compile('started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})')
+    re_datetime = re.compile(r'started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})')
     re_bottle = re.compile(r'(bottle)?\t([^\t]*)\t')
     re_crm = re.compile(r'CRM\t([^\t]*)\t')
     re_increments = re.compile(r'(\d*)\t(\d*)\t(\d*)\t')
