@@ -18,6 +18,19 @@ Miscellaneous tools for marine carbonate chemistry.
 import koolstof as ks
 ```
 
+## ks
+
+Miscellaneous functions at the top level.
+
+### ks.sigfig
+
+Round [NumPy array](https://numpy.org/doc/stable/reference/generated/numpy.array.html?highlight=array#numpy.array) `x` to `sf` significant figures.
+
+```python
+x = ks.sigfig(x, sf)
+```
+
+
 ## ks.vindta
 
 Import and parse the data files produced by the [Marianda VINDTA 3C](http://www.marianda.com/index.php?site=products&subsite=vindta3c).
