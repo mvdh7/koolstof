@@ -1,6 +1,9 @@
 """Miscellaneous tools for marine carbonate chemistry."""
-__all__ = ["vindta"]
+
+import numpy as np
 from . import vindta
+
+__all__ = ["vindta"]
 
 
 def sigfig(x, sf):
