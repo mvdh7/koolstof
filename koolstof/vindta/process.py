@@ -11,20 +11,6 @@ def get_sample_blanks(dbs_row, logfile, use_from=6):
     return blank_here
 
 
-# def get_sample_blanks(dbs, logfile, use_from=6):
-#     """Calculate sample-by-sample blank values."""
-#     assert "logfile_index" in dbs, "You must first run logfile2dbs()."
-#     assert use_from > 0, "`use_from` must be positive."
-
-#     def sample_blanks(x, logfile, use_from):
-#         lft = logfile.loc[x.logfile_index].table
-#         L = lft["minutes"] >= use_from
-#         blank = np.mean(lft["increments"][L])
-#         return pd.Series({"blank_here": blank})
-
-#     return io.add_func_cols(dbs, sample_blanks, logfile, use_from)
-
-
 def centre_and_scale(x, x_factor=None, x_offset=None):
     if x_factor is None:
         x_factor = np.std(x)

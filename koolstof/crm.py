@@ -29,7 +29,21 @@ dickson_certified_values = {
 def dickson(crm_batches, fields):
     """Dickson seawater certified reference material."""
     if isinstance(fields, str):
-        fields = [fields]
+        if fields == "all":
+            fields = [
+                "batch",
+                "salinity",
+                "dissolved_inorganic_carbon",
+                "dissolved_inorganic_carbon_std",
+                "total_alkalinity",
+                "total_alkalinity_std",
+                "phosphate",
+                "silicate",
+                "nitrite",
+                "nitrate",
+            ]
+        else:
+            fields = [fields]
     return {
         field: np.array(
             [
