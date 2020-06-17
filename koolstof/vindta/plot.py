@@ -2,9 +2,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.dates as mdates
+from . import process
 
 
-def increments(dbs, logfile, use_from, ax=None, alpha=0.25, c="xkcd:navy", **kwargs):
+def increments(dbs, logfile, use_from, ax=None, alpha=0.25, **kwargs):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional kwargs are passed to plt.plot().
     """
@@ -35,15 +36,51 @@ def increments(dbs, logfile, use_from, ax=None, alpha=0.25, c="xkcd:navy", **kwa
     return ax
 
 
-def blanks(dbs, ax=None, alpha=0.5, c="xkcd:navy", **kwargs):
+def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
     """Plot sample-by-sample blank values.
-    Any additional `kwargs` are passed to `plt.scatter()`.
+    Additional kwargs are passed to plt.scatter.
     """
     if ax is None:
         _, ax = plt.subplots()
-    dbs[dbs.blank_good].plot.scatter(
-        "analysis_datetime", "blank_here", ax=ax, c=c, alpha=alpha, **kwargs
+    if "blank_good" not in dbs:
+        dbs["blank_good"] = True
+    dbs[~dbs.blank_good].plot.scatter(
+        "analysis_datetime",
+        "blank_here",
+        ax=ax,
+        c="xkcd:strawberry",
+        alpha=alpha,
+        **kwargs
     )
+    dbs[dbs.blank_good].plot.scatter(
+        "analysis_datetime", "blank_here", ax=ax, c="xkcd:navy", alpha=alpha, **kwargs
+    )
+    sessions_here = dbs["cell ID"].unique()
+    for session in sessions_here:
+        sl = dbs["cell ID"] == session
+        sx_sc = process.centre_and_scale(
+            np.linspace(
+                np.min(dbs[sl]["analysis_datenum"]),
+                np.max(dbs[sl]["analysis_datenum"]),
+                num=100,
+            ),
+            x_factor=dic_sessions.loc[session].analysis_datenum_std,
+            x_offset=dic_sessions.loc[session].analysis_datenum_mean,
+        )
+        sx = mdates.num2date(
+            process.de_centre_and_scale(
+                sx_sc,
+                dic_sessions.loc[session].analysis_datenum_std,
+                dic_sessions.loc[session].analysis_datenum_mean,
+            )
+        )
+        ax.plot(
+            sx,
+            process.blank_progression(
+                dic_sessions.loc[session].blank_progression, sx_sc
+            ),
+            c="xkcd:navy",
+        )
     ax.set_xlim(
         [
             dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
@@ -52,7 +89,7 @@ def blanks(dbs, ax=None, alpha=0.5, c="xkcd:navy", **kwargs):
     )
     ax.xaxis.set_major_locator(mdates.HourLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H"))
-    ax.set_title(session)
+    ax.set_title(title)
     ax.set_xlabel("Time of day")
     ax.set_ylim([0, np.max(dbs[dbs.blank_good].blank_here) * 1.05])
     ax.set_ylabel("Sample blank / per minute")
