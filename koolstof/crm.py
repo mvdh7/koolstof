@@ -7,6 +7,24 @@ class ReferenceMaterial:
     """A generic reference material."""
 
     def __init__(self, **kwargs):
+        assert all(
+            [
+                key
+                in [
+                    "batch",
+                    "salinity",
+                    "dissolved_inorganic_carbon",
+                    "dissolved_inorganic_carbon_std",
+                    "total_alkalinity",
+                    "total_alkalinity_std",
+                    "phosphate",
+                    "silicate",
+                    "nitrite",
+                    "nitrate",
+                ]
+                for key in kwargs
+            ]
+        )
         self.__dict__.update((k, v) for k, v in kwargs.items())
 
 
