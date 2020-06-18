@@ -92,7 +92,7 @@ def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
     ax.set_title(title)
     ax.set_xlabel("Time of day")
     ax.set_ylim([0, np.max(dbs[dbs.blank_good].blank_here) * 1.05])
-    ax.set_ylabel("Sample blank / per minute")
+    ax.set_ylabel("Sample blank / count per minute")
     return ax
 
 
