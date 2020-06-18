@@ -1,9 +1,9 @@
 """Miscellaneous tools for marine carbonate chemistry."""
 
 import numpy as np
-from . import crm, vindta
+from . import atomic, crm, vindta
 
-__all__ = ["crm", "vindta"]
+__all__ = ["atomic", "crm", "vindta"]
 
 
 def sigfig(x, sf):
