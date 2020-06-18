@@ -20,3 +20,9 @@ mass_range = {  # standard atomic weights in g/mol
     "Ca": 40.078 + 0.004 * pm1,
 }
 mass = {k: np.mean(v) for k, v in mass_range.items()}
+
+# Source: mostly Wikipedia...
+mass.update({
+    "PO4": 94.9714,
+    "SO4": 96.06,
+})
