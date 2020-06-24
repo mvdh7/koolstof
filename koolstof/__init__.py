@@ -2,9 +2,9 @@
 
 import string
 import numpy as np
-from . import crm, molar, vindta
+from . import crm, molar, spectro, vindta
 
-__all__ = ["crm", "molar", "vindta"]
+__all__ = ["crm", "molar", "spectro", "vindta"]
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
