@@ -9,6 +9,7 @@ repo_url: https://github.com/mvdh7/koolstof
 
 nav:
   - Overview: index.md
+  - Infrared DIC analysis: infrared.md
 
 theme:
   name: material

@@ -2,11 +2,11 @@
 
 import string, textwrap
 import numpy as np
-from . import crm, molar, spectro, vindta
+from . import crm, infrared, molar, spectro, vindta
 
-__all__ = ["crm", "molar", "spectro", "vindta"]
+__all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))

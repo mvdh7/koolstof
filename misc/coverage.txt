@@ -1,13 +1,16 @@
-Name                          Stmts   Miss  Cover
--------------------------------------------------
-koolstof/__init__.py             12      4    67%
-koolstof/crm.py                  24     15    38%
-koolstof/molar.py                 5      0   100%
-koolstof/spectro.py               7      5    29%
-koolstof/vindta/__init__.py       2      0   100%
-koolstof/vindta/io.py            71     61    14%
-koolstof/vindta/plot.py          62     55    11%
-koolstof/vindta/process.py       68     53    22%
-test_koolstof.py                  3      0   100%
--------------------------------------------------
-TOTAL                           254    193    24%
+Name                            Stmts   Miss  Cover
+---------------------------------------------------
+koolstof/__init__.py               12      4    67%
+koolstof/crm.py                    24     15    38%
+koolstof/infrared/__init__.py       2      0   100%
+koolstof/infrared/io.py            17      0   100%
+koolstof/molar.py                   5      0   100%
+koolstof/spectro.py                 7      5    29%
+koolstof/vindta/__init__.py         2      0   100%
+koolstof/vindta/io.py              71     61    14%
+koolstof/vindta/plot.py            62     55    11%
+koolstof/vindta/process.py         68     53    22%
+tests/test_infrared.py             14      0   100%
+tests/test_koolstof.py              3      0   100%
+---------------------------------------------------
+TOTAL                             287    193    33%
