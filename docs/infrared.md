@@ -2,7 +2,7 @@
 
 `koolstof.infrared` contains tools for processing infrared absorbance data to determine total dissolved inorganic carbon.
 
-These tools were specifically designed from infrared absorbance data recorded by a [LI-COR LI-7000](https://www.licor.com/env/products/gas_analysis/LI-7000/) via its [Windows Interface Software v2.0.3](https://www.licor.com/env/support/LI-7000/software.html) and connected to a [Marianda AIRICA](http://www.marianda.com/index.php?site=products&subsite=airica).
+These tools were specifically designed for infrared absorbance data recorded by a [LI-COR LI-7000](https://www.licor.com/env/products/gas_analysis/LI-7000/) via its [Windows Interface Software v2.0.3](https://www.licor.com/env/support/LI-7000/software.html) and connected to a [Marianda AIRICA](http://www.marianda.com/index.php?site=products&subsite=airica).
 
 The examples below all assume the following import convention has been used:
 
