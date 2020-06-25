@@ -1,0 +1,38 @@
+site_name: koolstof
+site_author: Matthew P. Humphreys
+site_description: Miscellaneous tools for marine carbonate chemistry and other delights
+site_url: https://koolstof.readthedocs.io/
+copyright: Copyright &copy; 2020  Matthew P. Humphreys  (GNU GPLv3)
+
+repo_name: mvdh7/koolstof
+repo_url: https://github.com/mvdh7/koolstof
+
+nav:
+  - Overview: index.md
+
+theme:
+  name: material
+  language: en
+  palette:
+    scheme: default
+    primary: black
+    accent: deep orange
+  font:
+    text: Roboto Slab
+    code: Roboto Mono
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+  - footnotes
+  - pymdownx.inlinehilite
+  - pymdownx.arithmatex
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML
+
