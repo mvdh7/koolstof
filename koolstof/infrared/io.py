@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from matplotlib import dates as mdates
 
@@ -51,6 +52,33 @@ mapper_LI7000 = {
 }
 
 
+def get_licor_resolution(licor):
+    """Determine the time resolution of data reported by a LI-COR, after it
+    has been converted into a pandas DataFrame, and correct the 'datenum' and
+    'datetime' column values in the DataFrame with second fractions.
+    Input licor is generated with read_LI7000().
+    """
+    # Find resolution
+    ldu = licor.datenum.unique()[1:-1]
+    lda = licor[np.isin(licor.datenum, ldu)].datenum
+    resolution = int(len(lda) / len(ldu))  # in Hz
+    timestep = 1 / resolution
+    # Apply correction
+    start_iloc = np.where(licor.datenum == ldu[0])[0][0]
+    second_fractions = np.linspace(0, 1 - timestep, resolution)
+    second_fractions_start = second_fractions[-start_iloc:]
+    second_fractions_middle = np.tile(second_fractions, len(ldu))
+    tail_iloc = np.where(licor.datenum == ldu[-1])[0][-1] + 1
+    tail_length = len(licor) - tail_iloc
+    second_fractions_end = second_fractions[:tail_length]
+    second_fractions = np.concatenate((second_fractions_start,
+                                    second_fractions_middle,
+                                    second_fractions_end))
+    licor["datenum"] = licor.datenum + second_fractions / (60 * 60 * 24)
+    licor["datetime"] = mdates.num2date(licor.datenum)
+    return licor
+
+
 def read_LI7000(filepath_or_buffer, skiprows=2, **kwargs):
     """Import the text files recorded by a LI-COR LI-7000 as a pandas DataFrame.
     Any kwargs are passed to pandas.read_table.
@@ -59,4 +87,17 @@ def read_LI7000(filepath_or_buffer, skiprows=2, **kwargs):
     licor.rename(mapper=mapper_LI7000, axis=1, inplace=True)
     licor["datetime"] = pd.to_datetime(licor.datetime)
     licor["datenum"] = mdates.date2num(licor.datetime)
+    return get_licor_resolution(licor)
+
+
+def get_licor_samples(licor, dbs):
+    """Identify different samples in a LI-COR dataset based on the dbs file,
+    and remove data from before the first match.
+    Assumes that both datasets are ordered with datetime ascending.
+    """
+    licor["dbs_ix"] = np.nan
+    for dbs_ix in dbs.index:
+        licor.loc[licor.datenum >= dbs.loc[dbs_ix].datenum, "dbs_ix"] = dbs_ix
+    licor = licor[~np.isnan(licor.dbs_ix)]
     return licor
+    

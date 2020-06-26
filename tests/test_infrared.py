@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from koolstof import infrared as ksi
 
@@ -19,3 +20,12 @@ def test_read_licor():
 
 dbs = test_read_dbs()
 licor = test_read_licor()
+
+
+def test_get_licor_samples():
+    licor_with_samples = ksi.io.get_licor_samples(licor, dbs)
+    assert np.all(np.isin(licor_with_samples.dbs_ix, dbs.index))
+    return licor_with_samples
+
+
+licor = test_get_licor_samples()
