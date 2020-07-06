@@ -72,9 +72,9 @@ def get_licor_resolution(licor):
     tail_iloc = np.where(licor.datenum == ldu[-1])[0][-1] + 1
     tail_length = len(licor) - tail_iloc
     second_fractions_end = second_fractions[:tail_length]
-    second_fractions = np.concatenate((second_fractions_start,
-                                    second_fractions_middle,
-                                    second_fractions_end))
+    second_fractions = np.concatenate(
+        (second_fractions_start, second_fractions_middle, second_fractions_end)
+    )
     licor["datenum"] = licor.datenum + second_fractions / (60 * 60 * 24)
     licor["datetime"] = mdates.num2date(licor.datenum)
     return licor
@@ -101,4 +101,3 @@ def get_licor_samples(licor, dbs):
         licor.loc[licor.datenum >= dbs.loc[dbs_ix].datenum, "dbs_ix"] = dbs_ix
     licor = licor[~np.isnan(licor.dbs_ix)]
     return licor
-    
