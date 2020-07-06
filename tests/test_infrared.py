@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from scipy import signal, sparse
+from scipy import signal
 from matplotlib import pyplot as plt
 from koolstof import infrared as ksi
 
@@ -34,49 +34,46 @@ def test_get_licor_samples():
 licor = test_get_licor_samples()
 
 
-def baseline_als(y, lam, p, niter=10):
-    """Baseline correction."""
-    # https://stackoverflow.com/questions/29156532/python-baseline-correction-library
-    L = len(y)
-    D = sparse.diags([1, -2, 1], [0, -1, -2], shape=(L, L - 2))
-    D = lam * D.dot(D.transpose())
-    w = np.ones(L)
-    W = sparse.spdiags(w, 0, L, L)
-    for i in range(niter):
-        W.setdiag(w)
-        Z = W + D
-        z = sparse.linalg.spsolve(Z, w * y)
-        w = p * (y > z) + (1.0 - p) * (y < z)
-    return z
-
-
-licor["x_CO2_baseline"] = baseline_als(licor.x_CO2, lam=1e9, p=1e-4, niter=10)
+licor["x_CO2_baseline"] = ksi.baseline.als(licor.x_CO2, lam=1e9, p=1e-4, niter=10)
 licor["x_CO2_corrected"] = licor.x_CO2 - licor.x_CO2_baseline
+peaks_iloc, peaks_info = signal.find_peaks(
+    licor.x_CO2_corrected, distance=60, prominence=20, width=80)
+peaks_loc = licor.iloc[peaks_iloc].index
+peaks_left = licor.iloc[peaks_info["left_bases"]].index
+peaks_right = licor.iloc[peaks_info["right_bases"]].index
 
 #%%
-licor["x_CO2_diff"] = licor.x_CO2.diff()
+# for peak in peaks_loc:
+    
 
-ixs = dbs.index[-9:-6]
+#%%
+
+
+ixs = dbs.index[-10:-7]
 ix = ixs[1]
 
 l = np.isin(licor.dbs_ix, ixs)
 l2 = licor.dbs_ix == ix
 
 fig, ax = plt.subplots(dpi=300)
-# ly = np.cumsum(licor[l].x_CO2)
-# ax.plot(licor[l].datetime, ly)
-licor[l2].plot("datetime", "x_CO2", ax=ax, linewidth=1, c='k')
-licor[l2].plot("datetime", "x_CO2_corrected", ax=ax, linewidth=1, linestyle='--',
-               c='r')
-peaks = signal.find_peaks(
-    licor[l2].x_CO2_corrected, distance=60, prominence=20, width=80
+licor[l2].plot("datetime", "x_CO2", ax=ax, linewidth=1, c="k")
+licor[l2].plot("datetime", "x_CO2_corrected", ax=ax, linewidth=1, linestyle="--", c="r")
+
+licor.loc[peaks_loc].plot.scatter(
+    "datetime", "x_CO2_corrected", ax=ax, c="c", zorder=100, marker='^'
 )
-licor_peaks = licor[l2].iloc[peaks[0]].index
-licor.loc[licor_peaks].plot.scatter(
+licor.loc[peaks_left].plot.scatter(
     "datetime", "x_CO2_corrected", ax=ax, c="b", zorder=100
 )
-
+licor.loc[peaks_right].plot.scatter(
+    "datetime", "x_CO2_corrected", ax=ax, c="lime", zorder=101, marker='+'
+)
 ax.axhline(0.0, c="k", linewidth=0.8)
+ax.set_xlim([np.min(licor[l2].datenum), np.max(licor[l2].datenum)])
+# ax.set_ylim([-5, 5])
+for i in range(len(peaks_loc)):
+    peaks_here = [peaks_left[i], peaks_loc[i], peaks_right[i]]
+    ax.plot(licor.loc[peaks_here].datetime,
+            licor.loc[peaks_here].x_CO2_corrected,
+            c="k")
 
-# ax.plot(licor[l2].datetime, licor[l2].x_CO2_baseline)
-# ax.set_ylim(np.array([-0.5,1 1]) * 10)

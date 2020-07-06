@@ -1,3 +1,3 @@
-from . import io
+from . import baseline, io
 
-__all__ = ["io"]
+__all__ = ["baseline", "io"]
