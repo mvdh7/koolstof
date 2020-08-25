@@ -41,6 +41,18 @@ dickson_certified_values = {
         nitrite=0.00,
         nitrate=3.1,
     ),
+    186: ReferenceMaterial(
+        batch=186,
+        salinity=33.525,
+        dissolved_inorganic_carbon=2012.59,
+        dissolved_inorganic_carbon_std=0.80,
+        total_alkalinity=2212.00,
+        total_alkalinity_std=0.53,
+        phosphate=0.42,
+        silicate=3.3,
+        nitrite=0.01,
+        nitrate=2.8,
+    ),
 }
 
 
