@@ -1,9 +1,6 @@
-import copy
-import numpy as np
-import pandas as pd
+import numpy as np, pandas as pd
 from scipy import signal, integrate
-from matplotlib import pyplot as plt
-from matplotlib import dates as mdates
+from matplotlib import pyplot as plt, dates as mdates
 from koolstof import infrared as ksi
 
 filepath = "data/Humphreys_peakform/"

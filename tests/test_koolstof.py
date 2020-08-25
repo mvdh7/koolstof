@@ -1,5 +1,8 @@
 import koolstof as ks
 
 
-def test_test():
-    assert 1 == 1
+def test_hello():
+    ks.say_hello()
+
+
+test_hello()
