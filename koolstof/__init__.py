@@ -3,10 +3,23 @@
 import string, textwrap
 import numpy as np
 from . import crm, infrared, molar, spectro, vindta
+from .vindta import (
+    Dbs,
+    read_dbs,
+    read_logfile,
+    get_logfile_index,
+    get_sample_blanks,
+    blank_progression,
+    get_session_blanks,
+    blank_correction,
+    get_blank_corrections,
+    get_density,
+    get_standard_calibrations,
+    get_session_calibrations,
+)
 
 __all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))

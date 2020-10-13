@@ -32,7 +32,8 @@ for supp_ix in support.index:
     dbs_ix = dbs[dbs.bottle == support.loc[supp_ix].bottle].index
     dbs.loc[dbs_ix, "flow_rate_mlmin"] = support.loc[supp_ix].flow_rate  # in ml/min
     dbs.loc[dbs_ix, "sample_volume"] = support.loc[supp_ix].sample_volume  # in μl
-dbs["flow_rate"] = dbs.flow_rate_mlmin * 1e-5 / 60 # in m3/s
+dbs["flow_rate"] = dbs.flow_rate_mlmin * 1e-5 / 60  # in m3/s
+
 
 def test_get_licor_samples():
     licor_with_samples = ksi.io.get_licor_samples(licor, dbs)
@@ -73,7 +74,9 @@ for peak_ix in peaks.index:
     peaks.loc[peak_ix, "start_ix"] = start_ix
     peaks.loc[peak_ix, "end_ix"] = end_ix
     # Integral dx assumes LI-COR file is 2 Hz
-    peaks.loc[peak_ix, "flow_integral"] = integrate.trapz(licor.loc[start_ix:end_ix].flow_CO2.values, dx=0.5)  # in mol*s/m**3
+    peaks.loc[peak_ix, "flow_integral"] = integrate.trapz(
+        licor.loc[start_ix:end_ix].flow_CO2.values, dx=0.5
+    )  # in mol*s/m**3
 peaks["start_datetime"] = licor.loc[peaks.start_ix].datetime.values
 peaks["end_datetime"] = licor.loc[peaks.end_ix].datetime.values
 # Duration rounding assumes LI-COR file is 2 Hz
