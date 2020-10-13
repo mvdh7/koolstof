@@ -9,7 +9,7 @@ setuptools.setup(
     version=ks.__version__,
     author="Humphreys, Matthew P.",
     author_email="m.p.humphreys@icloud.com",
-    description="Miscellaneous tools for marine carbonate chemistry and other delights",
+    description="Miscellaneous tools for marine carbonate chemistry and other such things",
     url="https://github.com/mvdh7/koolstof",
     packages=setuptools.find_packages(),
     install_requires=["numpy>=1.17", "pandas>=1", "matplotlib>=3.2",],
