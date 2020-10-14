@@ -160,13 +160,35 @@ def get_standard_calibrations(dbs, **kwargs):
     return dbs
 
 
-def _get_session_calibrations(dbs_group, sessions):
+def _get_session_calibrations(dbs_group):
     """[group.apply] Calculate the session-averaged calibration factors."""
-    return
+    gk = dbs_group[dbs_group.k_dic_good].k_dic_here
+    return pd.Series(
+        {
+            "k_dic_mean": gk.mean(),
+            "k_dic_std": gk.std(),
+            "k_dic_count": np.sum(~np.isnan(gk)),
+        }
+    )
 
 
-def get_session_calibrations(dbs, **kwargs):
+def get_session_calibrations(dbs, batch_col="dic_cell_id", **kwargs):
     """Calculate the session-averaged calibration factors."""
     if "k_dic_here" not in dbs:
-        dbs.get_standard_calibrations(**kwargs)
+        dbs.get_standard_calibrations(batch_col=batch_col, **kwargs)
+    if "k_dic_good" not in dbs:
+        dbs["k_dic_good"] = ~np.isnan(dbs.dic_cert)
+    sc = dbs.groupby(by=batch_col).apply(_get_session_calibrations)
+    for k, v in sc.iteritems():
+        dbs.sessions[k] = v
+    dbs["k_dic"] = dbs.sessions.loc[dbs[batch_col]].k_dic_mean.values
+    return dbs
+
+
+def calibrate_dic(dbs, **kwargs):
+    """Calibrate all DIC measurements."""
+    if "k_dic" not in dbs:
+        dbs.get_session_calibrations()
+    dbs["dic"] = dbs["counts_corrected"] * dbs["k_dic"] / dbs["density_analysis_dic"]
+    dbs["dic_offset"] = dbs.dic - dbs.dic_cert
     return dbs

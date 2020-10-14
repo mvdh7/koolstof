@@ -1,8 +1,24 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
+import itertools, copy
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.dates as mdates
-from . import process
+from . import get, process
+
+
+markers = itertools.cycle(("o", "^", "s", "v", "D", "<", ">"))
+colours = itertools.cycle(
+    (
+        "xkcd:purple",
+        "xkcd:green",
+        "xkcd:blue",
+        "xkcd:pink",
+        "xkcd:brown",
+        "xkcd:red",
+        "xkcd:teal",
+        "xkcd:orange",
+    )
+)
 
 
 def increments(dbs, logfile, use_from, ax=None, alpha=0.25, **kwargs):
@@ -34,6 +50,63 @@ def increments(dbs, logfile, use_from, ax=None, alpha=0.25, **kwargs):
     ax.set_xlabel("Run time / minutes")
     ax.set_ylabel("Increments / per minute")
     return ax
+
+
+def plot_session_blanks(
+    dbs,
+    session,
+    ax=None,
+    c="xkcd:navy",
+    marker="o",
+    figure_path=None,
+    figure_format="png",
+):
+    """Draw sample blanks and their fit for one analysis session."""
+    # Prepare to draw the figure
+    s = dbs.sessions.loc[session]
+    l = dbs["dic_cell_id"] == session
+    if ax is None:
+        fig, ax = plt.subplots(dpi=300)
+    # Create and draw fitted line
+    fx = np.linspace(
+        dbs[l].datenum_analysis_scaled.min(), dbs[l].datenum_analysis_scaled.max(), 500
+    )
+    fy = get.blank_progression(s.blank_progression, fx)
+    fx = mdates.num2date(
+        get.de_centre_and_scale(fx, s.datenum_analysis_std, s.datenum_analysis_mean)
+    )
+    ax.plot(fx, fy, c=c, label="Best fit")
+    # Draw the rest of the figure
+    dbs[l & ~dbs.blank_good].plot.scatter(
+        "datetime_analysis",
+        "blank_here",
+        ax=ax,
+        c="none",
+        edgecolor=c,
+        marker=marker,
+        label="Ignored",
+    )
+    dbs[l & dbs.blank_good].plot.scatter(
+        "datetime_analysis", "blank_here", ax=ax, c=c, marker=marker, label="Samples"
+    )
+    ax.set_ylim([0, np.max([dbs[l].blank_here.max(), np.max(fy)]) * 1.05])
+    ax.legend(edgecolor="k")
+    ax.xaxis.set_major_locator(mdates.HourLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H"))
+    ax.set_xlabel("Time of day of analysis")
+    ax.set_ylabel(r"Coulometer blank / count$\cdot$minute$^{-1}$")
+    ax.set_title(session)
+    ax.grid(alpha=0.2)
+    plt.tight_layout()
+    if figure_path is not None:
+        plt.savefig("{}/{}.{}".format(figure_path, str(session), figure_format))
+    return fig, ax
+
+
+def plot_blanks(dbs, **kwargs):
+    """Draw sample blanks and their fit for all analysis sessions."""
+    for session in dbs.sessions.index:
+        plot_session_blanks(dbs, session, **kwargs)
 
 
 def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
@@ -94,6 +167,119 @@ def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
     ax.set_ylim([0, np.max(dbs[dbs.blank_good].blank_here) * 1.05])
     ax.set_ylabel("Sample blank / count per minute")
     return ax
+
+
+def plot_k_dic(
+    dbs, ax=None, batch_col="dic_cell_id", figure_path=None, figure_format="png"
+):
+    """Plot DIC calibration factors through time."""
+    marker = copy.deepcopy(markers)
+    colour = copy.deepcopy(colours)
+    if ax is None:
+        fig, ax = plt.subplots(dpi=300)
+    for session, s in dbs.sessions.iterrows():
+        m = next(marker)
+        c = next(colour)
+        l = dbs[batch_col] == session
+        l_good = l & dbs.k_dic_good
+        if l_good.any():
+            dbs[l_good].plot.scatter(
+                "datetime_analysis",
+                "k_dic_here",
+                ax=ax,
+                c=c,
+                marker=m,
+                alpha=0.7,
+                label=session,
+            )
+        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_cert)
+        if l_bad.any():
+            dbs[l_bad].plot.scatter(
+                "datetime_analysis",
+                "k_dic_here",
+                ax=ax,
+                c="none",
+                edgecolor=c,
+                marker=m,
+            )
+        sl = dbs[batch_col] == session
+        sx = np.array(
+            [
+                dbs.loc[sl, "datetime_analysis"].min(),
+                dbs.loc[sl, "datetime_analysis"].max(),
+            ]
+        )
+        sy = np.full_like(sx, s.k_dic_mean)
+        ax.plot(sx, sy, c=c)
+    ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
+    ax.set_xlabel("Analysis date and time")
+    ax.set_ylabel(r"DIC calibration factor / μmol$\cdot$count$^{-1}$")
+    fac_mean = dbs.k_dic.mean()
+    fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
+    if fac_maxdiff > 0:
+        ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
+    ax.set_xlim(
+        [
+            dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+            dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+        ]
+    )
+    ax.grid(alpha=0.2)
+    plt.tight_layout()
+    if figure_path is not None:
+        plt.savefig("{}/k_dic.{}".format(figure_path, figure_format))
+    return fig, ax
+
+
+def plot_dic_offset(
+    dbs, ax=None, batch_col="dic_cell_id", figure_path=None, figure_format="png"
+):
+    """Plot measured minus certified DIC values through time."""
+    marker = copy.deepcopy(markers)
+    colour = copy.deepcopy(colours)
+    if ax is None:
+        fig, ax = plt.subplots(dpi=300)
+    for session in dbs.sessions.index:
+        m = next(marker)
+        c = next(colour)
+        l = dbs[batch_col] == session
+        l_good = l & dbs.k_dic_good
+        if l_good.any():
+            dbs[l_good].plot.scatter(
+                "datetime_analysis",
+                "dic_offset",
+                ax=ax,
+                c=c,
+                marker=m,
+                alpha=0.7,
+                label=session,
+            )
+        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_cert)
+        if l_bad.any():
+            dbs[l_bad].plot.scatter(
+                "datetime_analysis",
+                "dic_offset",
+                ax=ax,
+                c="none",
+                edgecolor=c,
+                marker=m,
+            )
+    ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
+    ax.set_xlabel("Analysis date and time")
+    ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
+    ax.set_ylim(np.array([-1, 1]) * dbs.dic_offset.abs().max() * 1.1)
+    ax.set_xlim(
+        [
+            dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+            dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+        ]
+    )
+    ax.grid(alpha=0.2)
+    ax.axhline(0, c="k", linewidth=0.8)
+    plt.tight_layout()
+    if figure_path is not None:
+        plt.savefig("{}/dic_offset.{}".format(figure_path, figure_format))
+    return fig, ax
 
 
 def dic_calibration_factors(dbs, dic_sessions, ax=None, save_as=None, **kwargs):

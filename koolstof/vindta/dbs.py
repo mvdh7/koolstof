@@ -13,4 +13,6 @@ class Dbs(pd.DataFrame):
         get_density,
         get_standard_calibrations,
         get_session_calibrations,
+        calibrate_dic,
     )
+    from .plot import plot_blanks, plot_session_blanks, plot_k_dic, plot_dic_offset
