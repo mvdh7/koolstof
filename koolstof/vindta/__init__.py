@@ -22,4 +22,5 @@ from .plot import (
     plot_k_dic,
     plot_dic_offset,
 )
+from .process import poison_correction
 from . import io, plot, process

@@ -24,10 +24,11 @@ from .vindta import (
     plot_k_dic,
     plot_dic_offset,
     concat,
+    poison_correction,
 )
 
 __all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))

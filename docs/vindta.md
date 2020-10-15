@@ -42,7 +42,7 @@ dbs = ks.read_dbs("path/to/file.dbs", keep_all_cols=False, logfile=None)
 Once you've imported the files above, you need to add the following metadata as extra columns in the `dbs` enhanced DataFrame under the following column labels:
 
   * `salinity`: practical salinity (assumed 35 if not provided)
-  * `temperature_dic_analysis`: temperature of DIC analysis in °C (assumed 25 °C if not provided)
+  * `temperature_analysis_dic`: temperature of DIC analysis in °C (assumed 25 °C if not provided)
   * `dic_certified`: certified DIC values for reference materials in μmol/kg-sw.  Non-reference samples should be set to `np.nan`.
 
 You can also add the following logical columns to refine which samples and reference materials are used for processing and calibration:

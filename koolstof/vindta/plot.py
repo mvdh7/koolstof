@@ -235,12 +235,12 @@ def plot_k_dic(
     fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
     if fac_maxdiff > 0:
         ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
-    ax.set_xlim(
-        [
-            dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-            dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
-        ]
-    )
+    # ax.set_xlim(
+    #     [
+    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+    #     ]
+    # )
     ax.grid(alpha=0.2)
     plt.tight_layout()
     if figure_path is not None:
@@ -271,7 +271,7 @@ def plot_dic_offset(
                 alpha=0.7,
                 label=session,
             )
-        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
+        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
                 "datetime_analysis",
@@ -284,13 +284,13 @@ def plot_dic_offset(
     ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
-    ax.set_ylim(np.array([-1, 1]) * dbs.dic_offset.abs().max() * 1.1)
-    ax.set_xlim(
-        [
-            dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-            dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
-        ]
-    )
+    ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
+    # ax.set_xlim(
+    #     [
+    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+    #     ]
+    # )
     ax.grid(alpha=0.2)
     ax.axhline(0, c="k", linewidth=0.8)
     plt.tight_layout()
