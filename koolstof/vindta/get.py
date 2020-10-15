@@ -151,12 +151,14 @@ def get_density(dbs):
 
 def get_standard_calibrations(dbs, **kwargs):
     """Calculate the separate calibration factor for each CRM."""
-    assert "dic_cert" in dbs, "You must provide some dbs.dic_cert values."
+    assert "dic_certified" in dbs, "You must provide some dbs.dic_certified values."
     if "counts_corrected" not in dbs:
         dbs.get_blank_corrections(**kwargs)
     if "density_analysis_dic" not in dbs:
         dbs.get_density()
-    dbs["k_dic_here"] = dbs.dic_cert * dbs.density_analysis_dic / dbs.counts_corrected
+    dbs["k_dic_here"] = (
+        dbs.dic_certified * dbs.density_analysis_dic / dbs.counts_corrected
+    )
     return dbs
 
 
@@ -177,7 +179,7 @@ def get_session_calibrations(dbs, batch_col="dic_cell_id", **kwargs):
     if "k_dic_here" not in dbs:
         dbs.get_standard_calibrations(batch_col=batch_col, **kwargs)
     if "k_dic_good" not in dbs:
-        dbs["k_dic_good"] = ~np.isnan(dbs.dic_cert)
+        dbs["k_dic_good"] = ~np.isnan(dbs.dic_certified)
     sc = dbs.groupby(by=batch_col).apply(_get_session_calibrations)
     for k, v in sc.iteritems():
         dbs.sessions[k] = v
@@ -190,5 +192,5 @@ def calibrate_dic(dbs, **kwargs):
     if "k_dic" not in dbs:
         dbs.get_session_calibrations()
     dbs["dic"] = dbs["counts_corrected"] * dbs["k_dic"] / dbs["density_analysis_dic"]
-    dbs["dic_offset"] = dbs.dic - dbs.dic_cert
+    dbs["dic_offset"] = dbs.dic - dbs.dic_certified
     return dbs

@@ -77,6 +77,14 @@ def plot_session_blanks(
     )
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw the rest of the figure
+    dbs[l & dbs.blank_good].plot.scatter(
+        "datetime_analysis",
+        "blank_here",
+        ax=ax,
+        c=c,
+        marker=marker,
+        label="Samples used",
+    )
     dbs[l & ~dbs.blank_good].plot.scatter(
         "datetime_analysis",
         "blank_here",
@@ -86,18 +94,16 @@ def plot_session_blanks(
         marker=marker,
         label="Ignored",
     )
-    dbs[l & dbs.blank_good].plot.scatter(
-        "datetime_analysis", "blank_here", ax=ax, c=c, marker=marker, label="Samples"
-    )
     y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
     off_x = dbs[l & (dbs.blank_here > y_max)].datetime_analysis.values
     ax.scatter(
         off_x,
-        np.full(np.size(off_x), y_max * 0.999),
+        np.full(np.size(off_x), y_max * 0.99999),
         c="none",
         edgecolor=c,
         marker="^",
-        label="Off scale",
+        label="Off scale (ignored)",
+        clip_on=False,
     )
     ax.set_ylim([0, y_max])
     ax.legend(edgecolor="k")
@@ -116,7 +122,8 @@ def plot_session_blanks(
 def plot_blanks(dbs, **kwargs):
     """Draw sample blanks and their fit for all analysis sessions."""
     for session in dbs.sessions.index:
-        plot_session_blanks(dbs, session, **kwargs)
+        fig, _ = plot_session_blanks(dbs, session, **kwargs)
+        plt.close(fig)
 
 
 def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
@@ -202,7 +209,7 @@ def plot_k_dic(
                 alpha=0.7,
                 label=session,
             )
-        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_cert)
+        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
                 "datetime_analysis",
@@ -264,7 +271,7 @@ def plot_dic_offset(
                 alpha=0.7,
                 label=session,
             )
-        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_cert)
+        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
                 "datetime_analysis",

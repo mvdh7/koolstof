@@ -43,7 +43,7 @@ Once you've imported the files above, you need to add the following metadata as 
 
   * `salinity`: practical salinity (assumed 35 if not provided)
   * `temperature_dic_analysis`: temperature of DIC analysis in °C (assumed 25 °C if not provided)
-  * `dic_cert`: certified DIC values for reference materials in μmol/kg.  Non-reference samples should be set to `np.nan`.
+  * `dic_certified`: certified DIC values for reference materials in μmol/kg-sw.  Non-reference samples should be set to `np.nan`.
 
 You can also add the following logical columns to refine which samples and reference materials are used for processing and calibration:
 

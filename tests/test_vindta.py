@@ -10,7 +10,7 @@ logfile = ks.read_logfile(
 dbs = ks.read_dbs(fpath + "2018_Aug_RWS_CO2.dbs", logfile=logfile)
 
 # Add metadata
-dbs["dic_cert"] = np.where(dbs.station == 666, 2029.19, np.nan)
+dbs["dic_certified"] = np.where(dbs.station == 666, 2029.19, np.nan)
 dbs["salinity"] = np.where(dbs.station == 666, 33.434, 35)
 
 # Do QC

@@ -27,7 +27,7 @@ from .vindta import (
 )
 
 __all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
