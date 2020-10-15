@@ -16,3 +16,9 @@ class Dbs(pd.DataFrame):
         calibrate_dic,
     )
     from .plot import plot_blanks, plot_session_blanks, plot_k_dic, plot_dic_offset
+
+
+def concat(objs, logfile=None, **kwargs):
+    """Concatenate imported .dbs files."""
+    obj = pd.concat(objs, **kwargs)
+    return Dbs(obj, logfile=logfile)
