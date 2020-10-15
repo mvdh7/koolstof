@@ -92,7 +92,12 @@ def plot_session_blanks(
     y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
     off_x = dbs[l & (dbs.blank_here > y_max)].datetime_analysis.values
     ax.scatter(
-        off_x, np.full_like(off_x, y_max), c=c, marker="^", label="Off scale",
+        off_x,
+        np.full(np.size(off_x), y_max * 0.999),
+        c="none",
+        edgecolor=c,
+        marker="^",
+        label="Off scale",
     )
     ax.set_ylim([0, y_max])
     ax.legend(edgecolor="k")
