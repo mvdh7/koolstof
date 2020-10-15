@@ -89,7 +89,12 @@ def plot_session_blanks(
     dbs[l & dbs.blank_good].plot.scatter(
         "datetime_analysis", "blank_here", ax=ax, c=c, marker=marker, label="Samples"
     )
-    ax.set_ylim([0, np.max([dbs[l].blank_here.max(), np.max(fy)]) * 1.05])
+    y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
+    off_x = dbs[l & (dbs.blank_here > y_max)].datetime_analysis.values
+    ax.scatter(
+        off_x, np.full_like(off_x, y_max), c=c, marker="^", label="Off scale",
+    )
+    ax.set_ylim([0, y_max])
     ax.legend(edgecolor="k")
     ax.xaxis.set_major_locator(mdates.HourLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H"))
