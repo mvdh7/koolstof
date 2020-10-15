@@ -21,4 +21,7 @@ class Dbs(pd.DataFrame):
 def concat(objs, logfile=None, **kwargs):
     """Concatenate imported .dbs files."""
     obj = pd.concat(objs, **kwargs)
-    return Dbs(obj, logfile=logfile)
+    obj.reset_index(drop=True, inplace=True)
+    obj = Dbs(obj)
+    obj.logfile = logfile
+    return obj
