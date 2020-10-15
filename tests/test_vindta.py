@@ -17,12 +17,12 @@ dbs["salinity"] = np.where(dbs.station == 666, 33.434, 35)
 dbs["blank_good"] = True
 dbs.loc[dbs.bottle == "WALCRN2_2018005578", "blank_good"] = False
 
-# Do all the processing
+# Do processing
 dbs.calibrate_dic()
+sub = dbs.subset(dbs.dic_cell_id == "C_Aug13-18_1008")
 
 
-def test_import_and_calibration():
-    assert "dic" in dbs
+def dbs_assertions(dbs):
     assert isinstance(dbs, pd.DataFrame)
     assert isinstance(dbs, ks.Dbs)
     assert hasattr(dbs, "sessions")
@@ -31,11 +31,22 @@ def test_import_and_calibration():
     assert isinstance(dbs.logfile, pd.DataFrame)
 
 
+def test_import_and_calibration():
+    assert "dic" in dbs
+    dbs_assertions(dbs)
+
+
 def test_plots():
     dbs.plot_blanks()
     dbs.plot_k_dic()
     dbs.plot_dic_offset()
 
 
+def test_subset():
+    dbs_assertions(sub)
+    sub.plot_dic_offset()
+
+
 test_import_and_calibration()
 test_plots()
+test_subset()

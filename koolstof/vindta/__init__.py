@@ -1,6 +1,7 @@
 """Import and parse the data files produced by the Marianda VINDTA 3C."""
 
-from .dbs import Dbs, concat
+from .dbs import Dbs
+from .manipulate import concat  # , subset
 from .read import read_dbs, read_logfile
 from .get import (
     get_logfile_index,

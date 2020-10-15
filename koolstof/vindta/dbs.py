@@ -17,11 +17,11 @@ class Dbs(pd.DataFrame):
     )
     from .plot import plot_blanks, plot_session_blanks, plot_k_dic, plot_dic_offset
 
-
-def concat(objs, logfile=None, **kwargs):
-    """Concatenate imported .dbs files."""
-    obj = pd.concat(objs, **kwargs)
-    obj.reset_index(drop=True, inplace=True)
-    obj = Dbs(obj)
-    obj.logfile = logfile
-    return obj
+    def subset(self, condition, batch_col="dic_cell_id"):
+        """Create a subset of this dbs based on the logical condition."""
+        lf = self.logfile
+        ss = self.sessions
+        dbs_subset = Dbs(self[condition])
+        dbs_subset.logfile = lf
+        dbs_subset.sessions = ss.loc[self[batch_col].unique()]
+        return dbs_subset

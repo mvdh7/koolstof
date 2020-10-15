@@ -187,14 +187,23 @@ def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
 
 
 def plot_k_dic(
-    dbs, ax=None, batch_col="dic_cell_id", figure_path=None, figure_format="png"
+    dbs,
+    sessions=None,
+    ax=None,
+    batch_col="dic_cell_id",
+    figure_path=None,
+    figure_format="png",
 ):
     """Plot DIC calibration factors through time."""
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
         fig, ax = plt.subplots(dpi=300)
-    for session, s in dbs.sessions.iterrows():
+    if sessions is None:
+        sessions = dbs.sessions
+    else:
+        sessions = dbs.sessions.loc[sessions]
+    for session, s in sessions.iterrows():
         m = next(marker)
         c = next(colour)
         l = dbs[batch_col] == session
@@ -249,14 +258,21 @@ def plot_k_dic(
 
 
 def plot_dic_offset(
-    dbs, ax=None, batch_col="dic_cell_id", figure_path=None, figure_format="png"
+    dbs,
+    sessions=None,
+    ax=None,
+    batch_col="dic_cell_id",
+    figure_path=None,
+    figure_format="png",
 ):
     """Plot measured minus certified DIC values through time."""
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
         fig, ax = plt.subplots(dpi=300)
-    for session in dbs.sessions.index:
+    if sessions is None:
+        sessions = dbs.sessions.index
+    for session in sessions:
         m = next(marker)
         c = next(colour)
         l = dbs[batch_col] == session
