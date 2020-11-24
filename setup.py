@@ -12,7 +12,14 @@ setuptools.setup(
     description="Miscellaneous tools for marine carbonate chemistry and other such things",
     url="https://github.com/mvdh7/koolstof",
     packages=setuptools.find_packages(),
-    install_requires=["numpy>=1.17", "pandas>=1", "matplotlib>=3.2", "calkulate>=3"],
+    install_requires=[
+        "numpy>=1.17",
+        "pandas>=1",
+        "matplotlib>=3.2",
+        "calkulate>=3",
+        "scipy>=1.5",
+        "scikit-learn>=0.23",
+    ],
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[

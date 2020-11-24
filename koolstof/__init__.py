@@ -2,7 +2,7 @@
 
 import string, textwrap
 import numpy as np
-from . import crm, infrared, molar, spectro, vindta
+from . import crm, infrared, molar, spectro, vindta, plot
 from .vindta import (
     Dbs,
     read_dbs,
@@ -26,9 +26,10 @@ from .vindta import (
     concat,
     poison_correction,
 )
+from .plot import get_cluster_profile, cluster_profile
 
 __all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-__version__ = "0.0.11"
+__version__ = "0.0.12"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
@@ -56,3 +57,6 @@ def say_hello():
         )
     )
     print(greeting)
+
+
+hello = say_hello
