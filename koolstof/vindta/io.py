@@ -77,24 +77,24 @@ def read_logfile(fname, methods="3C standard"):
                 lbot = re_crm.findall(logf[i + 1])[0]
             elif logf[i + 1] == "other":
                 lbot = "other_{}".format(i + 1)
-            assert type(lbot) == str, "Logfile line {}: bottle name not found!".format(
-                i + 1
-            )
-            logdf["bottle"].append(lbot)
-            # Get coulometer data
-            jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
-            j = 4
-            while re_increments.match(logf[i + j].strip()):
-                jinc = re_increments.findall(logf[i + j].strip())[0]
-                jdict["minutes"].append(float(jinc[0]))
-                jdict["counts"].append(float(jinc[1]))
-                jdict["increments"].append(float(jinc[2]))
-                j += 1
-            jdict = {k: np.array(v) for k, v in jdict.items()}
-            logdf["table"].append(jdict)
-            logdf["counts_total"].append(jdict["counts"][-1])
-            logdf["runtime"].append(j - 4.0)
-    # Convert lists to arrays and put logfile into DataFrame
+            if type(lbot) == str:
+                logdf["bottle"].append(lbot)
+                # Get coulometer data
+                jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
+                j = 4
+                while re_increments.match(logf[i + j].strip()):
+                    jinc = re_increments.findall(logf[i + j].strip())[0]
+                    jdict["minutes"].append(float(jinc[0]))
+                    jdict["counts"].append(float(jinc[1]))
+                    jdict["increments"].append(float(jinc[2]))
+                    j += 1
+                jdict = {k: np.array(v) for k, v in jdict.items()}
+                logdf["table"].append(jdict)
+                logdf["counts_total"].append(jdict["counts"][-1])
+                logdf["runtime"].append(j - 4.0)
+            else:
+                print("Logfile line {}: bottle name not found!".format(i + 1))
+    # Convert lists to arrays and logfile to DataFrame
     logdf = {k: np.array(v) for k, v in logdf.items()}
     return pd.DataFrame(logdf)
 

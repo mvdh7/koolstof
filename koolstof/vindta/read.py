@@ -39,14 +39,6 @@ def read_logfile(fname, methods="3C standard"):
     # Parse file line by line
     for i, line in enumerate(logf):
         if re_method.match(line):
-            logdf["line_number"].append(i)
-            logdf["method"].append(re_method.findall(line)[0])
-            # Get analysis date and time
-            ldt = re_datetime.findall(line)[0]
-            ldt = np.datetime64(
-                "{}-{}-{}T{}:{}".format("20" + ldt[2], ldt[0], ldt[1], ldt[3], ldt[4])
-            )
-            logdf["datetime_analysis"] = np.append(logdf["datetime_analysis"], ldt)
             # Get sample name
             lbot = 0
             if re_bottle.match(logf[i + 1]):
@@ -55,23 +47,33 @@ def read_logfile(fname, methods="3C standard"):
                 lbot = re_crm.findall(logf[i + 1])[0]
             elif logf[i + 1] == "other":
                 lbot = "other_{}".format(i + 1)
-            assert type(lbot) == str, "Logfile line {}: bottle name not found!".format(
-                i + 1
-            )
-            logdf["bottle"].append(lbot)
-            # Get coulometer data
-            jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
-            j = 4
-            while re_increments.match(logf[i + j].strip()):
-                jinc = re_increments.findall(logf[i + j].strip())[0]
-                jdict["minutes"].append(float(jinc[0]))
-                jdict["counts"].append(float(jinc[1]))
-                jdict["increments"].append(float(jinc[2]))
-                j += 1
-            jdict = {k: np.array(v) for k, v in jdict.items()}
-            logdf["table"].append(jdict)
-            logdf["counts"].append(jdict["counts"][-1])
-            logdf["run_time"].append(j - 4.0)
+            if type(lbot) == str:
+                logdf["bottle"].append(lbot)
+                logdf["line_number"].append(i)
+                logdf["method"].append(re_method.findall(line)[0])
+                # Get analysis date and time
+                ldt = re_datetime.findall(line)[0]
+                ldt = np.datetime64(
+                    "{}-{}-{}T{}:{}".format(
+                        "20" + ldt[2], ldt[0], ldt[1], ldt[3], ldt[4]
+                    )
+                )
+                logdf["datetime_analysis"] = np.append(logdf["datetime_analysis"], ldt)
+                # Get coulometer data
+                jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
+                j = 4
+                while re_increments.match(logf[i + j].strip()):
+                    jinc = re_increments.findall(logf[i + j].strip())[0]
+                    jdict["minutes"].append(float(jinc[0]))
+                    jdict["counts"].append(float(jinc[1]))
+                    jdict["increments"].append(float(jinc[2]))
+                    j += 1
+                jdict = {k: np.array(v) for k, v in jdict.items()}
+                logdf["table"].append(jdict)
+                logdf["counts"].append(jdict["counts"][-1])
+                logdf["run_time"].append(j - 4.0)
+            else:
+                print("Logfile line {}: bottle name not found!".format(i + 1))
     # Convert lists to arrays and put logfile into DataFrame
     logdf = pd.DataFrame({k: np.array(v) for k, v in logdf.items()})
     logdf.set_index("line_number", inplace=True)
