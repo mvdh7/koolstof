@@ -2,7 +2,7 @@
 
 ![Tests](https://github.com/mvdh7/koolstof/workflows/Tests/badge.svg)
 [![Coverage](https://github.com/mvdh7/koolstof/blob/master/misc/coverage.svg)](https://github.com/mvdh7/koolstof/blob/master/misc/coverage.txt)
-[![PyPI version](https://badge.fury.io/py/koolstof.svg)](https://badge.fury.io/py/koolstof)
+[![PyPI version](https://img.shields.io/pypi/v/koolstof.svg?style=popout)](https://pypi.org/project/koolstof/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3999292-informational)](https://doi.org/10.5281/zenodo.3999292)
 [![Docs](https://readthedocs.org/projects/koolstof/badge/?version=latest&style=flat)](https://koolstof.readthedocs.io/en/latest/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
