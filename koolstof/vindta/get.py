@@ -8,7 +8,7 @@ def _get_logfile_index(dbs_row, logfile):
     if dbs_row.bottle in logfile.bottle.values:
         logfile_index = np.where(
             (dbs_row.bottle == logfile.bottle)
-            & (dbs_row.datetime_analysis == logfile.datetime_analysis)
+            & (dbs_row.analysis_datetime == logfile.analysis_datetime)
         )[0]
         assert np.size(logfile_index) == 1, (
             "{} name/date matches found between dbs and logfile @ dbs loc {}"

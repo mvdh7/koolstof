@@ -29,7 +29,7 @@ from .vindta import (
 from .plot import get_cluster_profile, cluster_profile
 
 __all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-__version__ = "0.0.13"
+__version__ = "0.0.14"
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))

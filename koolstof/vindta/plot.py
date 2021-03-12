@@ -78,7 +78,7 @@ def plot_session_blanks(
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw the rest of the figure
     dbs[l & dbs.blank_good].plot.scatter(
-        "datetime_analysis",
+        "analysis_datetime",
         "blank_here",
         ax=ax,
         c=c,
@@ -86,7 +86,7 @@ def plot_session_blanks(
         label="Samples used",
     )
     dbs[l & ~dbs.blank_good].plot.scatter(
-        "datetime_analysis",
+        "analysis_datetime",
         "blank_here",
         ax=ax,
         c="none",
@@ -95,7 +95,7 @@ def plot_session_blanks(
         label="Ignored",
     )
     y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
-    off_x = dbs[l & (dbs.blank_here > y_max)].datetime_analysis.values
+    off_x = dbs[l & (dbs.blank_here > y_max)].analysis_datetime.values
     ax.scatter(
         off_x,
         np.full(np.size(off_x), y_max * 0.99999),
@@ -210,7 +210,7 @@ def plot_k_dic(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "k_dic_here",
                 ax=ax,
                 c=c,
@@ -221,7 +221,7 @@ def plot_k_dic(
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "k_dic_here",
                 ax=ax,
                 c="none",
@@ -231,8 +231,8 @@ def plot_k_dic(
         sl = dbs[batch_col] == session
         sx = np.array(
             [
-                dbs.loc[sl, "datetime_analysis"].min(),
-                dbs.loc[sl, "datetime_analysis"].max(),
+                dbs.loc[sl, "analysis_datetime"].min(),
+                dbs.loc[sl, "analysis_datetime"].max(),
             ]
         )
         sy = np.full_like(sx, s.k_dic_mean)
@@ -246,8 +246,8 @@ def plot_k_dic(
         ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
     # ax.set_xlim(
     #     [
-    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
     #     ]
     # )
     ax.grid(alpha=0.2)
@@ -279,7 +279,7 @@ def plot_dic_offset(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "dic_offset",
                 ax=ax,
                 c=c,
@@ -290,7 +290,7 @@ def plot_dic_offset(
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "dic_offset",
                 ax=ax,
                 c="none",
@@ -303,8 +303,8 @@ def plot_dic_offset(
     ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
     # ax.set_xlim(
     #     [
-    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
     #     ]
     # )
     ax.grid(alpha=0.2)

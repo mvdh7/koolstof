@@ -17,7 +17,7 @@ def read_logfile(fname, methods="3C standard"):
         methods = [methods]
     # Compile regexs for reading logfile
     re_method = re.compile(
-        r"(" + r"|".join(methods) + r")\.mth run started ".format(methods)
+        r"(" + r"|".join(methods) + r")\.mth run started "
     )
     re_datetime = re.compile(r"started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})")
     re_bottle = re.compile(r"(bottle)?\t([^\t]*)\t")
@@ -29,7 +29,7 @@ def read_logfile(fname, methods="3C standard"):
     # Initialise arrays
     logdf = {
         "line_number": [],
-        "datetime_analysis": np.array([], dtype="datetime64"),
+        "analysis_datetime": np.array([], dtype="datetime64"),
         "bottle": [],
         "table": [],
         "counts": [],
@@ -58,7 +58,7 @@ def read_logfile(fname, methods="3C standard"):
                         "20" + ldt[2], ldt[0], ldt[1], ldt[3], ldt[4]
                     )
                 )
-                logdf["datetime_analysis"] = np.append(logdf["datetime_analysis"], ldt)
+                logdf["analysis_datetime"] = np.append(logdf["analysis_datetime"], ldt)
                 # Get coulometer data
                 jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
                 j = 4
@@ -136,16 +136,19 @@ dbs_drop = [
 ]
 
 
-def dbs_datetime(dbsx):
-    """[row.apply] Convert date and time from .dbs file into datetime and datenum."""
-    dspl = dbsx["date"].split("/")
-    datetime_analysis = np.datetime64(
-        "-".join(("20" + dspl[2], dspl[0], dspl[1])) + "T" + dbsx["time"]
-    )
+def dbs_datetime(dbs_row):
+    """Convert date and time from .dbs file into datetime and datenum."""
+    try:
+        dspl = dbs_row["date"].split("/")
+        analysis_datetime = np.datetime64(
+            "-".join(("20" + dspl[2], dspl[0], dspl[1])) + "T" + dbs_row["time"]
+        )
+    except AttributeError:
+        analysis_datetime = np.datetime64("NaT")
     return pd.Series(
         {
-            "datetime_analysis": datetime_analysis,
-            "datenum_analysis": mdates.date2num(datetime_analysis),
+            "analysis_datetime": analysis_datetime,
+            "analysis_datenum": mdates.date2num(analysis_datetime),
         }
     )
 
