@@ -58,11 +58,13 @@ def de_centre_and_scale(x, x_factor, x_offset):
 
 def blank_progression(x0, datenum_scaled):
     """Estimate the changing coulometer blank during an analysis session."""
-    return (
+    blank = (
         x0[0]
         + x0[1] * datenum_scaled
         + x0[2] * np.exp(-(datenum_scaled - x0[3]) / x0[4])
     )
+    blank = np.where(blank < 0, 0, blank)
+    return blank
 
 
 def fit_blank_progression(x0, datenum_scaled, blank_here):
@@ -74,7 +76,7 @@ def _get_session_blanks(dbs_group):
     """[group.apply] Calculate blanks per analysis session."""
     x = dbs_group
     blank_here = x[x.blank_good].blank_here
-    datenum_here = x[x.blank_good].datenum_analysis
+    datenum_here = x[x.blank_good].analysis_datenum
     datenum_mean = datenum_here.mean()
     datenum_std = datenum_here.std()
     datenum_scaled = centre_and_scale(
@@ -87,8 +89,8 @@ def _get_session_blanks(dbs_group):
         data={
             "blank_mean": blank_here.mean(),
             "blank_median": blank_here.median(),
-            "datenum_analysis_mean": datenum_mean,
-            "datenum_analysis_std": datenum_std,
+            "analysis_datenum_mean": datenum_mean,
+            "analysis_datenum_std": datenum_std,
             "blank_progression": blank_prog["x"],
         }
     )
@@ -117,17 +119,17 @@ def get_blank_corrections(
     """Determine and apply the blank correction."""
     if ~isinstance(dbs.sessions, pd.DataFrame):
         dbs.get_session_blanks(**kwargs)
-    dbs["datenum_analysis_scaled"] = np.nan
+    dbs["analysis_datenum_scaled"] = np.nan
     dbs["blank"] = np.nan
     for session, s in dbs.sessions.iterrows():
         l = dbs[dbs.sessions.index.name] == session
-        dbs.loc[l, "datenum_analysis_scaled"] = centre_and_scale(
-            dbs.loc[l].datenum_analysis,
-            x_factor=s.datenum_analysis_std,
-            x_offset=s.datenum_analysis_mean,
+        dbs.loc[l, "analysis_datenum_scaled"] = centre_and_scale(
+            dbs.loc[l].analysis_datenum,
+            x_factor=s.analysis_datenum_std,
+            x_offset=s.analysis_datenum_mean,
         )
         dbs.loc[l, "blank"] = blank_progression(
-            s.blank_progression, dbs.loc[l].datenum_analysis_scaled,
+            s.blank_progression, dbs.loc[l].analysis_datenum_scaled,
         )
     dbs["counts_corrected"] = blank_correction(
         dbs, blank_col=blank_col, counts_col=counts_col, runtime_col=runtime_col
