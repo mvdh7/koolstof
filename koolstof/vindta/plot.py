@@ -1,8 +1,7 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
 import itertools, copy
 import numpy as np
-from matplotlib import pyplot as plt
-import matplotlib.dates as mdates
+from matplotlib import pyplot as plt, dates as mdates
 from . import get, process
 
 
@@ -243,16 +242,21 @@ def plot_k_dic(
     ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC calibration factor / μmol$\cdot$count$^{-1}$")
-    fac_mean = dbs.k_dic.mean()
-    fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
-    if fac_maxdiff > 0:
-        ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
+    # fac_mean = dbs.k_dic.mean()
+    # fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
+    # if fac_maxdiff > 0:
+    #     ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
     # ax.set_xlim(
     #     [
     #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
     #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
     #     ]
     # )
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     plt.tight_layout()
     if figure_path is not None:
@@ -310,6 +314,11 @@ def plot_dic_offset(
     #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
     #     ]
     # )
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     ax.axhline(0, c="k", linewidth=0.8)
     plt.tight_layout()
