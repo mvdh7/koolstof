@@ -60,6 +60,7 @@ def plot_session_blanks(
     marker="o",
     figure_path=None,
     figure_format="png",
+    show_fig=True,
 ):
     """Draw sample blanks and their fit for one analysis session."""
     # Prepare to draw the figure
@@ -69,11 +70,11 @@ def plot_session_blanks(
         fig, ax = plt.subplots(dpi=300)
     # Create and draw fitted line
     fx = np.linspace(
-        dbs[l].datenum_analysis_scaled.min(), dbs[l].datenum_analysis_scaled.max(), 500
+        dbs[l].analysis_datenum_scaled.min(), dbs[l].analysis_datenum_scaled.max(), 500
     )
     fy = get.blank_progression(s.blank_progression, fx)
     fx = mdates.num2date(
-        get.de_centre_and_scale(fx, s.datenum_analysis_std, s.datenum_analysis_mean)
+        get.de_centre_and_scale(fx, s.analysis_datenum_std, s.analysis_datenum_mean)
     )
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw the rest of the figure
@@ -116,6 +117,8 @@ def plot_session_blanks(
     plt.tight_layout()
     if figure_path is not None:
         plt.savefig("{}/{}.{}".format(figure_path, str(session), figure_format))
+    if show_fig:
+        plt.show()
     return fig, ax
 
 

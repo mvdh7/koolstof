@@ -137,7 +137,7 @@ dbs_drop = [
 
 
 def dbs_datetime(dbs_row):
-    """Convert date and time from .dbs file into datetime and datenum."""
+    """Convert date and time from .dbs file into datetime."""
     try:
         dspl = dbs_row["date"].split("/")
         analysis_datetime = np.datetime64(
@@ -148,7 +148,6 @@ def dbs_datetime(dbs_row):
     return pd.Series(
         {
             "analysis_datetime": analysis_datetime,
-            "analysis_datenum": mdates.date2num(analysis_datetime),
         }
     )
 
@@ -169,6 +168,7 @@ def read_dbs(fname, keep_all_cols=False, logfile=None):
     )
     dbs["dbs_fname"] = fname
     dbs = Dbs(dbs.assign(**dbs.apply(dbs_datetime, axis=1)))
+    dbs["analysis_datenum"] = mdates.date2num(dbs.analysis_datetime)
     if not keep_all_cols:
         dbs.drop(columns=dbs_drop, inplace=True)
     if logfile is not None:
