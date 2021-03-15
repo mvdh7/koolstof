@@ -200,7 +200,7 @@ def plot_k_dic(
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
-        fig, ax = plt.subplots(dpi=300)
+        fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     if sessions is None:
         sessions = dbs.sessions
     else:
@@ -276,7 +276,7 @@ def plot_dic_offset(
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
-        fig, ax = plt.subplots(dpi=300)
+        fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     if sessions is None:
         sessions = dbs.sessions.index
     for session in sessions:
@@ -308,12 +308,6 @@ def plot_dic_offset(
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
     ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
-    # ax.set_xlim(
-    #     [
-    #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
-    #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
-    #     ]
-    # )
     locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
     formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)

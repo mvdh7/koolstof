@@ -16,9 +16,7 @@ def read_logfile(fname, methods="3C standard"):
     if isinstance(methods, str):
         methods = [methods]
     # Compile regexs for reading logfile
-    re_method = re.compile(
-        r"(" + r"|".join(methods) + r")\.mth run started "
-    )
+    re_method = re.compile(r"(" + r"|".join(methods) + r")\.mth run started ")
     re_datetime = re.compile(r"started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})")
     re_bottle = re.compile(r"(bottle)?\t([^\t]*)\t")
     re_crm = re.compile(r"CRM\t([^\t]*)\t")
@@ -145,11 +143,7 @@ def dbs_datetime(dbs_row):
         )
     except AttributeError:
         analysis_datetime = np.datetime64("NaT")
-    return pd.Series(
-        {
-            "analysis_datetime": analysis_datetime,
-        }
-    )
+    return pd.Series({"analysis_datetime": analysis_datetime,})
 
 
 def read_dbs(fname, keep_all_cols=False, logfile=None):
