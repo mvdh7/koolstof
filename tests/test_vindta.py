@@ -36,10 +36,10 @@ def test_import_and_calibration():
     dbs_assertions(dbs)
 
 
-def test_plots():
-    dbs.plot_blanks()
-    dbs.plot_k_dic()
-    dbs.plot_dic_offset()
+# def test_plots():
+#     dbs.plot_blanks()
+#     dbs.plot_k_dic()
+#     dbs.plot_dic_offset()
 
 
 def test_subset():
@@ -47,6 +47,6 @@ def test_subset():
     sub.plot_dic_offset()
 
 
-test_import_and_calibration()
-test_plots()
-test_subset()
+# test_import_and_calibration()
+# test_plots()
+# test_subset()
