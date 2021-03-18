@@ -1,6 +1,7 @@
 {
+    "description": "Miscellaneous tools for marine carbonate chemistry", 
+    "license": "GPL-3.0-only", 
     "title": "Miscellaneous tools for marine carbonate chemistry: koolstof", 
-    "upload_type": "software", 
     "creators": [
         {
             "affiliation": "NIOZ Royal Netherlands Institute for Sea Research, Texel, the Netherlands", 
