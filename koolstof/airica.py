@@ -49,7 +49,13 @@ def read_dbs(filepath_or_buffer, encoding="unicode_escape", na_values="none", **
     return dbs
 
 
-def process_airica(crm_val, db, dbs_filepath, results_file_path_and_name):
+def process_airica(
+    crm_val,
+    db,
+    dbs_filepath,
+    results_file_path_and_name=None,
+    draw_figure=True,
+):
     """Process AIRICA raw data by extracting data from .dbs file and
     adding it to .xlsx file, calculating conversion factor from CRMs and
     computing TCO2 values.
@@ -71,7 +77,9 @@ def process_airica(crm_val, db, dbs_filepath, results_file_path_and_name):
 
     # recalculate density
     db["density_analysis"] = np.nan
-    db["density_analysis"] = seawater_1atm_MP81(db.temperature, db.salinity_rws)
+    db["density_analysis"] = seawater_1atm_MP81(
+        temperature=db.temperature, salinity=db.salinity_rws
+    )
 
     # average areas with all areas and only last 3 areas
     db["area_av_4"] = (db.area_1 + db.area_2 + db.area_3 + db.area_4) / 4
@@ -105,7 +113,6 @@ def process_airica(crm_val, db, dbs_filepath, results_file_path_and_name):
     # calculate TCO2 values
     db["TCO2_3"] = np.nan
     db["TCO2_4"] = np.nan
-
     db["TCO2_3"] = ((db.b_3 * db.area_av_3) + db.a_3) / (
         db.density_analysis * db.sample_v
     )
@@ -113,34 +120,38 @@ def process_airica(crm_val, db, dbs_filepath, results_file_path_and_name):
         db.density_analysis * db.sample_v
     )
 
-    # plot regression
-    f, ax = plt.subplots(figsize=(8, 6.5), dpi=300)
-    sns.set_style("darkgrid")
-    sns.set_context("paper", font_scale=2)
-    sns.set(font="Verdana", font_scale=1)
-    sns.despine(f, left=True, bottom=True)
+    if draw_figure:
+        # plot regression
+        f, ax = plt.subplots(figsize=(8, 6.5), dpi=300)
+        sns.set_style("darkgrid")
+        sns.set_context("paper", font_scale=2)
+        sns.set(font="Verdana", font_scale=1)
+        sns.despine(f, left=True, bottom=True)
 
-    L = db.location == "CRM"
-    sns.regplot(
-        x=db.area_av_3[L], y=db.CT_d_sample_v[L], ci=False, color="xkcd:primary blue"
-    )
+        L = db.location == "CRM"
+        sns.regplot(
+            x=db.area_av_3[L],
+            y=db.CT_d_sample_v[L],
+            ci=False,
+            color="xkcd:primary blue",
+        )
 
-    # add R2 to graph
-    r2 = stats.linregress(db.area_av_3[L], db.CT_d_sample_v[L])[2]
-    r2s = str(round(r2, 2))
-    text = "$R^2$ = " + r2s
-    ax.text(
-        30000,
-        4500000,
-        text,
-        horizontalalignment="left",
-        verticalalignment="center",
-        fontsize=15,
-    )
-
-    plt.tight_layout()
+        # add R2 to graph
+        r2 = stats.linregress(db.area_av_3[L], db.CT_d_sample_v[L])[2]
+        r2s = str(round(r2, 2))
+        text = "$R^2$ = " + r2s
+        ax.text(
+            30000,
+            4500000,
+            text,
+            horizontalalignment="left",
+            verticalalignment="center",
+            fontsize=15,
+        )
+        plt.tight_layout()
 
     # save results as text file
-    db.to_csv(results_file_path_and_name, index=None)
+    if results_file_path_and_name is not None:
+        db.to_csv(results_file_path_and_name, index=None)
 
     return db
