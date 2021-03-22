@@ -1,8 +1,7 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
 import itertools, copy
 import numpy as np
-from matplotlib import pyplot as plt
-import matplotlib.dates as mdates
+from matplotlib import pyplot as plt, dates as mdates
 from . import get, process
 
 
@@ -60,6 +59,7 @@ def plot_session_blanks(
     marker="o",
     figure_path=None,
     figure_format="png",
+    show_fig=True,
 ):
     """Draw sample blanks and their fit for one analysis session."""
     # Prepare to draw the figure
@@ -69,16 +69,16 @@ def plot_session_blanks(
         fig, ax = plt.subplots(dpi=300)
     # Create and draw fitted line
     fx = np.linspace(
-        dbs[l].datenum_analysis_scaled.min(), dbs[l].datenum_analysis_scaled.max(), 500
+        dbs[l].analysis_datenum_scaled.min(), dbs[l].analysis_datenum_scaled.max(), 500
     )
     fy = get.blank_progression(s.blank_progression, fx)
     fx = mdates.num2date(
-        get.de_centre_and_scale(fx, s.datenum_analysis_std, s.datenum_analysis_mean)
+        get.de_centre_and_scale(fx, s.analysis_datenum_std, s.analysis_datenum_mean)
     )
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw the rest of the figure
     dbs[l & dbs.blank_good].plot.scatter(
-        "datetime_analysis",
+        "analysis_datetime",
         "blank_here",
         ax=ax,
         c=c,
@@ -86,7 +86,7 @@ def plot_session_blanks(
         label="Samples used",
     )
     dbs[l & ~dbs.blank_good].plot.scatter(
-        "datetime_analysis",
+        "analysis_datetime",
         "blank_here",
         ax=ax,
         c="none",
@@ -95,7 +95,7 @@ def plot_session_blanks(
         label="Ignored",
     )
     y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
-    off_x = dbs[l & (dbs.blank_here > y_max)].datetime_analysis.values
+    off_x = dbs[l & (dbs.blank_here > y_max)].analysis_datetime.values
     ax.scatter(
         off_x,
         np.full(np.size(off_x), y_max * 0.99999),
@@ -116,6 +116,8 @@ def plot_session_blanks(
     plt.tight_layout()
     if figure_path is not None:
         plt.savefig("{}/{}.{}".format(figure_path, str(session), figure_format))
+    if show_fig:
+        plt.show()
     return fig, ax
 
 
@@ -198,7 +200,7 @@ def plot_k_dic(
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
-        fig, ax = plt.subplots(dpi=300)
+        fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     if sessions is None:
         sessions = dbs.sessions
     else:
@@ -210,7 +212,7 @@ def plot_k_dic(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "k_dic_here",
                 ax=ax,
                 c=c,
@@ -221,7 +223,7 @@ def plot_k_dic(
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "k_dic_here",
                 ax=ax,
                 c="none",
@@ -231,8 +233,8 @@ def plot_k_dic(
         sl = dbs[batch_col] == session
         sx = np.array(
             [
-                dbs.loc[sl, "datetime_analysis"].min(),
-                dbs.loc[sl, "datetime_analysis"].max(),
+                dbs.loc[sl, "analysis_datetime"].min(),
+                dbs.loc[sl, "analysis_datetime"].max(),
             ]
         )
         sy = np.full_like(sx, s.k_dic_mean)
@@ -240,16 +242,21 @@ def plot_k_dic(
     ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC calibration factor / μmol$\cdot$count$^{-1}$")
-    fac_mean = dbs.k_dic.mean()
-    fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
-    if fac_maxdiff > 0:
-        ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
+    # fac_mean = dbs.k_dic.mean()
+    # fac_maxdiff = (dbs.k_dic - fac_mean).abs().max()
+    # if fac_maxdiff > 0:
+    #     ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
     # ax.set_xlim(
     #     [
-    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
+    #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
     #     ]
     # )
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     plt.tight_layout()
     if figure_path is not None:
@@ -269,7 +276,7 @@ def plot_dic_offset(
     marker = copy.deepcopy(markers)
     colour = copy.deepcopy(colours)
     if ax is None:
-        fig, ax = plt.subplots(dpi=300)
+        fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     if sessions is None:
         sessions = dbs.sessions.index
     for session in sessions:
@@ -279,7 +286,7 @@ def plot_dic_offset(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "dic_offset",
                 ax=ax,
                 c=c,
@@ -290,7 +297,7 @@ def plot_dic_offset(
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
-                "datetime_analysis",
+                "analysis_datetime",
                 "dic_offset",
                 ax=ax,
                 c="none",
@@ -301,12 +308,11 @@ def plot_dic_offset(
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
     ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
-    # ax.set_xlim(
-    #     [
-    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
-    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
-    #     ]
-    # )
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     ax.axhline(0, c="k", linewidth=0.8)
     plt.tight_layout()

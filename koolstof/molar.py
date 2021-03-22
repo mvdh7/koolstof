@@ -23,5 +23,9 @@ mass = {k: np.mean(v) for k, v in mass_range.items()}
 
 # Source: mostly Wikipedia...
 mass.update(
-    {"PO4": 94.9714, "SO4": 96.06,}
+    {
+        "PO4": 94.9714,
+        "SO4": 96.06,
+        "O2": 31.999,  # https://pubchem.ncbi.nlm.nih.gov/compound/Oxygen
+    }
 )

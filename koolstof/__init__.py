@@ -2,7 +2,7 @@
 
 import string, textwrap
 import numpy as np
-from . import airica, crm, infrared, molar, spectro, vindta, plot
+from . import airica, crm, infrared, molar, spectro, vindta, parameterisations, plot
 from .vindta import (
     Dbs,
     read_dbs,
@@ -27,9 +27,10 @@ from .vindta import (
     poison_correction,
 )
 from .plot import get_cluster_profile, cluster_profile
+from .parameterisations import aou_GG92
 
-__all__ = ["crm", "infrared", "molar", "spectro", "vindta"]
-__version__ = "0.0.13"
+__version__ = "0.0.16"
+__author__ = "Humphreys, Matthew P."
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
