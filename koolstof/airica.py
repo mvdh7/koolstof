@@ -1,44 +1,12 @@
-# import toolbox
+"""Import and parse the data files produced by the Marianda AIRICA."""
+
 import pandas as pd
 import numpy as np
 from matplotlib import dates as mdates
 from scipy import stats
 import seaborn as sns
+from calkulate.density import seawater_1atm_MP81
 import matplotlib.pyplot as plt
-
-
-def seawater_1atm_MP81(temperature=25, salinity=35):
-    """Seawater density at 1 atm in kg/l following MP81.
-
-    Validity:
-      *  0 < temperature < 40 °C
-      *  0.5 < salinity < 43
-    """
-    if np.any(temperature < 0) or np.any(temperature > 40):
-        print("Warning: some temperature values fall outside the valid range")
-        print("for the MP81 density equation (0–40 °C).")
-    if np.any(salinity < 0.5) or np.any(salinity > 43):
-        print("Warning: some salinity values fall outside the valid range")
-        print("for the MP81 density equation (0.5–43).")
-    return (
-        999.842594
-        + 6.793952e-2 * temperature
-        - 9.095290e-3 * temperature ** 2
-        + 1.001685e-4 * temperature ** 3
-        - 1.120083e-6 * temperature ** 4
-        + 6.536336e-9 * temperature ** 5
-        + (
-            0.824493
-            - 4.0899e-3 * temperature
-            + 7.6438e-5 * temperature ** 2
-            - 8.2467e-7 * temperature ** 3
-            + 5.3875e-9 * temperature ** 4
-        )
-        * salinity
-        + (-5.72466e-3 + 1.0227e-4 * temperature - 1.6546e-6 * temperature ** 2)
-        * salinity ** 1.5
-        + 4.8314e-4 * salinity ** 2
-    ) * 1e-3
 
 
 # extract data from dbs
