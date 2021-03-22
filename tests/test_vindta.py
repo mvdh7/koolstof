@@ -3,7 +3,8 @@ import koolstof as ks, numpy as np, pandas as pd
 # Import the VINDTA logfile
 fpath = "tests/data/"
 logfile = ks.read_logfile(
-    fpath + "logfile_20200407.bak", methods=["3C standard", "3C standardRWS"],
+    fpath + "logfile_20200407.bak",
+    methods=["3C standard", "3C standardRWS"],
 )
 
 # Import a .dbs file for part of that logfile

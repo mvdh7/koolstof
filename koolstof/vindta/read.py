@@ -6,7 +6,7 @@ from . import Dbs
 
 def read_logfile(fname, methods="3C standard"):
     """Import a logfile.bak as a DataFrame.
-    
+
     Arguments:
     fname -- the filename (and path) of the .dbs file
 
@@ -143,15 +143,19 @@ def dbs_datetime(dbs_row):
         )
     except AttributeError:
         analysis_datetime = np.datetime64("NaT")
-    return pd.Series({"analysis_datetime": analysis_datetime,})
+    return pd.Series(
+        {
+            "analysis_datetime": analysis_datetime,
+        }
+    )
 
 
 def read_dbs(fname, keep_all_cols=False, logfile=None):
     """Import a .dbs file from a VINDTA, rename the columns, and reformat the date/time.
-    
+
     Arguments:
     fname -- the filename (and path) of the .dbs file
-    
+
     Keyword arguments:
     keep_all_cols -- keep all original columns from the .dbs?
     logfile -- the DataFrame containing the logfile.bak
