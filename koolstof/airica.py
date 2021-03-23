@@ -66,7 +66,7 @@ def process_airica(
 
     # add ".dbs" data to ".xlsx"
     db = pd.merge(left=db, right=data, how="left", left_on="name", right_on="bottle")
-
+    
     # check that ".dbs" bottle = ".xlsx" name and drop "bottle" column
     if db["name"].equals(db["bottle"]):
         print("SUCCESSFUL DBS IMPORT")
