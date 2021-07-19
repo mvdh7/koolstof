@@ -7,4 +7,4 @@ calkulate >= 23
 scikit-learn >= 0.23
 vptree >= 1.2
 geographiclib >= 1.52
-cartopy >= 1.18
+cartopy >= 0.18
