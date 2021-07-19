@@ -19,6 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install proj-bin
+        sudo apt-get install libgeos-dev
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
