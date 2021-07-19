@@ -129,7 +129,8 @@ def get_blank_corrections(
             x_offset=s.analysis_datenum_mean,
         )
         dbs.loc[l, "blank"] = blank_progression(
-            s.blank_progression, dbs.loc[l].analysis_datenum_scaled,
+            s.blank_progression,
+            dbs.loc[l].analysis_datenum_scaled,
         )
     dbs["counts_corrected"] = blank_correction(
         dbs, blank_col=blank_col, counts_col=counts_col, runtime_col=runtime_col

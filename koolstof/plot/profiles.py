@@ -50,7 +50,10 @@ def cluster_profile(
         x = data[x]
         y = data[y]
     p_xy = get_cluster_profile(
-        x, y, cluster_bandwidth=cluster_bandwidth, linspace_num=linspace_num,
+        x,
+        y,
+        cluster_bandwidth=cluster_bandwidth,
+        linspace_num=linspace_num,
     )[:2]
     if ax is None:
         _, ax = plt.subplots()
