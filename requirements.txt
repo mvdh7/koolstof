@@ -7,5 +7,7 @@ calkulate >= 23
 scikit-learn >= 0.23
 vptree >= 1.2
 geographiclib >= 1.52
+shapely >= 1.7
 pyproj >= 3
+pyshp >= 2.1
 cartopy >= 0.18
