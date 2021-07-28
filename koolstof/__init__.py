@@ -8,6 +8,7 @@ from . import (
     infrared,
     maps,
     molar,
+    optode,
     spectro,
     vindta,
     parameterisations,
@@ -36,6 +37,7 @@ from .vindta import (
     concat,
     poison_correction,
 )
+from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92
 
