@@ -29,7 +29,7 @@ from .vindta import (
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92
 
-__version__ = "0.0.16"
+__version__ = "0.0.17"
 __author__ = "Humphreys, Matthew P."
 
 
