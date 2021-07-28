@@ -2,7 +2,7 @@
 
 import string, textwrap
 import numpy as np
-from . import airica, crm, infrared, molar, spectro, vindta, parameterisations, plot
+from . import airica, crm, infrared, maps, molar, spectro, vindta, parameterisations, plot
 from .vindta import (
     Dbs,
     read_dbs,
