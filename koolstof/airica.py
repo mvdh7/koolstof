@@ -41,11 +41,13 @@ def read_dbs(filepath_or_buffer, encoding="unicode_escape", na_values="none", **
         filepath_or_buffer, encoding=encoding, na_values=na_values, **kwargs
     )
     dbs.rename(mapper=mapper_dbs, axis=1, inplace=True)
-    dbs.drop(columns="Unnamed: 32", inplace=True)
+    if "Unnamed: 32" in dbs:
+        dbs.drop(columns="Unnamed: 32", inplace=True)
     dbs["datetime"] = pd.to_datetime(
         dbs.apply(lambda x: " ".join((x.date, x.time)), axis=1)
     )
     dbs["datenum"] = mdates.date2num(dbs.datetime)
+    dbs["volume_sample"] = (dbs.mass_sample / dbs.density).round()  # microlitres
     return dbs
 
 
