@@ -52,7 +52,7 @@ def sigfig(x, sf):
     return factor * np.around(x / factor, decimals=sf)
 
 
-def say_hello():
+def hello():
     greeting = textwrap.dedent(
         r"""
         k  Miscellaneous tools for
@@ -70,4 +70,5 @@ def say_hello():
     print(greeting)
 
 
-hello = say_hello
+# Alias for back-compat
+say_hello = hello

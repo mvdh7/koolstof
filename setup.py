@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as f:
 setuptools.setup(
     name="koolstof",
     version=ks.__version__,
-    author="Humphreys, Matthew P.",
+    author=ks.__author__,
     author_email="m.p.humphreys@icloud.com",
     description="Miscellaneous tools for marine carbonate chemistry and other such things",
     url="https://github.com/mvdh7/koolstof",
