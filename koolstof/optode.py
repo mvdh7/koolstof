@@ -59,7 +59,7 @@ def pH_optode(spreadsheet, text_files_folder_path):
         data[file] = data[file][~L]
 
         # Only keep the last 20 min of data
-        if data[file].sec > 1200:
+        if data[file].sec.max() > 1200:
             data[file] = data[file].tail(1200)
         else:
             data[file] = data[file]
