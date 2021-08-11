@@ -58,9 +58,11 @@ def pH_optode(spreadsheet, text_files_folder_path):
         L = data[file].pH.isnull()
         data[file] = data[file][~L]
 
-        # Only keep 20 min of data (in case samples went over)
-        L = data[file].sec <= 1190
-        data[file] = data[file][L]
+        # Only keep the last 20 min of data
+        if data[file].sec > 1200:
+            data[file] = data[file].tail(1200)
+        else:
+            data[file] = data[file]
 
     # Make a copy of the data
     data_c = data.copy()
