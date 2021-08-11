@@ -41,7 +41,7 @@ from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92
 
-__version__ = "0.0.19"
+__version__ = "0.0.20"
 __author__ = "Humphreys, Matthew P. and Delaigue, Louise"
 
 
