@@ -20,5 +20,5 @@ def test_optode_assertions():
     assert hasattr(df, "filename")
 
 
-test_pH_optode()
-test_optode_assertions()
+# test_pH_optode()
+# test_optode_assertions()
