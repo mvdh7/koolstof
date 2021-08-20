@@ -12,6 +12,7 @@ koolstof/optode.py                   64      0   100%
 koolstof/parameterisations.py        20      2    90%
 koolstof/plot/__init__.py             2      0   100%
 koolstof/plot/profiles.py            42     36    14%
+koolstof/quaatro.py                  32      0   100%
 koolstof/spectro.py                   7      5    29%
 koolstof/vindta/__init__.py           7      0   100%
 koolstof/vindta/dbs.py               13      0   100%
@@ -26,7 +27,8 @@ tests/test_infrared.py               74      0   100%
 tests/test_koolstof.py                3      0   100%
 tests/test_optode.py                 11      0   100%
 tests/test_parameterisations.py       5      0   100%
+tests/test_quaatro.py                16      0   100%
 tests/test_vindta.py                 23      0   100%
 tests/test_vptree.py                 31      0   100%
 -----------------------------------------------------
-TOTAL                               968    366    62%
+TOTAL                              1016    366    64%

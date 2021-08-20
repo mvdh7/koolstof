@@ -9,10 +9,11 @@ from . import (
     maps,
     molar,
     optode,
-    spectro,
-    vindta,
     parameterisations,
     plot,
+    quaatro,
+    spectro,
+    vindta,
 )
 from .vindta import (
     Dbs,
@@ -41,7 +42,7 @@ from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92
 
-__version__ = "0.0.20"
+__version__ = "0.0.21"
 __author__ = "Humphreys, Matthew P. and Delaigue, Louise"
 
 
