@@ -3,6 +3,7 @@ import PyCO2SYS as pyco2
 
 def pH_of_analysis(
     alkalinity_sample,
+    pCO2_lab=500,
     pk_HCOOH=3.43,
     pk_BPhB=3.86,
     ratio_reagent=827,
@@ -19,6 +20,8 @@ def pH_of_analysis(
     ----------
     alkalinity_sample : float
         Total alkalinity of the sample in μmol/kg-sample.
+    pCO2_lab : float, optional
+        Partial pressure of CO2 in the laboratory in μatm. The default is 500.
     pk_HCOOH : float, optional
         pK* of HCOOH. The default is 3.43 [SMP99].
     pk_BPhB : float, optional
@@ -67,8 +70,6 @@ def pH_of_analysis(
     alkalinity_vol_sample = 1e-6 * alkalinity_sample * density_sample  # mol/l
 
     # Alkalinity of sample-reagent mixture
-    ratio_sample = 26  # 381  # dimensionless flow-rate ratio (381)
-    ratio_reagent = 74  # 635  # dimensionless flow-rate ratio (635)
     alkalinity_vol_mixture = (
         (alkalinity_vol_sample * ratio_sample + alkalinity_vol_reagent * ratio_reagent)
         / (ratio_sample + ratio_reagent)
@@ -98,7 +99,7 @@ def pH_of_analysis(
     # Dilute other total concentrations
     results_undiluted = pyco2.sys(
         par1=alkalinity_mixture,
-        par2=500,
+        par2=pCO2_lab,
         par1_type=1,
         par2_type=4,
         total_alpha=HCOOH_mixture,
