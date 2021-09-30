@@ -19,8 +19,12 @@ df = ks.airica.process_airica(2009.48,
 
 def test_airica_assertions():
     assert isinstance(df, pd.DataFrame)
+    assert hasattr(df, "a_3")
+    assert hasattr(df, "a_4")
+    assert hasattr(df, "b_3")
+    assert hasattr(df, "b_4")
     assert hasattr(df, "TCO2_3")
-    assert hasattr(df, "filename")
+    assert hasattr(df, "TCO2_4")
 
-test_airica()
-test_airica_assertions()
+# test_airica()
+# test_airica_assertions()
