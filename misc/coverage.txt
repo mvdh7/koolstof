@@ -16,10 +16,10 @@ koolstof/quaatro.py                  30      0   100%
 koolstof/spectro.py                   7      5    29%
 koolstof/vindta/__init__.py           7      0   100%
 koolstof/vindta/dbs.py               13      0   100%
-koolstof/vindta/get.py              103      7    93%
+koolstof/vindta/get.py              108      7    94%
 koolstof/vindta/io.py                71     62    13%
 koolstof/vindta/manipulate.py         8      5    38%
-koolstof/vindta/plot.py             163    121    26%
+koolstof/vindta/plot.py             164    122    26%
 koolstof/vindta/process.py           68     53    22%
 koolstof/vindta/read.py              68      4    94%
 tests/__init__.py                     0      0   100%
@@ -31,4 +31,4 @@ tests/test_quaatro.py                16      0   100%
 tests/test_vindta.py                 23      0   100%
 tests/test_vptree.py                 31      0   100%
 -----------------------------------------------------
-TOTAL                              1014    366    64%
+TOTAL                              1020    367    64%
