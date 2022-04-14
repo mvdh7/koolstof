@@ -22,12 +22,12 @@ def aou_GG92(oxygen=None, temperature=25, salinity=35):
     o2_saturation = np.exp(
         A0
         + A1 * ts
-        + A2 * ts ** 2
-        + A3 * ts ** 3
-        + A4 * ts ** 4
-        + A5 * ts ** 5
-        + salinity * (B0 + B1 * ts + B2 * ts ** 2 + B3 * ts ** 3)
-        + C0 * salinity ** 2
+        + A2 * ts**2
+        + A3 * ts**3
+        + A4 * ts**4
+        + A5 * ts**5
+        + salinity * (B0 + B1 * ts + B2 * ts**2 + B3 * ts**3)
+        + C0 * salinity**2
     )
     # Calculate AOU
     if oxygen is not None:
