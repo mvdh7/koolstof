@@ -30,16 +30,25 @@ def _get_sample_blanks(dbs_row, logfile, use_from=6):
     """[row.apply] Calculate each sample's DIC blank value."""
     lft = logfile.loc[dbs_row.logfile_index].table
     use_minutes = lft["minutes"] >= use_from
-    blank_here = lft["increments"][use_minutes].mean()
-    blank_here_min = lft["increments"][use_minutes].min()
-    blank_here_max = lft["increments"][use_minutes].max()
-    blank_here_std = lft["increments"][use_minutes].std()
+    try:
+        blank_here = lft["increments"][use_minutes].mean()
+        blank_here_min = lft["increments"][use_minutes].min()
+        blank_here_max = lft["increments"][use_minutes].max()
+        blank_here_std = lft["increments"][use_minutes].std()
+        blank_here_count = use_minutes.sum()
+    except ValueError:
+        blank_here = np.nan
+        blank_here_min = np.nan
+        blank_here_max = np.nan
+        blank_here_std = np.nan
+        blank_here_count = 0
     return pd.Series(
         {
             "blank_here": blank_here,
             "blank_here_min": blank_here_min,
             "blank_here_max": blank_here_max,
             "blank_here_std": blank_here_std,
+            "blank_here_count": blank_here_count,
         }
     )
 
@@ -51,7 +60,7 @@ def get_sample_blanks(dbs, use_from=6):
     dbs_blanks = dbs.apply(
         _get_sample_blanks, args=[dbs.logfile], axis=1, use_from=use_from
     )
-    for blank in ["blank_here", "blank_here_min", "blank_here_max", "blank_here_std"]:
+    for blank in dbs_blanks.columns:
         dbs[blank] = dbs_blanks[blank]
     return dbs
 
@@ -104,6 +113,8 @@ def _get_session_blanks(dbs_group):
             "analysis_datenum_mean": datenum_mean,
             "analysis_datenum_std": datenum_std,
             "blank_progression": blank_prog["x"],
+            "blank_fit_std": np.std(blank_prog["fun"]),
+            "blank_fit_rmse": np.sqrt(np.mean(blank_prog["fun"] ** 2)),
         }
     )
 
@@ -115,6 +126,7 @@ def get_session_blanks(dbs, batch_col="dic_cell_id", **kwargs):
     if "blank_good" not in dbs:
         dbs["blank_good"] = True
     dbs.sessions = dbs.groupby(by=batch_col).apply(_get_session_blanks)
+    dbs.sessions.sort_values("analysis_datenum_mean", inplace=True)
     return dbs
 
 
