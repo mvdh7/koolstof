@@ -30,17 +30,29 @@ def _get_sample_blanks(dbs_row, logfile, use_from=6):
     """[row.apply] Calculate each sample's DIC blank value."""
     lft = logfile.loc[dbs_row.logfile_index].table
     use_minutes = lft["minutes"] >= use_from
-    blank_here = np.mean(lft["increments"][use_minutes])
-    return blank_here
+    blank_here = lft["increments"][use_minutes].mean()
+    blank_here_min = lft["increments"][use_minutes].min()
+    blank_here_max = lft["increments"][use_minutes].max()
+    blank_here_std = lft["increments"][use_minutes].std()
+    return pd.Series(
+        {
+            "blank_here": blank_here,
+            "blank_here_min": blank_here_min,
+            "blank_here_max": blank_here_max,
+            "blank_here_std": blank_here_std,
+        }
+    )
 
 
 def get_sample_blanks(dbs, use_from=6):
     """Calculate each sample's DIC blank value."""
     if "logfile_index" not in dbs:
         dbs.get_logfile_index()
-    dbs["blank_here"] = dbs.apply(
+    dbs_blanks = dbs.apply(
         _get_sample_blanks, args=[dbs.logfile], axis=1, use_from=use_from
     )
+    for blank in ["blank_here", "blank_here_min", "blank_here_max", "blank_here_std"]:
+        dbs[blank] = dbs_blanks[blank]
     return dbs
 
 
