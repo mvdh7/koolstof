@@ -76,6 +76,17 @@ def plot_session_blanks(
         get.de_centre_and_scale(fx, s.analysis_datenum_std, s.analysis_datenum_mean)
     )
     ax.plot(fx, fy, c=c, label="Best fit")
+    # Draw errorbars
+    ax.errorbar(
+        "analysis_datetime",
+        "blank_here",
+        yerr="blank_here_std",
+        data=dbs[l & dbs.blank_good],
+        alpha=0.3,
+        ecolor=c,
+        label=None,
+        linestyle="none",
+    )
     # Draw the rest of the figure
     dbs[l & dbs.blank_good].plot.scatter(
         "analysis_datetime",
@@ -94,7 +105,7 @@ def plot_session_blanks(
         marker=marker,
         label="Ignored",
     )
-    y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.05
+    y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
     off_x = dbs[l & (dbs.blank_here > y_max)].analysis_datetime.values
     ax.scatter(
         off_x,
