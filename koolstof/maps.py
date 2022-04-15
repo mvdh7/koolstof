@@ -47,7 +47,10 @@ def _coastline_coords(lat_range, lon_range, resolution="10m"):
     list
         Coordinates of the matching coastlines.
     """
-    x = shpreader.natural_earth(resolution="10m", category="physical", name="coastline")
+    assert resolution in ["10m", "50m", "110m"]
+    x = shpreader.natural_earth(
+        resolution=resolution, category="physical", name="coastline"
+    )
     cl = shpreader.Reader(x)
     coastlines = cl.records()
     my_bounds = LinearRing(
