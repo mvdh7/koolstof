@@ -1,6 +1,6 @@
 # Mapping tools: `ks.maps`
 
-## Finding the distance to shore
+## Find the distance to shore
 
 To calculate the distance between a point in space and the nearest shoreline, we can construct a vantage-point tree (VPT) from shoreline coordinates and then query it to find the closest point in space.
 
