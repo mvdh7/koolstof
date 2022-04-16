@@ -11,6 +11,7 @@ nav:
   - Overview: index.md
   - VINDTA DIC processing: vindta.md
   - Infrared DIC analysis: infrared.md
+  - Spectrophotometric pH: spectro.md
   - Mapping tools: maps.md
 
 theme:

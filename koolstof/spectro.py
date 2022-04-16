@@ -4,7 +4,26 @@ import numpy as np
 def pH_NIOZ(
     absorbance_578nm, absorbance_434nm, absorbance_730nm, temperature=25, salinity=35
 ):
-    """Calculate pH from NIOZ spectrophotometer absorbances."""
+    """Calculate pH from NIOZ spectrophotometer absorbances.
+
+    Parameters
+    ----------
+    absorbance_578nm : array_like
+        Absorbance at 578 nm.
+    absorbance_434nm : array_like
+        Absorbance at 434 nm.
+    absorbance_730nm : array_like
+        Absorbance at 730 nm.
+    temperature : array_like, optional
+        Temperature in °C, by default 25.
+    salinity : array_like, optional
+        Practical salinity, by default 35.
+
+    Returns
+    -------
+    array_like
+        pH on the total scale.
+    """
     WL1 = absorbance_578nm
     WL2 = absorbance_434nm
     WL3 = absorbance_730nm
