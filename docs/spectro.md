@@ -6,6 +6,10 @@ To calculate pH on the total scale from NIOZ spectrophotometer data:
 import koolstof as ks
 
 pH_total = ks.spectro.pH_NIOZ(
-    absorbance_578nm, absorbance_434nm, absorbance_730nm, temperature=25, salinity=35
+    absorbance_578nm,
+    absorbance_434nm,
+    absorbance_730nm,
+    temperature=25,
+    salinity=35,
 )
 ```
