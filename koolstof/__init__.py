@@ -65,7 +65,7 @@ def hello():
         s  Version {}
         t  doi:10.5281/zenodo.3999292
         o  
-        f  https://humphreys.science
+        f  https://seaco2.group
         """.format(
             __version__
         )
