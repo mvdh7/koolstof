@@ -5,7 +5,7 @@ import koolstof as ks
 
 lat_range = (50, 55)
 lon_range = (-5, 10)
-coords = ks.maps.coastline_coords(lat_range, lon_range, resolution="110m")
+coords = ks.maps.coastline_coords(lat_range, lon_range, resolution="10m")
 
 
 def test_geodesic_distance():
@@ -40,7 +40,7 @@ def test_build_vptree():
     assert isinstance(nn0[0], float)
     assert nn0[0] == 0
     assert np.all(np.isclose(coords[0], nn0[1]))
-
+    
 
 # test_geodesic_distance()
 # test_coastline_coords()

@@ -4,6 +4,10 @@ import numpy as np
 def aou_GG92(oxygen=None, temperature=25, salinity=35):
     """AOU and saturated O2 from temperature and salinity in umol/kg-sw.
     Based on Garcia & Gordon (1992), 'combined-fit' constants.
+
+    With the corrected equation from
+    Garcia, H.E., and L.I. Gordon, 1993: Erratum: Oxygen solubility in  seawater:
+    better fitting equations. Limnology and Oceanography, 38(3), 656.
     """
     A0 = 5.80818
     A1 = 3.20684
