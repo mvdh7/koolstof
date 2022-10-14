@@ -42,7 +42,7 @@ from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92
 
-__version__ = "0.0.22"
+__version__ = "0.0.24"
 __author__ = "Humphreys, Matthew P. and Delaigue, Louise"
 
 
@@ -65,7 +65,7 @@ def hello():
         s  Version {}
         t  doi:10.5281/zenodo.3999292
         o  
-        f  https://humphreys.science
+        f  https://seaco2.group
         """.format(
             __version__
         )

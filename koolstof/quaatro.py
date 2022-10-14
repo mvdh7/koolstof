@@ -93,8 +93,8 @@ def pH_of_analysis(
     # Dissociation constants for HCOOH and BPhB
     # pk_HCOOH = 3.745  # Wikipedia
     # pk_BPhB = 3.513  # Nand & Ellwood (2018) doi:10.1002/lom3.10253
-    k_HCOOH = 10 ** -pk_HCOOH
-    k_BPhB = 10 ** -pk_BPhB
+    k_HCOOH = 10**-pk_HCOOH
+    k_BPhB = 10**-pk_BPhB
 
     # Dilute other total concentrations
     results_undiluted = pyco2.sys(

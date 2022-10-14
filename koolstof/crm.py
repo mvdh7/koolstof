@@ -56,7 +56,7 @@ dickson_certified_values = {
 }
 
 
-def dickson(crm_batches, fields):
+def dickson(crm_batches, fields="all"):
     """Dickson seawater certified reference material."""
     if isinstance(fields, str):
         if fields == "all":

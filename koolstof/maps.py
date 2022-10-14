@@ -5,10 +5,21 @@ import cartopy.io.shapereader as shpreader
 from shapely.geometry import LinearRing
 
 
-def geodesic_distance(lon_lat_1, lon_lat_2):
-    """Calculate geodesic distance between a pair of points in km.
+def _geodesic_distance(lon_lat_1, lon_lat_2):
+    """Calculate geodesic distance between a single pair of points in km, based on
+    https://stackoverflow.com/a/45480555
 
-    Based on https://stackoverflow.com/a/45480555
+    Parameters
+    ----------
+    lon_lat_1 : array_like
+        (longitude, latitude) of the first point in decimal degrees.
+    lon_lat_2 : array_like
+        (longitude, latitude) of the second point in decimal degrees.
+
+    Returns
+    -------
+    float
+        Distance between the two points in km.
     """
     return (
         Geodesic.WGS84.Inverse(lon_lat_1[1], lon_lat_1[0], lon_lat_2[1], lon_lat_2[0])[
@@ -18,11 +29,28 @@ def geodesic_distance(lon_lat_1, lon_lat_2):
     )
 
 
-def coastline_coords(lat_range, lon_range, resolution="10m"):
+def _coastline_coords(lat_range, lon_range, resolution="10m"):
     """Get list of coastline coordinates from Natural Earth Data coastline sections
     that intersect with the lat_range and lon_range.
+
+    Parameters
+    ----------
+    lat_range : array_like
+        (min, max) latitude in decimal degrees.
+    lon_range : array_like
+        (min, max) longitude in decimal degrees.
+    resolution : str, optional
+        Natural Earth Data resolution, by default "10m"
+
+    Returns
+    -------
+    list
+        Coordinates of the matching coastlines.
     """
-    x = shpreader.natural_earth(resolution="10m", category="physical", name="coastline")
+    assert resolution in ["10m", "50m", "110m"]
+    x = shpreader.natural_earth(
+        resolution=resolution, category="physical", name="coastline"
+    )
     cl = shpreader.Reader(x)
     coastlines = cl.records()
     my_bounds = LinearRing(
@@ -42,11 +70,23 @@ def build_vptree(lat_range, lon_range, **kwargs):
     """Build vantage-point tree from Natural Earth Data coastline sections that
     intersect with the lat_range and lon_range.
 
-    Use vpt.get_nearest_neighbor((lon, lat)) to find geodesic distance of nearest point
-    on the coastline to (lon, lat) in km.
+    Once constructed, use `vpt.get_nearest_neighbor((lon, lat))` to find the geodesic
+    distance of nearest point on the coastline to (lon, lat) in km.
 
     Based on https://stackoverflow.com/a/45480555
+
+    Parameters
+    ----------
+    lat_range : array_like
+        (min, max) latitude in decimal degrees.
+    lon_range : array_like
+        (min, max) longitude in decimal degrees.
+
+    Returns
+    -------
+    vpt : vptree.VPTree
+        Vantage-point tree containing the matching coastline sections.
     """
-    coords = coastline_coords(lat_range, lon_range, **kwargs)
-    vpt = vptree.VPTree(coords, geodesic_distance)
+    coords = _coastline_coords(lat_range, lon_range, **kwargs)
+    vpt = vptree.VPTree(coords, _geodesic_distance)
     return vpt
