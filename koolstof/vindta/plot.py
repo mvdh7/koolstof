@@ -3,6 +3,7 @@ import itertools, copy
 import numpy as np
 from matplotlib import pyplot as plt, dates as mdates
 from . import get, process
+from .. import __version__
 
 
 markers = itertools.cycle(("o", "^", "s", "v", "D", "<", ">"))
@@ -18,6 +19,21 @@ colours = itertools.cycle(
         "xkcd:orange",
     )
 )
+
+
+def add_credit(ax):
+    """Add koolstof credit to figures."""
+    ax.text(
+        1.005,
+        0,
+        "koolstof v{}".format(__version__),
+        alpha=0.2,
+        c="k",
+        ha="left",
+        va="bottom",
+        rotation=-90,
+        transform=ax.transAxes,
+    )
 
 
 def increments(dbs, logfile, use_from, ax=None, alpha=0.25, **kwargs):
@@ -48,6 +64,7 @@ def increments(dbs, logfile, use_from, ax=None, alpha=0.25, **kwargs):
     ax.set_ylim([0, fymax * 1.2])
     ax.set_xlabel("Run time / minutes")
     ax.set_ylabel("Increments / per minute")
+    add_credit(ax)
     return ax
 
 
@@ -124,6 +141,7 @@ def plot_session_blanks(
     ax.set_ylabel(r"Coulometer blank / count$\cdot$minute$^{-1}$")
     ax.set_title(session)
     ax.grid(alpha=0.2)
+    add_credit(ax)
     plt.tight_layout()
     if figure_path is not None:
         plt.savefig("{}/{}.{}".format(figure_path, str(session), figure_format))
@@ -135,7 +153,8 @@ def plot_session_blanks(
 def plot_blanks(dbs, **kwargs):
     """Draw sample blanks and their fit for all analysis sessions."""
     for session in dbs.sessions.index:
-        fig, _ = plot_session_blanks(dbs, session, **kwargs)
+        fig, ax = plot_session_blanks(dbs, session, **kwargs)
+        add_credit(ax)
         plt.close(fig)
 
 
@@ -196,6 +215,7 @@ def blanks(dbs, dic_sessions, ax=None, title=None, alpha=0.5, **kwargs):
     ax.set_xlabel("Time of day")
     ax.set_ylim([0, np.max(dbs[dbs.blank_good].blank_here) * 1.05])
     ax.set_ylabel("Sample blank / count per minute")
+    add_credit(ax)
     return ax
 
 
@@ -230,6 +250,7 @@ def plot_k_dic(
                 marker=m,
                 alpha=0.7,
                 label=session,
+                legend=False,
             )
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
         if l_bad.any():
@@ -240,6 +261,7 @@ def plot_k_dic(
                 c="none",
                 edgecolor=c,
                 marker=m,
+                legend=False,
             )
         sl = dbs[batch_col] == session
         sx = np.array(
@@ -269,6 +291,7 @@ def plot_k_dic(
     ax.xaxis.set_major_formatter(formatter)
     ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
+    add_credit(ax)
     plt.tight_layout()
     if figure_path is not None:
         plt.savefig("{}/k_dic.{}".format(figure_path, figure_format))
@@ -304,6 +327,7 @@ def plot_dic_offset(
                 marker=m,
                 alpha=0.7,
                 label=session,
+                legend=False,
             )
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
         if l_bad.any():
@@ -314,6 +338,7 @@ def plot_dic_offset(
                 c="none",
                 edgecolor=c,
                 marker=m,
+                legend=False,
             )
     # ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
@@ -326,6 +351,7 @@ def plot_dic_offset(
     ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     ax.axhline(0, c="k", linewidth=0.8)
+    add_credit(ax)
     plt.tight_layout()
     if figure_path is not None:
         plt.savefig("{}/dic_offset.{}".format(figure_path, figure_format))
@@ -377,4 +403,5 @@ def dic_calibration_factors(dbs, dic_sessions, ax=None, save_as=None, **kwargs):
         ]
     )
     ax.grid(alpha=0.4)
+    add_credit(ax)
     return ax
