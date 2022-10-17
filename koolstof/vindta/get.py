@@ -208,7 +208,7 @@ def get_session_calibrations(dbs, batch_col="dic_cell_id", **kwargs):
     if "k_dic_good" not in dbs:
         dbs["k_dic_good"] = ~np.isnan(dbs.dic_certified)
     sc = dbs.groupby(by=batch_col).apply(_get_session_calibrations)
-    for k, v in sc.iteritems():
+    for k, v in sc.items():
         dbs.sessions[k] = v
     dbs["k_dic"] = dbs.sessions.loc[dbs[batch_col]].k_dic_mean.values
     return dbs
