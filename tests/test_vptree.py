@@ -40,7 +40,7 @@ def test_build_vptree():
     assert isinstance(nn0[0], float)
     assert nn0[0] == 0
     assert np.all(np.isclose(coords[0], nn0[1]))
-    
+
 
 # test_geodesic_distance()
 # test_coastline_coords()
