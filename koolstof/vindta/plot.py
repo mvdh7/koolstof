@@ -250,7 +250,7 @@ def plot_k_dic(
         )
         sy = np.full_like(sx, s.k_dic_mean)
         ax.plot(sx, sy, c=c)
-    ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
+    # ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC calibration factor / μmol$\cdot$count$^{-1}$")
     # fac_mean = dbs.k_dic.mean()
@@ -315,7 +315,7 @@ def plot_dic_offset(
                 edgecolor=c,
                 marker=m,
             )
-    ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
+    # ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
     ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
