@@ -5,7 +5,7 @@ import cartopy.io.shapereader as shpreader
 from shapely.geometry import LinearRing
 
 
-def _geodesic_distance(lon_lat_1, lon_lat_2):
+def geodesic_distance(lon_lat_1, lon_lat_2):
     """Calculate geodesic distance between a single pair of points in km, based on
     https://stackoverflow.com/a/45480555
 
@@ -88,5 +88,5 @@ def build_vptree(lat_range, lon_range, **kwargs):
         Vantage-point tree containing the matching coastline sections.
     """
     coords = _coastline_coords(lat_range, lon_range, **kwargs)
-    vpt = vptree.VPTree(coords, _geodesic_distance)
+    vpt = vptree.VPTree(coords, geodesic_distance)
     return vpt
