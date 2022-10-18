@@ -3,7 +3,7 @@ import itertools, copy
 import numpy as np
 from matplotlib import pyplot as plt, dates as mdates
 from . import get, process
-from .. import __version__
+from ..meta import __version__
 
 
 markers = itertools.cycle(("o", "^", "s", "v", "D", "<", ">"))

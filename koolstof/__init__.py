@@ -7,6 +7,7 @@ from . import (
     crm,
     infrared,
     maps,
+    meta,
     molar,
     optode,
     parameterisations,
@@ -40,10 +41,8 @@ from .vindta import (
 )
 from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
-from .parameterisations import aou_GG92
-
-__version__ = "0.25"
-__author__ = "Humphreys, Matthew P. and Delaigue, Louise"
+from .parameterisations import aou_GG92, pH_tris_DD98
+from .meta import __author__, __version__
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))

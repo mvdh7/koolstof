@@ -40,3 +40,18 @@ def aou_GG92(oxygen=None, temperature=25, salinity=35):
     else:
         aou = aou_percent = np.nan
     return aou, aou_percent, o2_saturation
+
+
+def pH_tris_DD98(temperature=25, salinity=35):
+    """pH of tris buffer following DelValls and Dickson (1998) eq. 18."""
+    T = temperature + 273.15
+    S = salinity
+    pH = (
+        (11911.08 - 18.2499 * S - 0.039336 * S**2) / T
+        - 366.27059
+        + 0.53993607 * S
+        + 0.00016329 * S**2
+        + (64.52243 - 0.084041 * S) * np.log(T)
+        - 0.11149858 * T
+    )
+    return pH
