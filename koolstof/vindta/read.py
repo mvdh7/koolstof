@@ -1,17 +1,23 @@
 import re
 import numpy as np, pandas as pd
 from matplotlib import dates as mdates
-from . import Dbs
 
 
 def read_logfile(fname, methods="3C standard"):
     """Import a logfile.bak as a DataFrame.
 
-    Arguments:
-    fname -- the filename (and path) of the .dbs file
+    Parameters
+    ----------
+    fname : str
+        The filename (and path) of the logfile.
+    methods : str or list, optional
+        VINDTA method name or list of names used for measurements, by default
+        "3C standard".
 
-    Keywords arguments:
-    methods -- list of VINDTA methods considered as real measurements
+    Returns
+    -------
+    pd.DataFrame
+        The logfile as a pandas DataFrame.
     """
     if isinstance(methods, str):
         methods = [methods]
@@ -79,7 +85,7 @@ def read_logfile(fname, methods="3C standard"):
 
 
 # More Python-friendly names for the .dbs columns
-dbs_mapper = {
+_dbs_mapper = {
     "run type": "run_type",
     "i.s. temperature": "temperature_insitu",
     "run time": "run_time",
@@ -106,7 +112,7 @@ dbs_mapper = {
 
 
 # List of columns to drop from the .dbs by default
-dbs_drop = [
+_dbs_drop = [
     "run_type",
     "temperature_insitu",
     "salinity",
@@ -134,8 +140,8 @@ dbs_drop = [
 ]
 
 
-def dbs_datetime(dbs_row):
-    """Convert date and time from .dbs file into datetime."""
+def _dbs_datetime(dbs_row):
+    """[row.apply] Convert date and time from dbs file into a datetime."""
     try:
         dspl = dbs_row["date"].split("/")
         analysis_datetime = np.datetime64(
@@ -150,26 +156,30 @@ def dbs_datetime(dbs_row):
     )
 
 
-def read_dbs(fname, keep_all_cols=False, logfile=None):
-    """Import a .dbs file from a VINDTA, rename the columns, and reformat the date/time.
+def read_dbs(fname, drop_cols=True):
+    """Import a dbs file from a VINDTA, rename the columns, and reformat the date/time.
 
-    Arguments:
-    fname -- the filename (and path) of the .dbs file
+    Parameters
+    ----------
+    fname : str
+        The filename (and path) of the dbs file.
+    drop_cols : bool, optional
+        Whether to drop superfluous columns (True) or not (False), by default True.
 
-    Keyword arguments:
-    keep_all_cols -- keep all original columns from the .dbs?
-    logfile -- the DataFrame containing the logfile.bak
+    Returns
+    -------
+    pd.DataFrame
+        The dbs file as a pandas DataFrame.
     """
+    # Import the dbs file and rename columns
     headers = np.genfromtxt(fname, delimiter="\t", dtype=str, max_rows=1)
-    dbs = pd.read_table(fname, header=0, names=headers, usecols=headers).rename(
-        columns=dbs_mapper
-    )
+    dbs = pd.read_table(fname, header=0, names=headers, usecols=headers)
+    dbs = dbs.rename(columns=_dbs_mapper)
     dbs["dbs_fname"] = fname
-    dbs = Dbs(dbs.assign(**dbs.apply(dbs_datetime, axis=1)))
+    # Reformat the date and time
+    dbs = dbs.assign(**dbs.apply(_dbs_datetime, axis=1))
     dbs["analysis_datenum"] = mdates.date2num(dbs.analysis_datetime)
-    if not keep_all_cols:
-        dbs.drop(columns=dbs_drop, inplace=True)
-    if logfile is not None:
-        assert isinstance(logfile, pd.DataFrame), "`logfile` must be a DataFrame."
-        dbs.logfile = logfile
+    # Drop superfluous columns, if requested (by default, do this)
+    if drop_cols:
+        dbs.drop(columns=_dbs_drop, inplace=True)
     return dbs
