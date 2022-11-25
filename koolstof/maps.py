@@ -2,7 +2,7 @@ import itertools
 import vptree
 from geographiclib.geodesic import Geodesic
 import cartopy.io.shapereader as shpreader
-from shapely.geometry import LinearRing
+from shapely import geometry
 
 
 def geodesic_distance(lon_lat_1, lon_lat_2):
@@ -53,7 +53,7 @@ def _coastline_coords(lat_range, lon_range, resolution="10m"):
     )
     cl = shpreader.Reader(x)
     coastlines = cl.records()
-    my_bounds = LinearRing(
+    my_bounds = geometry.Polygon(
         [
             (lon_range[0], lat_range[0]),
             (lon_range[0], lat_range[1]),
