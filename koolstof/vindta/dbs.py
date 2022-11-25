@@ -9,7 +9,7 @@ class Dbs(pd.DataFrame):
         get_logfile_index,
         get_sample_blanks,
         get_session_blanks,
-        get_blank_corrections,
+        get_counts_corrected,
         get_density,
         get_standard_calibrations,
         get_session_calibrations,
