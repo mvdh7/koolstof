@@ -86,6 +86,14 @@ def test_plots():
     ksv.plot_blanks(dbs, sessions)
     ksv.plot_k_dic(dbs, sessions)
     ksv.plot_dic_offset(dbs, sessions)
+    dbs.loc[
+        (dbs.dic_cell_id == "C_Aug14-18_0708")
+        & ((dbs.bottle == "CRM#171") | (dbs.bottle == "CRM#171B")),
+        "k_dic_good",
+    ] = False
+    ksv.calibrate_dic(dbs, sessions)
+    ksv.plot_k_dic(dbs, sessions, show_ignored=False)
+    ksv.plot_dic_offset(dbs, sessions)
 
 
 # test_read_dbs()

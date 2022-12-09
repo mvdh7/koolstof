@@ -294,8 +294,6 @@ def blank_correction(
 
     Returns
     -------
-    dbs : pd.DataFrame
-        The dbs file imported with blank corrections applied.
     sessions : pd.DataFrame
         A table of analysis sessions including blank correction details.
     """

@@ -39,7 +39,7 @@ def add_credit(ax):
 
 
 def plot_increments(
-    dbs, logfile, use_from=6, ax=None, alpha=0.25, dpi=300, figsize=[6.4, 4.8], **kwargs
+    dbs, logfile, use_from=6, ax=None, alpha=0.6, dpi=300, figsize=[6.4, 4.8], **kwargs
 ):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional kwargs are passed to plt.plot().
@@ -53,20 +53,32 @@ def plot_increments(
         i_data = logfile.table[i]
         i_blank = i_data["minutes"] >= use_from
         ax.plot(
+            i_data["minutes"],
+            i_data["increments"],
+            c="xkcd:almost black",
+            alpha=0.1,
+        )
+        ax.scatter(
             i_data["minutes"][i_blank],
             i_data["increments"][i_blank],
-            c="xkcd:strawberry",
             alpha=alpha,
+            c="xkcd:strawberry",
+            clip_on=False,
+            edgecolor="none",
+            s=20,
         )
         fymax = np.max([fymax, np.max(i_data["increments"][-3:])])
-        not_i_blank = i_data["minutes"] <= use_from
-        ax.plot(
+        not_i_blank = i_data["minutes"] < use_from
+        ax.scatter(
             i_data["minutes"][not_i_blank],
             i_data["increments"][not_i_blank],
-            c="xkcd:navy",
             alpha=alpha,
+            c="xkcd:navy",
+            clip_on=False,
+            edgecolor="none",
+            s=20,
         )
-    ax.set_xlim([0, dbs.run_time.max()])
+    ax.set_xlim([0, dbs.run_time.max() + 0.5])
     ax.set_ylim([0, fymax * 1.2])
     ax.set_xlabel("Run time / minutes")
     ax.set_ylabel("Increments / per minute")
@@ -262,6 +274,7 @@ def plot_k_dic(
     ax=None,
     figure_path=None,
     figure_format="png",
+    show_ignored=True,
 ):
     """Plot DIC calibration factors through time."""
     marker = copy.deepcopy(markers)
@@ -284,17 +297,18 @@ def plot_k_dic(
                 label=session,
                 legend=False,
             )
-        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
-        if l_bad.any():
-            dbs[l_bad].plot.scatter(
-                "analysis_datetime",
-                "k_dic_here",
-                ax=ax,
-                c="none",
-                edgecolor=c,
-                marker=m,
-                legend=False,
-            )
+        if show_ignored:
+            l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
+            if l_bad.any():
+                dbs[l_bad].plot.scatter(
+                    "analysis_datetime",
+                    "k_dic_here",
+                    ax=ax,
+                    c="none",
+                    edgecolor=c,
+                    marker=m,
+                    legend=False,
+                )
         sl = dbs[sessions.index.name] == session
         sx = np.array(
             [
