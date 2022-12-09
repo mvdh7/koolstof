@@ -130,7 +130,7 @@ ksv.plot_increments(dbs, logfile, use_from=6)
 
 This generates a figure like below:
 
-![Output from ksv.plot_increments()](/img/plot_increments.png)
+![Output from ksv.plot_increments()](https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_increments.png)
 
 Here we see the count increments for every sample in the dbs.  The y-axis is automatically zoomed in on the lower values at the end of the analysis, which we use to determine the blank.  The data points currently considered as 'blanks', where the number of minutes is greater than or equal to `use_from`, are shown in red.  We need to check that all the sample has indeed passed through this point, and that there isn't a strong trend with time in the red points.
 
@@ -146,7 +146,7 @@ ksv.plot_blanks(dbs, sessions)
 
 This generates a sequence of plots, each something like this:
 
-![Output from ksv.plot_blanks()](/img/plot_blanks.png)
+![Output from ksv.plot_blanks()](https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_blanks.png)
 
 The points are the sample-by-sample blank values, with error bars indicating the standard deviation of the minute-by-minute blank estimates for each sample.  The solid line shows the fit, which is what's actually used to make the blank correction for each sample.
 
@@ -176,13 +176,13 @@ ksv.plot_k_dic(dbs, sessions, show_ignored=True)
 
 The plot may look something like this:
 
-![Output from ksv.plot_k_dic()](/img/plot_k_dic_0.png)
+![Output from ksv.plot_k_dic()](https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_k_dic_0.png)
 
 Each change of colour and marker style indicates a new analysis session, and the horizontal lines show the mean calibration factors used for each session.
 
 In the example above, there are clearly two bad CRM measurements.  You can exclude these from the calibration by setting `"k_dic_good"` to false, then re-run `ksv.calibrate_dic` to recalibrate.  Recreating the figure above but with `show_ignored=False` now gives us a clearer picture of the calibrations:
 
-![Output from ksv.plot_k_dic()](/img/plot_k_dic_1.png)
+![Output from ksv.plot_k_dic()](https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_k_dic_1.png)
 
 ### Plot CRM offsets
 
@@ -192,7 +192,7 @@ Finally, we can visualise the same information above in a different way by looki
 ksv.plot_dic_offset(dbs, sessions)
 ```
 
-![Output from ksv.plot_dic_offset()](/img/plot_dic_offset.png)
+![Output from ksv.plot_dic_offset()](https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_dic_offset.png)
 
 The CRMs for each analysis session will fall on average at zero.  The scatter about zero gives some indication of the precision of the measurement.
 
