@@ -10,13 +10,13 @@ coords = ks.maps._coastline_coords(lat_range, lon_range, resolution="110m")
 
 def test_geodesic_distance():
     """Do we calculate the same distances as http://edwilliams.org/gccalc.htm ?"""
-    dist0 = ks.maps._geodesic_distance((0, 1), (0, 0))
+    dist0 = ks.maps.geodesic_distance((0, 1), (0, 0))
     assert isinstance(dist0, float)
     assert np.isclose(dist0, 110.57438855790893)
-    dist1 = ks.maps._geodesic_distance((1, 0), (0, 0))
+    dist1 = ks.maps.geodesic_distance((1, 0), (0, 0))
     assert isinstance(dist1, float)
     assert np.isclose(dist1, 111.31949077920639)
-    dist2 = ks.maps._geodesic_distance((12, -23), (-135.8, 86.4))
+    dist2 = ks.maps.geodesic_distance((12, -23), (-135.8, 86.4))
     assert isinstance(dist2, float)
     assert np.isclose(dist2, 12885.15245722158)
 
