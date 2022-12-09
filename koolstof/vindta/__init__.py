@@ -9,4 +9,4 @@ from .plot import (
     plot_dic_offset,
 )
 from .process import poison_correction
-from . import io, plot, process
+from . import plot, process
