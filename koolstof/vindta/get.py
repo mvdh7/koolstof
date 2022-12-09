@@ -193,7 +193,7 @@ def get_session_blanks(dbs, logfile=None, session_col="dic_cell_id", use_from=6)
     return sessions
 
 
-def _blank_correction(
+def _get_counts_corrected(
     dbs,
     blank_col="blank",
     counts_col="counts",
@@ -256,26 +256,38 @@ def get_counts_corrected(
             s.blank_progression,
             dbs.loc[l].analysis_datenum_scaled,
         )
-    dbs["counts_corrected"] = _blank_correction(
+    dbs["counts_corrected"] = _get_counts_corrected(
         dbs, blank_col=blank_col, counts_col=counts_col, runtime_col=runtime_col
     )
 
 
-def get_blanks(dbs, logfile, methods="3C standard", use_from=6):
+def blank_correction(
+    dbs,
+    logfile,
+    blank_col="blank",
+    counts_col="counts",
+    runtime_col="run_time",
+    session_col="dic_cell_id",
+    use_from=6,
+):
     """Convenience wrapper for get_counts_corrected.  Returns the dbs with the blanks
     having been determined for each analysis session and counts thus corrected.
 
     Parameters
     ----------
-    dbs : pd.DataFrame or str
-        The dbs file as a pandas DataFrame (imported with read_dbs) or the file name
-        (and path) for the dbs file.
-    logfile : pd.DataFrame or str
-        The logfile as a pandas DataFrame (imported with read_logfile) or the file name
-        (and path) for the logfile.
-    methods : str or list, optional
-        VINDTA method name or list of names used for measurements, only needed if
-        logfile is not already imported, by default "3C standard".
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs).
+    logfile : pd.DataFrame
+        The logfile as a pandas DataFrame (imported with read_logfile).
+    blank_col : str, optional
+        The column name for blank values to use for corrections, by default 'blank'.
+    counts_col : str, optional
+        The column name for uncorrected counts, by default 'counts'.
+    runtime_col : str, optional
+        The column name for run time, by default 'run_time'.
+    session_col : str, optional
+        The column name in the dbs that identifies analysis sessions, by default
+        'dic_cell_id'.
     use_from : int, optional
         Which minute of the titration to begin counting as a blank measurement, by
         default 6.
@@ -287,17 +299,29 @@ def get_blanks(dbs, logfile, methods="3C standard", use_from=6):
     sessions : pd.DataFrame
         A table of analysis sessions including blank correction details.
     """
-    if isinstance(dbs, str):
-        dbs = read_dbs(dbs)
-    if isinstance(logfile, str):
-        logfile = read_logfile(logfile, methods=methods)
     sessions = get_session_blanks(dbs, logfile=logfile, use_from=use_from)
     get_counts_corrected(dbs, sessions=sessions)
-    return dbs, sessions
+    return sessions
 
 
 def get_density(dbs, temperature_analysis_dic=25.0, salinity=35.0):
-    """Calculate sample densities in kg/l."""
+    """Calculate sample densities in kg/l.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file.
+    temperature_analysis_dic : float, optional
+        Temperature of DIC analysis in degC, by default 25.0
+    salinity : float, optional
+        Practical salinity, by default 35.0
+
+    Returns
+    -------
+    pd.DataFrame
+        The dbs DataFrame with an extra column 'density_analysis_dic' containing the
+        density during analysis in kg/l.
+    """
     if "temperature_analysis_dic" not in dbs:
         dbs["temperature_analysis_dic"] = temperature_analysis_dic
         print(
@@ -314,21 +338,20 @@ def get_density(dbs, temperature_analysis_dic=25.0, salinity=35.0):
     return dbs
 
 
-def get_standard_calibrations(dbs, **kwargs):
+def get_standard_calibrations(dbs):
     """Calculate the calibration factor for each CRM separately and add this in-place
     to dbs as column 'k_dic_here'.
 
     Parameters
     ----------
     dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs).
-    **kwargs
-        Additional kwargs are passed on to get_counts_corrected, in case this has not
-        been run already.
+        The dbs file as a pandas DataFrame (imported with read_dbs), having then passed
+        throught blank_correction().
+    sessions : pd.DataFrame
+        A table of analysis sessions including blank correction details, produced by
+        blank_correction().
     """
     assert "dic_certified" in dbs, "You must provide some dbs.dic_certified values."
-    if "counts_corrected" not in dbs:
-        get_counts_corrected(**kwargs)
     if "density_analysis_dic" not in dbs:
         get_density(dbs)
     dbs["k_dic_here"] = (
@@ -348,23 +371,26 @@ def _get_session_calibrations(dbs_group):
     )
 
 
-def get_session_calibrations(dbs, session_col="dic_cell_id", **kwargs):
-    """Calculate the session-averaged calibration factors."""
+def calibrate_dic(dbs, sessions):
+    """Calculate the session-averaged calibration factors and calibrate all DIC
+    measurements.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs), having then passed
+        throught blank_correction().
+    sessions : pd.DataFrame
+        A table of analysis sessions including blank correction details, produced by
+        blank_correction().
+    """
     if "k_dic_here" not in dbs:
-        dbs.get_standard_calibrations(session_col=session_col, **kwargs)
+        get_standard_calibrations(dbs)
     if "k_dic_good" not in dbs:
         dbs["k_dic_good"] = ~dbs.dic_certified.isnull()
-    sc = dbs.groupby(by=session_col).apply(_get_session_calibrations)
+    sc = dbs.groupby(by=sessions.index.name).apply(_get_session_calibrations)
     for k, v in sc.items():
-        dbs.sessions[k] = v
-    dbs["k_dic"] = dbs.sessions.loc[dbs[session_col]].k_dic_mean.values
-    return dbs
-
-
-def calibrate_dic(dbs, **kwargs):
-    """Calibrate all DIC measurements."""
-    if "k_dic" not in dbs:
-        dbs.get_session_calibrations()
-    dbs["dic"] = dbs["counts_corrected"] * dbs["k_dic"] / dbs["density_analysis_dic"]
+        sessions[k] = v
+    dbs["k_dic"] = sessions.loc[dbs[sessions.index.name]].k_dic_mean.values
+    dbs["dic"] = dbs.counts_corrected * dbs.k_dic / dbs.density_analysis_dic
     dbs["dic_offset"] = dbs.dic - dbs.dic_certified
-    return dbs
