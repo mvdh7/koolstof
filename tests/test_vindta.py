@@ -80,6 +80,14 @@ def test_calibrate_dic():
     assert ~dbs.dic.isnull().any()
 
 
+def test_plots():
+    ksv.plot_increments(dbs, logfile)
+    ksv.plot_session_blanks(dbs, sessions, sessions.index[0])
+    ksv.plot_blanks(dbs, sessions)
+    ksv.plot_k_dic(dbs, sessions)
+    ksv.plot_dic_offset(dbs, sessions)
+
+
 # test_read_dbs()
 # test_get_logfile_index()
 # test_get_sample_blanks()
@@ -88,3 +96,4 @@ def test_calibrate_dic():
 # test_blank_correction()
 # test_get_standard_calibrations()
 # test_calibrate_dic()
+# test_plots()
