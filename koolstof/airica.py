@@ -9,7 +9,7 @@ from calkulate.density import seawater_1atm_MP81
 import matplotlib.pyplot as plt
 
 
-# extract data from dbs
+# Extract data from dbs
 mapper_dbs = {
     "run type": "run_type",
     "i.s. temp.": "temperature_insitu",
@@ -63,13 +63,17 @@ def process_airica(
     computing TCO2 values.
     """
 
-    # import ".dbs" file
+    # Import ".dbs" file
     data = read_dbs(dbs_filepath)
 
-    # add ".dbs" data to ".xlsx"
+    # Add ".dbs" data to ".xlsx"
     db = pd.merge(left=db, right=data, how="left", left_on="name", right_on="bottle")
 
-    # check that ".dbs" bottle = ".xlsx" name and drop "bottle" column
+    # Drop useless columns
+    db = db.loc[:, ~db.columns.str.endswith('_y')]
+    db.columns = db.columns.str.replace('_x', '')
+
+    # Check that ".dbs" bottle = ".xlsx" name and drop "bottle" column
     if db["name"].equals(db["bottle"]):
         print("SUCCESSFUL DBS IMPORT")
         db = db.drop(columns=["bottle"])
@@ -77,26 +81,26 @@ def process_airica(
         KeyError
         print("ERROR: mismatch between dbs and xlsx files")
 
-    # recalculate density
+    # Recalculate density
     db["density_analysis"] = np.nan
     db["density_analysis"] = seawater_1atm_MP81(
-        temperature=db.temperature, salinity=db.salinity_rws
+        temperature=db.temperature, salinity=db.salinity
     )
 
-    # average areas with all areas and only last 3 areas
+    # Average areas with all areas and only last 3 areas
     db["area_av_4"] = (db.area_1 + db.area_2 + db.area_3 + db.area_4) / 4
     db["area_av_3"] = (db.area_2 + db.area_3 + db.area_4) / 3
 
-    # calculate DIC * density * sample_v
+    # Calculate DIC * density * sample_v
     db["CT_d_sample_v"] = crm_val * db.density_analysis * db.sample_v
 
-    # create columns to hold conversion factor (CF) values
+    # Create columns to hold conversion factor (CF) values
     db["a_3"] = np.nan
     db["a_4"] = np.nan
     db["b_3"] = np.nan
     db["b_4"] = np.nan
 
-    # calc CRM coeff factor
+    # Calculate CRM coeff factor
     def get_CF(db):
         """Calculate conversion factor CF for each analysis batch."""
         L = db.location == "CRM"
@@ -106,13 +110,13 @@ def process_airica(
 
     db_cf = db.groupby(by=["analysis_batch"]).apply(get_CF)
 
-    # assign CRM a and b to samples based on analysis batch
+    # Assign CRM a and b to samples based on analysis batch
     db["a_3"] = db_cf.loc[db.analysis_batch.values, "a_3"].values
     db["a_4"] = db_cf.loc[db.analysis_batch.values, "a_4"].values
     db["b_3"] = db_cf.loc[db.analysis_batch.values, "b_3"].values
     db["b_4"] = db_cf.loc[db.analysis_batch.values, "b_4"].values
 
-    # calculate TCO2 values
+    # Calculate TCO2 values
     db["TCO2_3"] = np.nan
     db["TCO2_4"] = np.nan
     db["TCO2_3"] = ((db.b_3 * db.area_av_3) + db.a_3) / (
@@ -123,7 +127,7 @@ def process_airica(
     )
 
     if draw_figure:
-        # plot regression
+        # Plot linear regresion of CRM calibration
         f, ax = plt.subplots(figsize=(8, 6.5), dpi=300)
         sns.set_style("darkgrid")
         sns.set_context("paper", font_scale=2)
@@ -138,21 +142,21 @@ def process_airica(
             color="xkcd:primary blue",
         )
 
-        # add R2 to graph
-        r2 = stats.linregress(db.area_av_3[L], db.CT_d_sample_v[L])[2]
+        # Add R2^2 to graph
+        r = stats.linregress(db.area_av_3[L], db.CT_d_sample_v[L])[2]
+        r2 = r^2
         r2s = str(round(r2, 2))
         text = "$R^2$ = " + r2s
-        ax.text(
-            30000,
-            4500000,
-            text,
-            horizontalalignment="left",
-            verticalalignment="center",
-            fontsize=15,
-        )
+        text_x = db.area_av_3.max()*0.75
+        text_y = db.CT_d_sample_v.max()*0.9
+        ax.text(text_x, text_y, text, horizontalalignment='left',
+            verticalalignment='center', fontsize=15)
+        
+        ax.set_xlim([db.area_av_3.min() - 1000, db.area_av_3.max() + 1000])
+        
         plt.tight_layout()
 
-    # save results as text file
+    # Save results as text file
     if results_file_path_and_name is not None:
         db.to_csv(results_file_path_and_name, index=None)
 
