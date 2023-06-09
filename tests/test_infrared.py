@@ -98,7 +98,7 @@ for var in ["flow_rate", "sample_volume"]:
 peaks["total_CO2"] = peaks.flow_integral * peaks.flow_rate  # in mol
 peaks["dic"] = 1e12 * peaks.total_CO2 / peaks.sample_volume
 
-#%%
+# %%
 ixs = dbs.index[-10:-7]
 ix = ixs[1]
 
