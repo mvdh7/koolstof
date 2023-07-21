@@ -124,8 +124,8 @@ def plot_session_blanks(
 
     Returns
     -------
-    _type_
-        _description_
+    fig, ax
+        The Matplotlib figure and axes generated.
     """
     # Prepare to draw the figure
     s = sessions.loc[session]
@@ -161,26 +161,30 @@ def plot_session_blanks(
         marker=marker,
         label="Samples used",
     )
-    dbs[l & ~dbs.blank_good].plot.scatter(
-        "analysis_datetime",
-        "blank_here",
-        ax=ax,
-        c="none",
-        edgecolor=c,
-        marker=marker,
-        label="Ignored",
-    )
     y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
-    off_x = dbs[l & (dbs.blank_here > y_max)].analysis_datetime.values
-    ax.scatter(
-        off_x,
-        np.full(np.size(off_x), y_max * 0.99999),
-        c="none",
-        edgecolor=c,
-        marker="^",
-        label="Off scale (ignored)",
-        clip_on=False,
-    )
+    l_ignored = l & ~dbs.blank_good & (dbs.blank_here <= y_max)
+    if l_ignored.any():
+        dbs[l_ignored].plot.scatter(
+            "analysis_datetime",
+            "blank_here",
+            ax=ax,
+            c="none",
+            edgecolor=c,
+            marker=marker,
+            label="Ignored",
+        )
+    l_offscale = l & (dbs.blank_here > y_max)
+    if l_offscale.any():
+        off_x = dbs[l_offscale].analysis_datetime.values
+        ax.scatter(
+            off_x,
+            np.full(np.size(off_x), y_max * 0.99999),
+            c="none",
+            edgecolor=c,
+            marker="^",
+            label="Off scale (ignored)",
+            clip_on=False,
+        )
     ax.set_ylim([0, y_max])
     ax.legend(edgecolor="k")
     ax.xaxis.set_major_locator(mdates.HourLocator())
@@ -200,8 +204,19 @@ def plot_session_blanks(
     return fig, ax
 
 
-def plot_blanks(dbs, sessions, **kwargs):
-    """Draw sample blanks and their fit for all analysis sessions."""
+def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
+    """Draw sample blanks and their fit for all analysis sessions.
+    
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs), with blank
+        corrections applied.
+    sessions : pd.DataFrame
+        A table with blank fit data for each analysis session.
+    kwargs
+        Passed on to plot_session_blanks().
+    """
     for session in sessions.index:
         fig, ax = plot_session_blanks(dbs, sessions, session, **kwargs)
         plt.close(fig)

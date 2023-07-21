@@ -11,10 +11,15 @@ def _get_logfile_index(dbs_row, logfile):
             (dbs_row.bottle == logfile.bottle)
             & (dbs_row.analysis_datetime == logfile.analysis_datetime)
         )[0]
-        assert np.size(logfile_index) == 1, (
-            "{} name/date matches found between dbs and logfile @ dbs loc {}"
-        ).format(np.size(logfile_index), dbs_row.name)
-        logfile_index = logfile.index[logfile_index[0]]
+        if np.size(logfile_index) == 1:
+            logfile_index = logfile.index[logfile_index[0]]
+        else:
+            print(
+                (
+                    "{} name/date matches found between dbs and logfile @ dbs loc {}"
+                ).format(np.size(logfile_index), dbs_row.name)
+            )
+            logfile_index = np.nan
     else:
         logfile_index = np.nan
     return logfile_index
@@ -134,6 +139,7 @@ def _get_session_blanks(dbs_group):
         )
     else:
         blank_here = x[x.blank_good].blank_here
+        print(len(blank_here))
         datenum_here = x[x.blank_good].analysis_datenum
         datenum_mean = datenum_here.mean()
         datenum_std = datenum_here.std()
@@ -142,7 +148,7 @@ def _get_session_blanks(dbs_group):
         )
         blank_prog = least_squares(
             _lsqfun_blank_progression,
-            [0, 1, 1, 1, 1],
+            [30, 1, 0, 1, 1],
             args=[datenum_scaled, blank_here],
         )
         blank_cols = pd.Series(

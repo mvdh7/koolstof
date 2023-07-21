@@ -20,7 +20,7 @@ def read_cary_oxygen(filename):
         lines = f.read().splitlines()
 
     data_line = False
-    oxy = {"bottle": [], "repeat": []}
+    oxy = {"name": [], "repeat": []}
     reps = ["r{}".format(r) for r in range(1, 6)]
     oxy.update({rep: [] for rep in reps})
     repeat = (
@@ -39,6 +39,10 @@ def read_cary_oxygen(filename):
                 )
             )
 
+        # Get zero value
+        if line.startswith("Zero") and not line == "Zero Report":
+            zero = float(line.split()[1])
+
         # If this line is seen, we've reached the end of the data section:
         if line == "Results Flags Legend":
             data_line = False
@@ -50,7 +54,7 @@ def read_cary_oxygen(filename):
             # column containing "R" in the tables for repeated measurements
             assert len(line_split) in np.array([1, 2, 4]) + repeat
             if len(line_split) == 2 + repeat:  # first measurement for a new sample
-                oxy["bottle"].append(line_split[0])
+                oxy["name"].append(line_split[0])
                 oxy["repeat"].append(repeat > 0)
                 oxy["r1"].append(float(line_split[1 + repeat]))
                 r = 2
@@ -71,6 +75,7 @@ def read_cary_oxygen(filename):
     oxy = pd.DataFrame(oxy)
     oxy["absorbance_raw"] = oxy[reps].mean(axis=1)
     oxy["absorbance_std"] = oxy[reps].std(axis=1)
-    oxy["mq"] = oxy.bottle.str.startswith("MQ")
+    oxy["mq"] = oxy.name.str.startswith("MQ")
+    oxy["zero"] = zero
 
     return oxy
