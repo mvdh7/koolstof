@@ -6,7 +6,6 @@ from . import (
     airica,
     crm,
     infrared,
-    maps,
     meta,
     molar,
     optode,
