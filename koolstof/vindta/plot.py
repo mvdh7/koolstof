@@ -206,7 +206,7 @@ def plot_session_blanks(
 
 def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
     """Draw sample blanks and their fit for all analysis sessions.
-    
+
     Parameters
     ----------
     dbs : pd.DataFrame
