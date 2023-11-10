@@ -3,7 +3,7 @@ import numpy as np, pandas as pd
 from matplotlib import dates as mdates
 
 
-def read_logfile(fname, methods="3C standard"):
+def read_logfile(fname, methods="3C standard", ignore_lines=[]):
     """Import a logfile.bak as a DataFrame.
 
     Parameters
@@ -13,6 +13,8 @@ def read_logfile(fname, methods="3C standard"):
     methods : str or list, optional
         VINDTA method name or list of names used for measurements, by default
         "3C standard".
+    ignore_lines : list, optional
+        Which line numbers of the logfile to ignore, by default [].
 
     Returns
     -------
@@ -77,7 +79,8 @@ def read_logfile(fname, methods="3C standard"):
                 logdf["counts"].append(jdict["counts"][-1])
                 logdf["run_time"].append(j - 4.0)
             else:
-                print("Logfile line {}: bottle name not found!".format(i + 1))
+                if i + 1 not in ignore_lines:
+                    print("Logfile line {}: bottle name not found!".format(i + 1))
     # Convert lists to arrays and put logfile into DataFrame
     logdf = pd.DataFrame({k: np.array(v) for k, v in logdf.items()})
     logdf.set_index("line_number", inplace=True)
