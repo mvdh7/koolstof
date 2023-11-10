@@ -139,7 +139,6 @@ def _get_session_blanks(dbs_group):
         )
     else:
         blank_here = x[x.blank_good].blank_here
-        print(len(blank_here))
         datenum_here = x[x.blank_good].analysis_datenum
         datenum_mean = datenum_here.mean()
         datenum_std = datenum_here.std()
