@@ -1,7 +1,6 @@
 [build-system]
 requires = [
     "setuptools",
-    "koolstof",
     "calkulate",
     "matplotlib",
     "numpy",
@@ -34,7 +33,6 @@ classifiers =[
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "koolstof",
     "calkulate",
     "matplotlib",
     "numpy",
