@@ -2,7 +2,7 @@ site_name: koolstof
 site_author: Matthew P. Humphreys
 site_description: Miscellaneous tools for marine carbonate chemistry and other such things
 site_url: https://koolstof.readthedocs.io/
-copyright: Copyright &copy; 2020–2022  M. P. Humphreys  (GNU GPLv3)
+copyright: Copyright &copy; 2020–2023  M. P. Humphreys  (GNU GPLv3)
 
 repo_name: mvdh7/koolstof
 repo_url: https://github.com/mvdh7/koolstof
@@ -12,7 +12,6 @@ nav:
   - VINDTA DIC processing: vindta.md
   - Infrared DIC analysis: infrared.md
   - Spectrophotometric pH: spectro.md
-  - Mapping tools: maps.md
 
 theme:
   name: material
