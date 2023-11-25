@@ -1,3 +1,53 @@
 [build-system]
-requires = ["setuptools"]
-build_backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+    "koolstof",
+    "calkulate",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "PyCO2SYS",
+    "scikit-learn",
+    "scipy",
+    "seaborn",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "koolstof"
+description = "Miscellaneous tools for marine carbonate chemistry and other such things"
+readme = "README.md"
+classifiers =[
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "koolstof",
+    "calkulate",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "PyCO2SYS",
+    "scikit-learn",
+    "scipy",
+    "seaborn",
+]
+dynamic = ["version"]
+
+[tool.setuptools.packages.find]
+include = ["koolstof*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "koolstof.__version__"}
