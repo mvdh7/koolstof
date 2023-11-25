@@ -4,6 +4,7 @@ from os import sep
 import numpy as np
 from matplotlib import pyplot as plt, dates as mdates
 from . import get, process
+from ..plot import add_credit
 from ..meta import __version__
 
 
@@ -20,22 +21,6 @@ colours = itertools.cycle(
         "xkcd:orange",
     )
 )
-
-
-def add_credit(ax):
-    """Add koolstof credit to figures."""
-    ax.text(
-        1.005,
-        0,
-        "koolstof v{}".format(__version__),
-        alpha=0.3,
-        c="k",
-        fontsize=7,
-        ha="left",
-        va="bottom",
-        rotation=-90,
-        transform=ax.transAxes,
-    )
 
 
 def plot_increments(
