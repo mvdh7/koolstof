@@ -15,6 +15,7 @@ from . import (
     spectro,
     vindta,
 )
+from .meta import __author__, __version__
 from .vindta import (
     read_dbs,
     read_logfile,
@@ -27,7 +28,6 @@ from .vindta import (
 from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92, pH_tris_DD98
-from .meta import __author__, __version__
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
