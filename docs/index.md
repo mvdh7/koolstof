@@ -4,11 +4,8 @@
 
 ## Install
 
-    conda install cartopy
     pip install koolstof
     
-(because Cartopy [doesn't install nicely](https://scitools.org.uk/cartopy/docs/latest/installing.html#building-from-source) with `pip`)
-
 ## Import
 
 ```python
