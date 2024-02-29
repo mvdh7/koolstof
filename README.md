@@ -10,8 +10,6 @@
 
 Miscellaneous tools for marine carbonate chemistry and other such things.
 
-Highly unstable and unreliably documented.
-
 **Install:**
 
     pip install koolstof
