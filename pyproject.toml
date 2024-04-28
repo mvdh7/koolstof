@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "koolstof"
-description = "Miscellaneous tools for marine carbonate chemistry and other such things"
+description = "Miscellaneous tools for marine carbonate chemistry"
 readme = "README.md"
 classifiers =[
     "Development Status :: 4 - Beta",
@@ -30,6 +30,7 @@ classifiers =[
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Oceanography",
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
