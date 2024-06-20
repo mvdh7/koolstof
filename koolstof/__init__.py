@@ -28,6 +28,7 @@ from .vindta import (
 from .optode import pH_optode
 from .plot import get_cluster_profile, cluster_profile
 from .parameterisations import aou_GG92, pH_tris_DD98
+from .spectro.oxygen import read_cary_oxygen
 
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
@@ -55,7 +56,3 @@ def hello():
         )
     )
     print(greeting)
-
-
-# Alias for back-compat
-say_hello = hello
