@@ -3,7 +3,7 @@ requires = [
     "setuptools",
     "calkulate",
     "matplotlib",
-    "numpy",
+    "numpy<=1.23",
     "pandas",
     "PyCO2SYS",
     "scikit-learn",
@@ -36,7 +36,7 @@ classifiers =[
 dependencies = [
     "calkulate",
     "matplotlib",
-    "numpy",
+    "numpy<=1.23",
     "pandas",
     "PyCO2SYS",
     "scikit-learn",

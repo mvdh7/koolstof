@@ -4,5 +4,5 @@ filename = "tests/data/test_coulometer.txt"
 
 
 def test_get_coulometer():
-    dic = ksc.get_coulometer(filename)
+    dic = ksc.read_coulometer(filename)
     samples = ksc.get_samples(dic)
