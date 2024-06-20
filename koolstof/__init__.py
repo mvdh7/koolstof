@@ -4,6 +4,7 @@ import string, textwrap
 import numpy as np
 from . import (
     airica,
+    coulometer,
     crm,
     infrared,
     meta,
