@@ -74,7 +74,7 @@ for peak_ix in peaks.index:
     peaks.loc[peak_ix, "start_ix"] = start_ix
     peaks.loc[peak_ix, "end_ix"] = end_ix
     # Integral dx assumes LI-COR file is 2 Hz
-    peaks.loc[peak_ix, "flow_integral"] = integrate.trapz(
+    peaks.loc[peak_ix, "flow_integral"] = integrate.trapezoid(
         licor.loc[start_ix:end_ix].flow_CO2.values, dx=0.5
     )  # in mol*s/m**3
 peaks["start_datetime"] = licor.loc[peaks.start_ix].datetime.values
