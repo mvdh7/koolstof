@@ -1,14 +1,14 @@
 [build-system]
 requires = [
     "setuptools",
-    "calkulate",
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "PyCO2SYS",
-    "scikit-learn",
-    "scipy",
-    "seaborn",
+    # "calkulate",
+    # "matplotlib",
+    # "numpy",
+    # "pandas",
+    # "PyCO2SYS",
+    # "scikit-learn",
+    # "scipy",
+    # "seaborn",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -49,4 +49,4 @@ dynamic = ["version"]
 include = ["koolstof*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "koolstof.__version__"}
+version = {attr = "koolstof.meta.__version__"}
