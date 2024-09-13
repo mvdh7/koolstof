@@ -9,7 +9,7 @@ def _get_logfile_index(dbs_row, logfile):
     if dbs_row.bottle in logfile.bottle.values:
         logfile_index = np.where(
             (dbs_row.bottle == logfile.bottle)
-            & (dbs_row.analysis_datetime == logfile.analysis_datetime)
+            & (dbs_row.datetime_analysis == logfile.datetime_analysis)
         )[0]
         if np.size(logfile_index) == 1:
             logfile_index = logfile.index[logfile_index[0]]
@@ -39,22 +39,26 @@ def get_logfile_index(dbs, logfile):
     dbs["logfile_index"] = dbs.apply(_get_logfile_index, args=[logfile], axis=1)
 
 
-def _get_sample_blanks(dbs_row, logfile, use_from=6):
+def _get_sample_blanks(dbs_row, logfile, use_from=6, use_to=100):
     """[row.apply] Calculate each sample's DIC blank value."""
     try:
         lft = logfile.loc[dbs_row.logfile_index].table
-        use_minutes = lft["minutes"] >= use_from
+        use_minutes = (lft["minutes"] >= use_from) & (lft["minutes"] <= use_to)
         blank_here = lft["increments"][use_minutes].mean()
         blank_here_min = lft["increments"][use_minutes].min()
         blank_here_max = lft["increments"][use_minutes].max()
         blank_here_std = lft["increments"][use_minutes].std()
         blank_here_count = use_minutes.sum()
+        run_time = lft["minutes"].max()
+        counts = lft["counts"].max()
     except (ValueError, KeyError):
         blank_here = np.nan
         blank_here_min = np.nan
         blank_here_max = np.nan
         blank_here_std = np.nan
         blank_here_count = 0
+        run_time = np.nan
+        counts = np.nan
     return pd.Series(
         {
             "blank_here": blank_here,
@@ -62,11 +66,13 @@ def _get_sample_blanks(dbs_row, logfile, use_from=6):
             "blank_here_max": blank_here_max,
             "blank_here_std": blank_here_std,
             "blank_here_count": blank_here_count,
+            "run_time": run_time,
+            "counts": counts,
         }
     )
 
 
-def get_sample_blanks(dbs, logfile, use_from=6):
+def get_sample_blanks(dbs, logfile, use_from=6, use_to=100):
     """Calculate each sample's DIC blank value and add this in-place to the dbs plus
     some relevant statistics.
 
@@ -79,11 +85,14 @@ def get_sample_blanks(dbs, logfile, use_from=6):
     use_from : int, optional
         Which minute of the titration to begin counting as a blank measurement, by
         default 6.
+    use_to : int, optional
+        Which minute of the titration to stop counting as a blank measurement, by
+        default 100.
     """
     if "logfile_index" not in dbs:
         get_logfile_index(dbs, logfile)
     dbs_blanks = dbs.apply(
-        _get_sample_blanks, args=[logfile], axis=1, use_from=use_from
+        _get_sample_blanks, args=[logfile], axis=1, use_from=use_from, use_to=use_to
     )
     for blank in dbs_blanks.columns:
         dbs[blank] = dbs_blanks[blank]
@@ -122,7 +131,7 @@ def _get_session_blanks(dbs_group):
     x = dbs_group
     if x.blank_here.isnull().all():
         print(
-            "No good blank_here values available for session '{}'".format(
+            "koolstof: No good blank_here values available for session '{}'.".format(
                 dbs_group.name
             )
         )
@@ -130,8 +139,8 @@ def _get_session_blanks(dbs_group):
             data={
                 "blank_mean": np.nan,
                 "blank_median": np.nan,
-                "analysis_datenum_mean": np.nan,
-                "analysis_datenum_std": np.nan,
+                "datenum_analysis_mean": np.nan,
+                "datenum_analysis_std": np.nan,
                 "blank_progression": [np.nan] * 5,
                 "blank_fit_std": np.nan,
                 "blank_fit_rmse": np.nan,
@@ -139,23 +148,32 @@ def _get_session_blanks(dbs_group):
         )
     else:
         blank_here = x[x.blank_good].blank_here
-        datenum_here = x[x.blank_good].analysis_datenum
+        datenum_here = x[x.blank_good].datenum_analysis
+        L = blank_here.notnull()
+        blank_here = blank_here[L]
+        datenum_here = datenum_here[L]
         datenum_mean = datenum_here.mean()
         datenum_std = datenum_here.std()
         datenum_scaled = _centre_and_scale(
             datenum_here, x_factor=datenum_std, x_offset=datenum_mean
         )
-        blank_prog = least_squares(
-            _lsqfun_blank_progression,
-            [30, 1, 0, 1, 1],
-            args=[datenum_scaled, blank_here],
-        )
+        if L.sum() == 1:
+            blank_prog = {
+                "x": [blank_here.values[0], 0, 0, 0, 1],
+                "fun": 0,
+            }
+        else:
+            blank_prog = least_squares(
+                _lsqfun_blank_progression,
+                [30, 1, 0, 1, 1],
+                args=[datenum_scaled, blank_here],
+            )
         blank_cols = pd.Series(
             data={
                 "blank_mean": blank_here.mean(),
                 "blank_median": blank_here.median(),
-                "analysis_datenum_mean": datenum_mean,
-                "analysis_datenum_std": datenum_std,
+                "datenum_analysis_mean": datenum_mean,
+                "datenum_analysis_std": datenum_std,
                 "blank_progression": blank_prog["x"],
                 "blank_fit_std": np.std(blank_prog["fun"]),
                 "blank_fit_rmse": np.sqrt(np.mean(blank_prog["fun"] ** 2)),
@@ -164,7 +182,9 @@ def _get_session_blanks(dbs_group):
     return blank_cols
 
 
-def get_session_blanks(dbs, logfile=None, session_col="dic_cell_id", use_from=6):
+def get_session_blanks(
+    dbs, logfile=None, session_col="dic_cell_id", use_from=6, use_to=100
+):
     """Calculate blanks per analysis session.
 
     Parameters
@@ -180,6 +200,9 @@ def get_session_blanks(dbs, logfile=None, session_col="dic_cell_id", use_from=6)
     use_from : int, optional
         Which minute of the titration to begin counting as a blank measurement, by
         default 6.  Passed to get_sample_blanks if this has not already been run.
+    use_to : int, optional
+        Which minute of the titration to stop counting as a blank measurement, by
+        default 100.
 
     Returns
     -------
@@ -190,11 +213,11 @@ def get_session_blanks(dbs, logfile=None, session_col="dic_cell_id", use_from=6)
         assert (
             logfile is not None
         ), "You must either provide a logfile or run get_sample_blanks on the dbs."
-        get_sample_blanks(dbs, logfile, use_from=use_from)
+        get_sample_blanks(dbs, logfile, use_from=use_from, use_to=use_to)
     if "blank_good" not in dbs:
         dbs["blank_good"] = ~dbs.blank_here.isnull()
     sessions = dbs.groupby(by=session_col).apply(_get_session_blanks)
-    sessions.sort_values("analysis_datenum_mean", inplace=True)
+    sessions.sort_values("datenum_analysis_mean", inplace=True)
     return sessions
 
 
@@ -217,6 +240,7 @@ def get_counts_corrected(
     runtime_col="run_time",
     session_col="dic_cell_id",
     use_from=6,
+    use_to=100,
 ):
     """Determine and apply the blank corrections to get corrected counts, which are
     added to dbs in place as column 'counts_corrected'.
@@ -243,23 +267,30 @@ def get_counts_corrected(
     use_from : int, optional
         Which minute of the titration to begin counting as a blank measurement, by
         default 6.  Passed to get_sample_blanks if this has not already been run.
+    use_to : int, optional
+        Which minute of the titration to stop counting as a blank measurement, by
+        default 100.  Passed to get_sample_blanks if this has not already been run.
     """
     if sessions is None:
         sessions = get_session_blanks(
-            dbs, logfile=logfile, session_col=session_col, use_from=use_from
+            dbs,
+            logfile=logfile,
+            session_col=session_col,
+            use_from=use_from,
+            use_to=use_to,
         )
-    dbs["analysis_datenum_scaled"] = np.nan
+    dbs["datenum_analysis_scaled"] = np.nan
     dbs["blank"] = np.nan
     for session, s in sessions.iterrows():
         l = dbs[sessions.index.name] == session
-        dbs.loc[l, "analysis_datenum_scaled"] = _centre_and_scale(
-            dbs.loc[l].analysis_datenum,
-            x_factor=s.analysis_datenum_std,
-            x_offset=s.analysis_datenum_mean,
+        dbs.loc[l, "datenum_analysis_scaled"] = _centre_and_scale(
+            dbs.loc[l].datenum_analysis,
+            x_factor=s.datenum_analysis_std,
+            x_offset=s.datenum_analysis_mean,
         )
         dbs.loc[l, "blank"] = _blank_progression(
             s.blank_progression,
-            dbs.loc[l].analysis_datenum_scaled,
+            dbs.loc[l].datenum_analysis_scaled,
         )
     dbs["counts_corrected"] = _get_counts_corrected(
         dbs, blank_col=blank_col, counts_col=counts_col, runtime_col=runtime_col
@@ -274,6 +305,7 @@ def blank_correction(
     runtime_col="run_time",
     session_col="dic_cell_id",
     use_from=6,
+    use_to=100,
 ):
     """Convenience wrapper for get_counts_corrected.  Returns the dbs with the blanks
     having been determined for each analysis session and counts thus corrected.
@@ -296,13 +328,18 @@ def blank_correction(
     use_from : int, optional
         Which minute of the titration to begin counting as a blank measurement, by
         default 6.
+    use_to : int, optional
+        Which minute of the titration to stop counting as a blank measurement, by
+        default 100.
 
     Returns
     -------
     sessions : pd.DataFrame
         A table of analysis sessions including blank correction details.
     """
-    sessions = get_session_blanks(dbs, logfile=logfile, use_from=use_from)
+    sessions = get_session_blanks(
+        dbs, logfile=logfile, use_from=use_from, use_to=use_to
+    )
     get_counts_corrected(dbs, sessions=sessions)
     return sessions
 

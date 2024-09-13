@@ -1,4 +1,5 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
+
 import itertools, copy
 from os import sep
 import numpy as np
@@ -24,7 +25,15 @@ colours = itertools.cycle(
 
 
 def plot_increments(
-    dbs, logfile, use_from=6, ax=None, alpha=0.6, dpi=300, figsize=[6.4, 4.8], **kwargs
+    dbs,
+    logfile,
+    use_from=6,
+    use_to=100,
+    ax=None,
+    alpha=0.6,
+    dpi=300,
+    figsize=[6.4, 4.8],
+    **kwargs
 ):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional kwargs are passed to plt.plot().
@@ -34,9 +43,9 @@ def plot_increments(
     else:
         fig = ax.get_figure()
     fymax = 1.0
-    for i in dbs.logfile_index:
+    for i in dbs[dbs.logfile_index.notnull()].logfile_index:
         i_data = logfile.table[i]
-        i_blank = i_data["minutes"] >= use_from
+        i_blank = (i_data["minutes"] >= use_from) & (i_data["minutes"] <= use_to)
         ax.plot(
             i_data["minutes"],
             i_data["increments"],
@@ -53,7 +62,7 @@ def plot_increments(
             s=20,
         )
         fymax = np.max([fymax, np.max(i_data["increments"][-3:])])
-        not_i_blank = i_data["minutes"] < use_from
+        not_i_blank = (i_data["minutes"] < use_from) | (i_data["minutes"] > use_to)
         ax.scatter(
             i_data["minutes"][not_i_blank],
             i_data["increments"][not_i_blank],
@@ -119,16 +128,16 @@ def plot_session_blanks(
         fig, ax = plt.subplots(dpi=300)
     # Create and draw fitted line
     fx = np.linspace(
-        dbs[l].analysis_datenum_scaled.min(), dbs[l].analysis_datenum_scaled.max(), 500
+        dbs[l].datenum_analysis_scaled.min(), dbs[l].datenum_analysis_scaled.max(), 500
     )
     fy = get._blank_progression(s.blank_progression, fx)
     fx = mdates.num2date(
-        get._de_centre_and_scale(fx, s.analysis_datenum_std, s.analysis_datenum_mean)
+        get._de_centre_and_scale(fx, s.datenum_analysis_std, s.datenum_analysis_mean)
     )
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw errorbars
     ax.errorbar(
-        "analysis_datetime",
+        "datetime_analysis",
         "blank_here",
         yerr="blank_here_std",
         data=dbs[l & dbs.blank_good],
@@ -139,7 +148,7 @@ def plot_session_blanks(
     )
     # Draw the rest of the figure
     dbs[l & dbs.blank_good].plot.scatter(
-        "analysis_datetime",
+        "datetime_analysis",
         "blank_here",
         ax=ax,
         c=c,
@@ -150,7 +159,7 @@ def plot_session_blanks(
     l_ignored = l & ~dbs.blank_good & (dbs.blank_here <= y_max)
     if l_ignored.any():
         dbs[l_ignored].plot.scatter(
-            "analysis_datetime",
+            "datetime_analysis",
             "blank_here",
             ax=ax,
             c="none",
@@ -160,7 +169,7 @@ def plot_session_blanks(
         )
     l_offscale = l & (dbs.blank_here > y_max)
     if l_offscale.any():
-        off_x = dbs[l_offscale].analysis_datetime.values
+        off_x = dbs[l_offscale].datetime_analysis.values
         ax.scatter(
             off_x,
             np.full(np.size(off_x), y_max * 0.99999),
@@ -202,7 +211,7 @@ def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
     kwargs
         Passed on to plot_session_blanks().
     """
-    for session in sessions.index:
+    for session in sessions[sessions.blank_mean.notnull()].index:
         fig, ax = plot_session_blanks(dbs, sessions, session, **kwargs)
         plt.close(fig)
 
@@ -216,7 +225,7 @@ def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
 #     if "blank_good" not in dbs:
 #         dbs["blank_good"] = True
 #     dbs[~dbs.blank_good].plot.scatter(
-#         "analysis_datetime",
+#         "datetime_analysis",
 #         "blank_here",
 #         ax=ax,
 #         c="xkcd:strawberry",
@@ -224,25 +233,25 @@ def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
 #         **kwargs
 #     )
 #     dbs[dbs.blank_good].plot.scatter(
-#         "analysis_datetime", "blank_here", ax=ax, c="xkcd:navy", alpha=alpha, **kwargs
+#         "datetime_analysis", "blank_here", ax=ax, c="xkcd:navy", alpha=alpha, **kwargs
 #     )
 #     sessions_here = dbs["cell ID"].unique()
 #     for session in sessions_here:
 #         sl = dbs["cell ID"] == session
 #         sx_sc = process.centre_and_scale(
 #             np.linspace(
-#                 np.min(dbs[sl]["analysis_datenum"]),
-#                 np.max(dbs[sl]["analysis_datenum"]),
+#                 np.min(dbs[sl]["datenum_analysis"]),
+#                 np.max(dbs[sl]["datenum_analysis"]),
 #                 num=100,
 #             ),
-#             x_factor=dic_sessions.loc[session].analysis_datenum_std,
-#             x_offset=dic_sessions.loc[session].analysis_datenum_mean,
+#             x_factor=dic_sessions.loc[session].datenum_analysis_std,
+#             x_offset=dic_sessions.loc[session].datenum_analysis_mean,
 #         )
 #         sx = mdates.num2date(
 #             process.de_centre_and_scale(
 #                 sx_sc,
-#                 dic_sessions.loc[session].analysis_datenum_std,
-#                 dic_sessions.loc[session].analysis_datenum_mean,
+#                 dic_sessions.loc[session].datenum_analysis_std,
+#                 dic_sessions.loc[session].datenum_analysis_mean,
 #             )
 #         )
 #         ax.plot(
@@ -254,8 +263,8 @@ def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
 #         )
 #     ax.set_xlim(
 #         [
-#             dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
-#             dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
+#             dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+#             dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
 #         ]
 #     )
 #     ax.xaxis.set_major_locator(mdates.HourLocator())
@@ -288,7 +297,7 @@ def plot_k_dic(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "analysis_datetime",
+                "datetime_analysis",
                 "k_dic_here",
                 ax=ax,
                 c=c,
@@ -301,7 +310,7 @@ def plot_k_dic(
             l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
             if l_bad.any():
                 dbs[l_bad].plot.scatter(
-                    "analysis_datetime",
+                    "datetime_analysis",
                     "k_dic_here",
                     ax=ax,
                     c="none",
@@ -312,8 +321,8 @@ def plot_k_dic(
         sl = dbs[sessions.index.name] == session
         sx = np.array(
             [
-                dbs.loc[sl, "analysis_datetime"].min(),
-                dbs.loc[sl, "analysis_datetime"].max(),
+                dbs.loc[sl, "datetime_analysis"].min(),
+                dbs.loc[sl, "datetime_analysis"].max(),
             ]
         )
         sy = np.full_like(sx, s.k_dic_mean)
@@ -327,8 +336,8 @@ def plot_k_dic(
     #     ax.set_ylim(np.array([-1, 1]) * fac_maxdiff * 1.1 + fac_mean)
     # ax.set_xlim(
     #     [
-    #         dbs.analysis_datetime.min() - np.timedelta64(30, "m"),
-    #         dbs.analysis_datetime.max() + np.timedelta64(30, "m"),
+    #         dbs.datetime_analysis.min() - np.timedelta64(30, "m"),
+    #         dbs.datetime_analysis.max() + np.timedelta64(30, "m"),
     #     ]
     # )
     locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
@@ -365,7 +374,7 @@ def plot_dic_offset(
         l_good = l & dbs.k_dic_good
         if l_good.any():
             dbs[l_good].plot.scatter(
-                "analysis_datetime",
+                "datetime_analysis",
                 "dic_offset",
                 ax=ax,
                 c=c,
@@ -377,7 +386,7 @@ def plot_dic_offset(
         l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
         if l_bad.any():
             dbs[l_bad].plot.scatter(
-                "analysis_datetime",
+                "datetime_analysis",
                 "dic_offset",
                 ax=ax,
                 c="none",

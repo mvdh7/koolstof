@@ -1,6 +1,6 @@
 import textwrap
 
-__version__ = "0.28"
+__version__ = "0.29"
 __author__ = "Humphreys, Matthew P. and Delaigue, Louise and Ourradi, Yasmina"
 
 

@@ -35,7 +35,7 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
     # Initialise arrays
     logdf = {
         "line_number": [],
-        "analysis_datetime": np.array([], dtype="datetime64"),
+        "datetime_analysis": np.array([], dtype="datetime64"),
         "bottle": [],
         "table": [],
         "counts": [],
@@ -64,7 +64,7 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
                         "20" + ldt[2], ldt[0], ldt[1], ldt[3], ldt[4]
                     )
                 )
-                logdf["analysis_datetime"] = np.append(logdf["analysis_datetime"], ldt)
+                logdf["datetime_analysis"] = np.append(logdf["datetime_analysis"], ldt)
                 # Get coulometer data
                 jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
                 j = 4
@@ -147,14 +147,14 @@ def _dbs_datetime(dbs_row):
     """[row.apply] Convert date and time from dbs file into a datetime."""
     try:
         dspl = dbs_row["date"].split("/")
-        analysis_datetime = np.datetime64(
+        datetime_analysis = np.datetime64(
             "-".join(("20" + dspl[2], dspl[0], dspl[1])) + "T" + dbs_row["time"]
         )
     except AttributeError:
-        analysis_datetime = np.datetime64("NaT")
+        datetime_analysis = np.datetime64("NaT")
     return pd.Series(
         {
-            "analysis_datetime": analysis_datetime,
+            "datetime_analysis": datetime_analysis,
         }
     )
 
@@ -181,7 +181,7 @@ def read_dbs(fname, drop_cols=True):
     dbs["dbs_fname"] = fname
     # Reformat the date and time
     dbs = dbs.assign(**dbs.apply(_dbs_datetime, axis=1))
-    dbs["analysis_datenum"] = mdates.date2num(dbs.analysis_datetime)
+    dbs["datenum_analysis"] = mdates.date2num(dbs.datetime_analysis)
     # Drop superfluous columns, if requested (by default, do this)
     if drop_cols:
         dbs.drop(columns=_dbs_drop, inplace=True)
