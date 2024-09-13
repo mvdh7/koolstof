@@ -1,14 +1,6 @@
 [build-system]
 requires = [
     "setuptools",
-    # "calkulate",
-    # "matplotlib",
-    # "numpy",
-    # "pandas",
-    # "PyCO2SYS",
-    # "scikit-learn",
-    # "scipy",
-    # "seaborn",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -35,7 +27,7 @@ classifiers =[
 ]
 dependencies = [
     "calkulate",
-    "matplotlib",
+    "matplotlib-base",
     "numpy",
     "pandas",
     "PyCO2SYS",
