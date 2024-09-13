@@ -1,3 +1,4 @@
+import string
 import numpy as np
 
 lcletter = dict(zip(range(1, 27), string.ascii_lowercase))
