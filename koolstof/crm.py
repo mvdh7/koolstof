@@ -77,9 +77,11 @@ def dickson(crm_batches, fields="all"):
     return {
         field: np.array(
             [
-                dickson_certified_values[crm_batch].__dict__[field]
-                if crm_batch in dickson_certified_values
-                else np.nan
+                (
+                    dickson_certified_values[crm_batch].__dict__[field]
+                    if crm_batch in dickson_certified_values
+                    else np.nan
+                )
                 for crm_batch in crm_batches
             ]
         )
