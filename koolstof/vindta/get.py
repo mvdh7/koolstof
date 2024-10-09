@@ -76,6 +76,9 @@ def get_sample_blanks(dbs, logfile, use_from=6, use_to=100):
     """Calculate each sample's DIC blank value and add this in-place to the dbs plus
     some relevant statistics.
 
+    The columns 'counts' and 'run_time' in the dbs are overwritten with the maximum
+    values for each titration from the logfile.
+
     Parameters
     ----------
     dbs : pd.DataFrame
@@ -229,6 +232,31 @@ def get_counts_at(
     counts_loc=None,
     counts_iloc=None,
 ):
+    """Get counts at a particular minute of each titration from the logfile and put them
+    into a new column in the dbs.
+
+    One, and only one, of counts_loc or counts_iloc must be provided.
+
+    Run this first and then provide col_name_counts and col_name_runtime to
+    blank_correction in order to use the updated counts.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs).
+    logfile : pd.DataFrame
+        The logfile as a pandas DataFrame (imported with read_logfile).
+    col_name_counts : str, optional
+        How to name the new column with counts, by default "counts_at".
+    col_name_runtime : str, optional
+        How to name the new column with the run time corresponding to the counts, by
+        default "run_time_at".
+    counts_loc : int, optional
+        Which minute of the titration to take the counts from, by default None.
+    counts_iloc : int, optional
+        Which index location in the titration table to take the counts from, by default
+        None.
+    """
     assert (
         counts_loc is None or counts_iloc is None
     ), "You cannot provide both `counts_loc` and `counts_iloc`!"
@@ -285,9 +313,13 @@ def get_counts_corrected(
     blank_col : str, optional
         The column name for blank values to use for corrections, by default 'blank'.
     counts_col : str, optional
-        The column name for uncorrected counts, by default 'counts'.
+        The column name for uncorrected counts, by default 'counts', in which case the
+        maximum counts value for each sample is read in from the logfile, replacing
+        whatever is currently in the counts column of the dbs.
     runtime_col : str, optional
-        The column name for run time, by default 'run_time'.
+        The column name for run time, by default 'run_time', in which case the
+        maximum run time value for each sample is read in from the logfile, replacing
+        whatever is currently in the run_time column of the dbs.
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by default
         'dic_cell_id'.
@@ -346,9 +378,13 @@ def blank_correction(
     blank_col : str, optional
         The column name for blank values to use for corrections, by default 'blank'.
     counts_col : str, optional
-        The column name for uncorrected counts, by default 'counts'.
+        The column name for uncorrected counts, by default 'counts', in which case the
+        maximum counts value for each sample is read in from the logfile, replacing
+        whatever is currently in the counts column of the dbs.
     runtime_col : str, optional
-        The column name for run time, by default 'run_time'.
+        The column name for run time, by default 'run_time', in which case the
+        maximum run time value for each sample is read in from the logfile, replacing
+        whatever is currently in the run_time column of the dbs.
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by default
         'dic_cell_id'.
