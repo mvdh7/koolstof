@@ -221,6 +221,33 @@ def get_session_blanks(
     return sessions
 
 
+def get_counts_at(
+    dbs,
+    logfile,
+    col_name_counts="counts_at",
+    col_name_runtime="run_time_at",
+    counts_loc=None,
+    counts_iloc=None,
+):
+    assert (
+        counts_loc is None or counts_iloc is None
+    ), "You cannot provide both `counts_loc` and `counts_iloc`!"
+    if counts_loc is None and counts_iloc is None:
+        counts_iloc = -1
+    if "logfile_index" not in dbs:
+        get_logfile_index(dbs, logfile)
+    if counts_loc is not None:
+        for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
+            lt = logfile.loc[row.logfile_index].table
+            dbs.loc[i, col_name_counts] = lt["counts"][lt["minutes"] == counts_loc]
+            dbs.loc[i, col_name_runtime] = counts_loc
+    elif counts_iloc is not None:
+        for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
+            lt = logfile.loc[row.logfile_index].table
+            dbs.loc[i, col_name_counts] = lt["counts"][counts_iloc]
+            dbs.loc[i, col_name_runtime] = lt["minutes"][counts_iloc]
+
+
 def _get_counts_corrected(
     dbs,
     blank_col="blank",
@@ -338,9 +365,18 @@ def blank_correction(
         A table of analysis sessions including blank correction details.
     """
     sessions = get_session_blanks(
-        dbs, logfile=logfile, use_from=use_from, use_to=use_to
+        dbs, logfile=logfile, session_col=session_col, use_from=use_from, use_to=use_to
     )
-    get_counts_corrected(dbs, sessions=sessions)
+    get_counts_corrected(
+        dbs,
+        sessions=sessions,
+        blank_col=blank_col,
+        counts_col=counts_col,
+        runtime_col=runtime_col,
+        session_col=session_col,
+        use_from=use_from,
+        use_to=use_to,
+    )
     return sessions
 
 

@@ -14,20 +14,18 @@ The following subfunctions are then available.
 
 Import data
 -----------
-
     read_dbs
     read_logfile
 
 Process and calibrate
 ---------------------
-
+    get_counts_at
     blank_correction
     calibrate_dic
     poison_correction
 
 Data visualisation
 ------------------
-
     plot_increments
     plot_blanks
     plot_session_blanks
@@ -36,7 +34,7 @@ Data visualisation
 """
 
 from .read import read_dbs, read_logfile
-from .get import blank_correction, calibrate_dic
+from .get import blank_correction, calibrate_dic, get_counts_at
 from .plot import (
     plot_blanks,
     plot_dic_offset,
