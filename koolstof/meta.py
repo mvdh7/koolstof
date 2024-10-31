@@ -14,7 +14,7 @@ def hello():
         s  Version {}
         t  doi:10.5281/zenodo.3999292
         o  
-        f  https://seaco2.group
+        f  https://hseao3.group
         """.format(
             __version__
         )
