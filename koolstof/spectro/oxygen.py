@@ -21,13 +21,27 @@ def read_cary_oxygen(filename, us_date_format=False):
         lines = f.read().splitlines()
     data_start = []
     data_end = []
+    zero = []
+    started = False
     for i, line in enumerate(lines):
         if line == "Sample\tF\tMean\tSD\t%RSD\tReadings":
             data_start.append(i)
+            started = True
         elif line == "Results Flags Legend":
-            data_end.append(i)
+            if started:
+                data_end.append(i)
+                started = False
+        elif line.startswith("Zero") and not line == "Zero Report":
+            zero.append(float(line.split()[1]))
     data = []
-    for start, end in zip(data_start, data_end):
+    if not len(data_start) == len(data_end) == len(zero):
+        print(
+            "WARNING: there are different numbers of data "
+            + "start ({}), end ({}) and zero ({}) points!".format(
+                len(data_start), len(data_end), len(zero)
+            )
+        )
+    for start, end, z in zip(data_start, data_end, zero):
         data_ = pd.read_csv(
             filename,
             skiprows=start,
@@ -50,6 +64,7 @@ def read_cary_oxygen(filename, us_date_format=False):
                 int(yyyy), int(mm), int(dd), int(HH), int(MM), int(SS)
             )
         )
+        data_["zero"] = z
         data.append(data_)
     data = (
         pd.concat(data)
