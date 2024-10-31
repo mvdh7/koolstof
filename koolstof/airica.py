@@ -123,7 +123,7 @@ def process_airica(
 
     if draw_figure:
         import seaborn as sns
-        
+
         # plot regression
         f, ax = plt.subplots(figsize=(8, 6.5), dpi=300)
         sns.set_style("darkgrid")
