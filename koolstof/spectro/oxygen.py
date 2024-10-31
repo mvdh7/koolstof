@@ -28,19 +28,26 @@ def read_cary_oxygen(filename, us_date_format=False):
             data_start.append(i)
             started = True
         elif line == "Results Flags Legend":
+            # Only add an end line if we have started a new sample since the last end
+            # line, because sometimes the "Results Flags Legend" line appears twice
             if started:
                 data_end.append(i)
                 started = False
         elif line.startswith("Zero") and not line == "Zero Report":
             zero.append(float(line.split()[1]))
+    # Sometimes the "Results Flags Legend" line doesn't appear at the very end of the
+    # file, so add an extra endpoint manually here if that's the case
+    if started:
+        data_end.append(len(lines))
     data = []
     if not len(data_start) == len(data_end) == len(zero):
         print(
             "WARNING: there are different numbers of data "
-            + "start ({}), end ({}) and zero ({}) points!".format(
+            + "start ({}), end ({}) and zero ({}) points".format(
                 len(data_start), len(data_end), len(zero)
             )
         )
+        print("for file {}".format(filename))
     for start, end, z in zip(data_start, data_end, zero):
         data_ = pd.read_csv(
             filename,
