@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from matplotlib import dates as mdates
 from scipy import stats
-import seaborn as sns
 from calkulate.density import seawater_1atm_MP81
 import matplotlib.pyplot as plt
 
@@ -123,6 +122,8 @@ def process_airica(
     )
 
     if draw_figure:
+        import seaborn as sns
+        
         # plot regression
         f, ax = plt.subplots(figsize=(8, 6.5), dpi=300)
         sns.set_style("darkgrid")
