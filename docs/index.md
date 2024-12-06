@@ -1,10 +1,9 @@
 # koolstof
 
-**koolstof** is highly unstable and unreliably documented.
-
 ## Install
 
     pip install koolstof
+    conda install conda-forge::koolstof
     
 ## Import
 
