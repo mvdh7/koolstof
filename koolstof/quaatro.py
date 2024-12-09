@@ -125,7 +125,7 @@ def pH_of_analysis(
     # Solve the sample-reagent mixture
     res = pyco2.sys(
         par1=alkalinity_mixture,
-        par2=400,  # assume CO2 degassing to equilibrium with lab air
+        par2=pCO2_lab,  # assume CO2 degassing to equilibrium with lab air
         par1_type=1,
         par2_type=4,
         total_alpha=HCOOH_mixture,
