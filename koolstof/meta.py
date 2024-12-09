@@ -1,6 +1,6 @@
 import textwrap
 
-__version__ = "0.31"
+__version__ = "0.32"
 __author__ = "Humphreys, Matthew P. and Delaigue, Louise and Ourradi, Yasmina"
 
 
@@ -15,8 +15,6 @@ def hello():
         t  doi:10.5281/zenodo.3999292
         o  
         f  https://hseao3.group
-        """.format(
-            __version__
-        )
+        """.format(__version__)
     )
     print(greeting)
