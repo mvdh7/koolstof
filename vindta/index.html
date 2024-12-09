@@ -1,0 +1,865 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Miscellaneous tools for marine carbonate chemistry and other such things">
+      
+      
+        <meta name="author" content="Matthew P. Humphreys">
+      
+      
+        <link rel="canonical" href="https://koolstof.readthedocs.io/vindta/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../infrared/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
+    
+    
+      
+        <title>VINDTA DIC processing - koolstof</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto Slab";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vindta-dic-processing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="koolstof" class="md-header__button md-logo" aria-label="koolstof" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            koolstof
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              VINDTA DIC processing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mvdh7/koolstof" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/koolstof
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="koolstof" class="md-nav__button md-logo" aria-label="koolstof" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    koolstof
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mvdh7/koolstof" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/koolstof
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    VINDTA DIC processing
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    VINDTA DIC processing
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#import-vindta-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import VINDTA files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Import VINDTA files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-logfilebak" class="md-nav__link">
+    <span class="md-ellipsis">
+      The logfile.bak
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-dbs-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The dbs file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-sample-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add sample metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-and-apply-blank-corrections" class="md-nav__link">
+    <span class="md-ellipsis">
+      Find and apply blank corrections
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Find and apply blank corrections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot-the-count-increments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot the count increments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-the-session-blank-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot the session blank fits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calibrate-dic-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Calibrate DIC measurements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Calibrate DIC measurements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot-calibration-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot calibration factors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-crm-offsets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot CRM offsets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../infrared/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrared DIC analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spectro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Spectrophotometric pH
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#import-vindta-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import VINDTA files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Import VINDTA files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-logfilebak" class="md-nav__link">
+    <span class="md-ellipsis">
+      The logfile.bak
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-dbs-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The dbs file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-sample-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add sample metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-and-apply-blank-corrections" class="md-nav__link">
+    <span class="md-ellipsis">
+      Find and apply blank corrections
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Find and apply blank corrections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot-the-count-increments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot the count increments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-the-session-blank-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot the session blank fits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calibrate-dic-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Calibrate DIC measurements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Calibrate DIC measurements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot-calibration-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot calibration factors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-crm-offsets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plot CRM offsets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="vindta-dic-processing">VINDTA DIC processing<a class="headerlink" href="#vindta-dic-processing" title="Permanent link">&para;</a></h1>
+<p><strong>koolstof</strong> only deals with dissolved inorganic carbon (DIC) measurements.  For total alkalinity, use <a href="https://calkulate.readthedocs.io/">Calkulate</a>.</p>
+<p>koolstof provides a set of functions to import VINDTA data files as <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas DataFrames</a> and then perform in-place operations on them to process and calibrate the data, plus some plotting functions.  There are two main processing steps: (1) applying the blank correction, and (2) calibrating to CRMs.</p>
+<div class="admonition warning">
+<p class="admonition-title">Breaking changes in v0.25</p>
+<p>The way in which VINDTA processing works has been significantly overhauled as of koolstof v0.25.  In particular, the <code>Dbs</code> class no longer exists, so the functions described here can no longer be called as methods from the imported dbs file. In general, the change will look something like this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">dbs</span><span class="o">.</span><span class="n">do_something</span><span class="p">()</span>     <span class="c1"># old version, pre-v0.25</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">do_something</span><span class="p">(</span><span class="n">dbs</span><span class="p">)</span>  <span class="c1"># new version, v0.25 onwards</span>
+</code></pre></div>
+<p>But some functions have been completely renamed and their inputs/outputs changed.  Update with caution and read the new instructions below carefully!</p>
+</div>
+<p>All the examples here assume the following import convention:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">koolstof</span> <span class="kn">import</span> <span class="n">vindta</span> <span class="k">as</span> <span class="n">ksv</span>
+</code></pre></div>
+<h2 id="import-vindta-files">Import VINDTA files<a class="headerlink" href="#import-vindta-files" title="Permanent link">&para;</a></h2>
+<h3 id="the-logfilebak">The logfile.bak<a class="headerlink" href="#the-logfilebak" title="Permanent link">&para;</a></h3>
+<p>Import a <code>logfile.bak</code> into a standard pandas DataFrame with one row per DIC sample.</p>
+<div class="highlight"><pre><span></span><code><span class="n">logfile</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_logfile</span><span class="p">(</span><span class="s2">&quot;path/to/logfile.bak&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="s2">&quot;3C standard&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition example">
+<p class="admonition-title"><code>read_logfile</code>: optional keyword arguments</p>
+<ul>
+<li><code>methods</code>: list of VINDTA method filenames used to run samples, excluding the <code>.mth</code> extensions</li>
+</ul>
+</div>
+<h3 id="the-dbs-file">The dbs file<a class="headerlink" href="#the-dbs-file" title="Permanent link">&para;</a></h3>
+<p>Import a <code>.dbs</code> file into an enhanced DataFrame and rename its columns into a friendlier format.</p>
+<div class="highlight"><pre><span></span><code><span class="n">dbs</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_dbs</span><span class="p">(</span><span class="s2">&quot;path/to/file.dbs&quot;</span><span class="p">,</span> <span class="n">keep_all_cols</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition example">
+<p class="admonition-title"><code>read_dbs</code>: optional keyword arguments</p>
+<ul>
+<li><code>keep_all_cols</code>: retain all columns from the <code>.dbs</code> (<code>True</code>) or just the most important ones (<code>False</code>)?</li>
+</ul>
+</div>
+<h2 id="add-sample-metadata">Add sample metadata<a class="headerlink" href="#add-sample-metadata" title="Permanent link">&para;</a></h2>
+<p>Once you've imported the files above, you need to add the following metadata as extra columns in the <code>dbs</code> DataFrame under the following column labels:</p>
+<ul>
+<li><code>"salinity"</code>: practical salinity (assumed 35 if not provided)</li>
+<li><code>"temperature_analysis_dic"</code>: temperature of DIC analysis in °C (assumed 25 °C if not provided)</li>
+<li><code>"dic_certified"</code>: certified DIC values for reference materials in μmol/kg-sw.  Non-reference samples should be set to <code>np.nan</code>.</li>
+</ul>
+<p>You can also add the following logical columns to refine which samples and reference materials are used for processing and calibration:</p>
+<ul>
+<li><code>"blank_good"</code>: use this sample in assessing the coulometer blank value?</li>
+<li><code>"k_dic_good"</code>: use this reference material for calibration?</li>
+</ul>
+<p>As a starting point, you could set all <code>"blank_good"</code> values to <code>True</code> and <code>"k_dic_good"</code> to <code>True</code> for all CRMs but <code>False</code> everywhere else.</p>
+<p>A complete example script up to this point might look something like this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">koolstof</span> <span class="kn">import</span> <span class="n">vindta</span> <span class="k">as</span> <span class="n">ksv</span>
+
+<span class="c1"># Import files from VINDTA</span>
+<span class="n">logfile</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_logfile</span><span class="p">(</span><span class="s2">&quot;path/to/logfile.bak&quot;</span><span class="p">)</span>
+<span class="n">dbs</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_dbs</span><span class="p">(</span><span class="s2">&quot;path/to/dbsfile.dbs&quot;</span><span class="p">)</span>
+
+<span class="c1"># Assign certified DIC for CRMs</span>
+<span class="c1"># - In this example, we assume that the &#39;bottle&#39; column of the dbs always</span>
+<span class="c1">#   starts with the letters &quot;CRM&quot; for CRMs, and that all CRMs have a</span>
+<span class="c1">#   certified value of 2017.45 µmol/kg</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;dic_certified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="n">dbs</span><span class="o">.</span><span class="n">bottle</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;CRM&quot;</span><span class="p">),</span> <span class="mf">2017.45</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="p">)</span>
+
+<span class="c1"># Assign analysis temperature, if it&#39;s not 25 °C</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;temperature_analysis_dic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">23.0</span>
+
+<span class="c1"># Assign dbs[&quot;salinity&quot;] here too, if it&#39;s not always 35</span>
+
+<span class="c1"># Set up logicals</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;blank_good&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;k_dic_good&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">dbs</span><span class="o">.</span><span class="n">dic_certified</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+</code></pre></div>
+<p>Now we're ready to apply the blank corrections and then calibrate.</p>
+<h2 id="find-and-apply-blank-corrections">Find and apply blank corrections<a class="headerlink" href="#find-and-apply-blank-corrections" title="Permanent link">&para;</a></h2>
+<p>To find and apply the blank corrections, use <code>ksv.blank_correction()</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">sessions</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">blank_correction</span><span class="p">(</span>
+    <span class="n">dbs</span><span class="p">,</span>
+    <span class="n">logfile</span><span class="p">,</span>
+    <span class="n">blank_col</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">,</span>
+    <span class="n">counts_col</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span>
+    <span class="n">runtime_col</span><span class="o">=</span><span class="s2">&quot;run_time&quot;</span><span class="p">,</span>
+    <span class="n">session_col</span><span class="o">=</span><span class="s2">&quot;dic_cell_id&quot;</span><span class="p">,</span>
+    <span class="n">use_from</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<div class="admonition example">
+<p class="admonition-title"><code>blank_correction</code>: optional keyword arguments</p>
+<ul>
+<li><code>blank_col</code>: the name of the column containing the blank for each sample.</li>
+<li><code>counts_col</code>: the name of the column containing the raw counts for each sample.</li>
+<li><code>runtime_col</code>: the name of the column containing the total run time for each sample.</li>
+<li><code>session_col</code>: the name of the column containing the analysis session identifiers.</li>
+<li><code>use_from</code>: which minute of the coulometric titrations to measure the blank starting from.</li>
+</ul>
+</div>
+<p>The output <code>sessions</code> is a table of analysis sessions, as identified by unique values of the <code>session_col</code>.  The <code>dbs</code> is also updated with extra columns, most importantly, <code>"blank_here"</code> and <code>"counts_corrected"</code>.</p>
+<p>After running <code>blank_correction</code>, you should make a few plots to check that everything has worked as intended.</p>
+<h3 id="plot-the-count-increments">Plot the count increments<a class="headerlink" href="#plot-the-count-increments" title="Permanent link">&para;</a></h3>
+<p>First, check that you are using an appropriate value of <code>use_from</code>.  In general, in a coulometric titration, all the CO<sub>2</sub> from the sample passes through the coulometer within the first few minutes, so the last few minutes can be considered as 'blank' measurements.  koolstof determines the blank first on a sample-by-sample basis starting from whatever minute is specified by <code>use_from</code>, so we should check that the increments from this point actually are constant.  To do this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ksv</span><span class="o">.</span><span class="n">plot_increments</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">logfile</span><span class="p">,</span> <span class="n">use_from</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+</code></pre></div>
+<p>This generates a figure like below:</p>
+<p><img alt="Output from ksv.plot_increments()" src="https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_increments.png" /></p>
+<p>Here we see the count increments for every sample in the dbs.  The y-axis is automatically zoomed in on the lower values at the end of the analysis, which we use to determine the blank.  The data points currently considered as 'blanks', where the number of minutes is greater than or equal to <code>use_from</code>, are shown in red.  We need to check that all the sample has indeed passed through this point, and that there isn't a strong trend with time in the red points.</p>
+<p>In the example above, the points at minute 6 (and possibly 7) are still a bit higher than the points later on, so it would probably be better to switch to <code>use_from=7</code> (or <code>use_from=8</code>) when running <code>ksv.blank_correction</code> on this dataset.</p>
+<h3 id="plot-the-session-blank-fits">Plot the session blank fits<a class="headerlink" href="#plot-the-session-blank-fits" title="Permanent link">&para;</a></h3>
+<p>Once we're happy with the <code>use_from</code> value, we can plot the blank fits on a session-by-session basis.  Although we determine an individual blank value for each sample, koolstof doesn't use these directly to make the blank correction.  The results are better if you fit a curve through the blank values for each analysis session.  To visualise the fitted curves for all the analysis sessions in your dbs, use:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ksv</span><span class="o">.</span><span class="n">plot_blanks</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+</code></pre></div>
+<p>This generates a sequence of plots, each something like this:</p>
+<p><img alt="Output from ksv.plot_blanks()" src="https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_blanks.png" /></p>
+<p>The points are the sample-by-sample blank values, with error bars indicating the standard deviation of the minute-by-minute blank estimates for each sample.  The solid line shows the fit, which is what's actually used to make the blank correction for each sample.</p>
+<p>If any points fall far away from the rest and are causing the solid line to not have a good fit to the data, you can ignore them (in this curve fitting step only) by setting the <code>"blank_good"</code> column of <code>dbs</code> to <code>False</code> for those rows.  Then, re-run <code>ksv.blank_correction</code>.  These points will subsequently show up as open symbols on these plots (see legend - 'Ignored') and won't influence the fitted line.</p>
+<p>A DIC result will still be returned for these points, so you should check whether it looks sensible, as an unusual blank value may indicate that something may have gone wrong with that particular analysis.</p>
+<h2 id="calibrate-dic-measurements">Calibrate DIC measurements<a class="headerlink" href="#calibrate-dic-measurements" title="Permanent link">&para;</a></h2>
+<p>Once the blank correction is complete, you can calibrate the DIC measurements based on CRMs.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ksv</span><span class="o">.</span><span class="n">calibrate_dic</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+</code></pre></div>
+<p>This adds extra columns to <code>dbs</code> and <code>sessions</code> with various calibration metadata.  The final DIC result can be found in <code>dbs.dic</code>.</p>
+<p>Next, you should visualise the calibration factors and exclude any bad CRM measurements from the calibration.</p>
+<h3 id="plot-calibration-factors">Plot calibration factors<a class="headerlink" href="#plot-calibration-factors" title="Permanent link">&para;</a></h3>
+<p>To see all the calibration factors in the dbs through time, use:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ksv</span><span class="o">.</span><span class="n">plot_k_dic</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">,</span> <span class="n">show_ignored</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>The plot may look something like this:</p>
+<p><img alt="Output from ksv.plot_k_dic()" src="https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_k_dic_0.png" /></p>
+<p>Each change of colour and marker style indicates a new analysis session, and the horizontal lines show the mean calibration factors used for each session.</p>
+<p>In the example above, there are clearly two bad CRM measurements.  You can exclude these from the calibration by setting <code>"k_dic_good"</code> to false, then re-run <code>ksv.calibrate_dic</code> to recalibrate.  Recreating the figure above but with <code>show_ignored=False</code> now gives us a clearer picture of the calibrations:</p>
+<p><img alt="Output from ksv.plot_k_dic()" src="https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_k_dic_1.png" /></p>
+<h3 id="plot-crm-offsets">Plot CRM offsets<a class="headerlink" href="#plot-crm-offsets" title="Permanent link">&para;</a></h3>
+<p>Finally, we can visualise the same information above in a different way by looking at the offsets between each CRM after calibration and its certified value:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ksv</span><span class="o">.</span><span class="n">plot_dic_offset</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Output from ksv.plot_dic_offset()" src="https://raw.githubusercontent.com/mvdh7/koolstof/main/docs/img/plot_dic_offset.png" /></p>
+<p>The CRMs for each analysis session will fall on average at zero.  The scatter about zero gives some indication of the precision of the measurement.</p>
+<p>In this example, we might also consider checking the lab notebook to see if there are any reasons why the lower purple point in the first session could be excluded from the calibration.</p>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>A complete example of your calibration code might look something like this (the first part is copied from the example higher up the page):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">koolstof</span> <span class="kn">import</span> <span class="n">vindta</span> <span class="k">as</span> <span class="n">ksv</span>
+
+<span class="c1"># Import files from VINDTA</span>
+<span class="n">logfile</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_logfile</span><span class="p">(</span><span class="s2">&quot;path/to/logfile.bak&quot;</span><span class="p">)</span>
+<span class="n">dbs</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">read_dbs</span><span class="p">(</span><span class="s2">&quot;path/to/dbsfile.dbs&quot;</span><span class="p">)</span>
+
+<span class="c1"># Assign certified DIC for CRMs</span>
+<span class="c1"># - In this example, we assume that the &#39;bottle&#39; column of the dbs always</span>
+<span class="c1">#   starts with the letters &quot;CRM&quot; for CRMs, and that all CRMs have a</span>
+<span class="c1">#   certified value of 2017.45 µmol/kg</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;dic_certified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="n">dbs</span><span class="o">.</span><span class="n">bottle</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;CRM&quot;</span><span class="p">),</span> <span class="mf">2017.45</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="p">)</span>
+
+<span class="c1"># Assign analysis temperature, if it&#39;s not 25 °C</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;temperature_analysis_dic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">23.0</span>
+
+<span class="c1"># Assign dbs[&quot;salinity&quot;] here too, if it&#39;s not always 35</span>
+
+<span class="c1"># Set up logicals</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;blank_good&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">dbs</span><span class="p">[</span><span class="s2">&quot;k_dic_good&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">dbs</span><span class="o">.</span><span class="n">dic_certified</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+
+<span class="c1"># Here, set any values of dbs.blank_good to False as needed from looking</span>
+<span class="c1"># at the figures below </span>
+
+<span class="c1"># Find and apply blank corrections</span>
+<span class="n">sessions</span> <span class="o">=</span> <span class="n">ksv</span><span class="o">.</span><span class="n">blank_correction</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">use_from</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c1"># Visualise blank corrections</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">plot_increments</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">logfile</span><span class="p">)</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">plot_blanks</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+
+<span class="c1"># Here, set any values of dbs.k_dic_good to False as needed from looking</span>
+<span class="c1"># at the figures below</span>
+
+<span class="c1"># Calibrate DIC</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">calibrate_dic</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+
+<span class="c1"># Visualise the calibration</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">plot_k_dic</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">,</span> <span class="n">show_ignored</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ksv</span><span class="o">.</span><span class="n">plot_dic_offset</span><span class="p">(</span><span class="n">dbs</span><span class="p">,</span> <span class="n">sessions</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020–2023  M. P. Humphreys  (GNU GPLv3)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
