@@ -6,16 +6,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "koolstof"
-description = "Miscellaneous tools for marine carbonate chemistry"
+description = "Processing measurements of dissolved inorganic carbon"
 readme = "README.md"
 classifiers =[
     "Development Status :: 4 - Beta",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Natural Language :: English",
@@ -30,10 +28,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "pandas",
-    "PyCO2SYS",
-    "scikit-learn",
     "scipy",
-    "seaborn",
 ]
 dynamic = ["version"]
 
