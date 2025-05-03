@@ -8,24 +8,24 @@
 [![Docs](https://readthedocs.org/projects/koolstof/badge/?version=latest&style=flat)](https://koolstof.readthedocs.io/en/latest/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Miscellaneous tools for marine carbonate chemistry and other such things.
+Processing measurements of dissolved inorganic carbon.
 
-**Install:**
+## Install
 
     pip install koolstof
     
-**Import:**
+## Import
 
 ```python
 import koolstof as ks
 ```
 
-**Find current version:**
+## Find current version
 
 ```python
 ks.hello()
 ```
 
-**Citation:**
+## Citation
 
-> Humphreys, M. P., Delaigue, L. and Ourradi, Y. (2024).  Miscellaneous Python tools for marine carbonate chemistry: koolstof.  *Zenodo*.  [doi:10.5281/zenodo.3999292](https://doi.org/10.5281/zenodo.3999292).
+> Humphreys, M. P. (2025).  Processing measurements of dissolved inorganic carbon: koolstof.  *Zenodo*.  [doi:10.5281/zenodo.3999292](https://doi.org/10.5281/zenodo.3999292).

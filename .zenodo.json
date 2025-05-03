@@ -1,22 +1,12 @@
 {
-    "description": "Miscellaneous tools for marine carbonate chemistry", 
+    "description": "Processing measurements of dissolved inorganic carbon", 
     "license": "GPL-3.0-only", 
-    "title": "Miscellaneous tools for marine carbonate chemistry: koolstof", 
+    "title": "Processing measurements of dissolved inorganic carbon: koolstof", 
     "creators": [
         {
             "affiliation": "NIOZ Royal Netherlands Institute for Sea Research, Texel, the Netherlands", 
             "name": "Humphreys, Matthew P.",
             "orcid": "0000-0002-9371-7128"
-        },
-        {
-            "affiliation": "NIOZ Royal Netherlands Institute for Sea Research, Texel, the Netherlands", 
-            "name": "Delaigue, Louise",
-            "orcid": "0000-0002-9796-1128"
-        },
-        {
-            "affiliation": "NIOZ Royal Netherlands Institute for Sea Research, Texel, the Netherlands", 
-            "name": "Ourradi, Yasmina",
-            "orcid": "0000-0002-0643-1755"
         }
     ]
 }
