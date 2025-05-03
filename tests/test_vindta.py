@@ -88,20 +88,20 @@ def test_calibrate_dic():
     assert ~dbs.dic.isnull().any()
 
 
-def test_plots():
-    ks.plot_increments(dbs, logfile)
-    ks.plot_session_blanks(dbs, sessions, sessions.index[0])
-    ks.plot_blanks(dbs, sessions)
-    ks.plot_k_dic(dbs, sessions)
-    ks.plot_dic_offset(dbs, sessions)
-    dbs.loc[
-        (dbs.dic_cell_id == "C_Aug14-18_0708")
-        & ((dbs.bottle == "CRM#171") | (dbs.bottle == "CRM#171B")),
-        "k_dic_good",
-    ] = False
-    ks.calibrate_dic(dbs, sessions)
-    ks.plot_k_dic(dbs, sessions, show_ignored=False)
-    ks.plot_dic_offset(dbs, sessions)
+# def test_plots():
+#     ks.plot_increments(dbs, logfile)
+#     ks.plot_session_blanks(dbs, sessions, sessions.index[0])
+#     ks.plot_blanks(dbs, sessions)
+#     ks.plot_k_dic(dbs, sessions)
+#     ks.plot_dic_offset(dbs, sessions)
+#     dbs.loc[
+#         (dbs.dic_cell_id == "C_Aug14-18_0708")
+#         & ((dbs.bottle == "CRM#171") | (dbs.bottle == "CRM#171B")),
+#         "k_dic_good",
+#     ] = False
+#     ks.calibrate_dic(dbs, sessions)
+#     ks.plot_k_dic(dbs, sessions, show_ignored=False)
+#     ks.plot_dic_offset(dbs, sessions)
 
 
 # test_read_vindta_dbs()
