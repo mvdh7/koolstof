@@ -34,6 +34,7 @@ Data visualisation
 """
 
 from .get import blank_correction, calibrate_dic, get_counts_at
+from .meta import __version__, hello
 from .plot import (
     plot_blanks,
     plot_dic_offset,
@@ -57,4 +58,6 @@ __all__ = [
     "plot_session_blanks",
     "plot_dic_offset",
     "plot_k_dic",
+    "hello",
+    "__version__",
 ]

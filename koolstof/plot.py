@@ -1,6 +1,5 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
 
-import copy
 import itertools
 from os import sep
 
@@ -11,18 +10,16 @@ from . import get
 from .meta import __version__
 
 
-markers = itertools.cycle(("o", "^", "s", "v", "D", "<", ">"))
-colours = itertools.cycle(
-    (
-        "xkcd:purple",
-        "xkcd:green",
-        "xkcd:blue",
-        "xkcd:pink",
-        "xkcd:brown",
-        "xkcd:red",
-        "xkcd:teal",
-        "xkcd:orange",
-    )
+markers = ("o", "^", "s", "v", "D", "<", ">")
+colours = (
+    "xkcd:purple",
+    "xkcd:green",
+    "xkcd:blue",
+    "xkcd:pink",
+    "xkcd:brown",
+    "xkcd:red",
+    "xkcd:teal",
+    "xkcd:orange",
 )
 
 
@@ -99,7 +96,7 @@ def plot_increments(
     ax.set_xlabel("Run time / minutes")
     ax.set_ylabel("Increments / per minute")
     add_credit(ax)
-    plt.tight_layout()
+    fig.tight_layout()
     return fig, ax
 
 
@@ -145,13 +142,13 @@ def plot_session_blanks(
     """
     # Prepare to draw the figure
     s = sessions.loc[session]
-    l = dbs[sessions.index.name] == session
+    L = dbs[sessions.index.name] == session
     if ax is None:
         fig, ax = plt.subplots(dpi=300)
     # Create and draw fitted line
     fx = np.linspace(
-        dbs[l].datenum_analysis_scaled.min(),
-        dbs[l].datenum_analysis_scaled.max(),
+        dbs[L].datenum_analysis_scaled.min(),
+        dbs[L].datenum_analysis_scaled.max(),
         500,
     )
     fy = get._blank_progression(s.blank_progression, fx)
@@ -166,14 +163,14 @@ def plot_session_blanks(
         "datetime_analysis",
         "blank_here",
         yerr="blank_here_std",
-        data=dbs[l & dbs.blank_good],
+        data=dbs[L & dbs.blank_good],
         alpha=0.3,
         ecolor=c,
         label=None,
         linestyle="none",
     )
     # Draw the rest of the figure
-    dbs[l & dbs.blank_good].plot.scatter(
+    dbs[L & dbs.blank_good].plot.scatter(
         "datetime_analysis",
         "blank_here",
         ax=ax,
@@ -182,11 +179,11 @@ def plot_session_blanks(
         label="Samples used",
     )
     y_max = (
-        np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
+        np.max([dbs[L & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
     )
-    l_ignored = l & ~dbs.blank_good & (dbs.blank_here <= y_max)
-    if l_ignored.any():
-        dbs[l_ignored].plot.scatter(
+    L_ignored = L & ~dbs.blank_good & (dbs.blank_here <= y_max)
+    if L_ignored.any():
+        dbs[L_ignored].plot.scatter(
             "datetime_analysis",
             "blank_here",
             ax=ax,
@@ -195,9 +192,9 @@ def plot_session_blanks(
             marker=marker,
             label="Ignored",
         )
-    l_offscale = l & (dbs.blank_here > y_max)
-    if l_offscale.any():
-        off_x = dbs[l_offscale].datetime_analysis.values
+    L_offscale = L & (dbs.blank_here > y_max)
+    if L_offscale.any():
+        off_x = dbs[L_offscale].datetime_analysis.values
         ax.scatter(
             off_x,
             np.full(np.size(off_x), y_max * 0.99999),
@@ -216,11 +213,11 @@ def plot_session_blanks(
     ax.set_title(session)
     ax.grid(alpha=0.2)
     add_credit(ax)
-    plt.tight_layout()
+    fig.tight_layout()
     if figure_path is not None:
         if not figure_path.endswith(sep):
             figure_path += sep
-        plt.savefig("{}{}.{}".format(figure_path, str(session), figure_format))
+        fig.savefig("{}{}.{}".format(figure_path, str(session), figure_format))
     if show_fig:
         plt.show()
     return fig, ax
@@ -314,17 +311,17 @@ def plot_k_dic(
     show_ignored=True,
 ):
     """Plot DIC calibration factors through time."""
-    marker = copy.deepcopy(markers)
-    colour = copy.deepcopy(colours)
+    marker = itertools.cycle(markers)
+    colour = itertools.cycle(colours)
     if ax is None:
         fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     for session, s in sessions.iterrows():
         m = next(marker)
         c = next(colour)
-        l = dbs[sessions.index.name] == session
-        l_good = l & dbs.k_dic_good
-        if l_good.any():
-            dbs[l_good].plot.scatter(
+        L = dbs[sessions.index.name] == session
+        L_good = L & dbs.k_dic_good
+        if L_good.any():
+            dbs[L_good].plot.scatter(
                 "datetime_analysis",
                 "k_dic_here",
                 ax=ax,
@@ -335,9 +332,9 @@ def plot_k_dic(
                 legend=False,
             )
         if show_ignored:
-            l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
-            if l_bad.any():
-                dbs[l_bad].plot.scatter(
+            L_bad = L & ~dbs.k_dic_good & ~np.isnan(dbs.dic_certified)
+            if L_bad.any():
+                dbs[L_bad].plot.scatter(
                     "datetime_analysis",
                     "k_dic_here",
                     ax=ax,
@@ -375,11 +372,11 @@ def plot_k_dic(
     ax.xaxis.get_offset_text().set_visible(False)
     ax.grid(alpha=0.2)
     add_credit(ax)
-    plt.tight_layout()
+    fig.tight_layout()
     if figure_path is not None:
         if not figure_path.endswith(sep):
             figure_path += sep
-        plt.savefig("{}k_dic.{}".format(figure_path, figure_format))
+        fig.savefig("{}k_dic.{}".format(figure_path, figure_format))
     return fig, ax
 
 
@@ -391,17 +388,17 @@ def plot_dic_offset(
     figure_format="png",
 ):
     """Plot measured minus certified DIC values through time."""
-    marker = copy.deepcopy(markers)
-    colour = copy.deepcopy(colours)
+    marker = itertools.cycle(markers)
+    colour = itertools.cycle(colours)
     if ax is None:
         fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
     for session in sessions.index:
         m = next(marker)
         c = next(colour)
-        l = dbs[sessions.index.name] == session
-        l_good = l & dbs.k_dic_good
-        if l_good.any():
-            dbs[l_good].plot.scatter(
+        L = dbs[sessions.index.name] == session
+        L_good = L & dbs.k_dic_good
+        if L_good.any():
+            dbs[L_good].plot.scatter(
                 "datetime_analysis",
                 "dic_offset",
                 ax=ax,
@@ -411,9 +408,9 @@ def plot_dic_offset(
                 label=session,
                 legend=False,
             )
-        l_bad = l & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
-        if l_bad.any():
-            dbs[l_bad].plot.scatter(
+        L_bad = L & ~dbs.k_dic_good & ~np.isnan(dbs.dic_offset)
+        if L_bad.any():
+            dbs[L_bad].plot.scatter(
                 "datetime_analysis",
                 "dic_offset",
                 ax=ax,
@@ -436,9 +433,9 @@ def plot_dic_offset(
     ax.grid(alpha=0.2)
     ax.axhline(0, c="k", linewidth=0.8)
     add_credit(ax)
-    plt.tight_layout()
+    fig.tight_layout()
     if figure_path is not None:
         if not figure_path.endswith(sep):
             figure_path += sep
-        plt.savefig("{}dic_offset.{}".format(figure_path, figure_format))
+        fig.savefig("{}dic_offset.{}".format(figure_path, figure_format))
     return fig, ax

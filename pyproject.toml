@@ -24,7 +24,6 @@ classifiers =[
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "calkulate",
     "matplotlib",
     "numpy",
     "pandas",

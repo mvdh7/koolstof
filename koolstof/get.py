@@ -2,8 +2,9 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from calkulate.density import seawater_1atm_MP81
 from scipy.optimize import least_squares
+
+from .density import seawater_1atm_MP81
 
 
 def _get_logfile_index(dbs_row, logfile):
