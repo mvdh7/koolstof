@@ -1,8 +1,8 @@
 import textwrap
 
 
-__version__ = "0.33"
-__author__ = "Humphreys, Matthew P. and Ourradi, Yasmina"
+__version__ = "1.0.0"
+__author__ = "Humphreys, Matthew P."
 
 
 def hello():
