@@ -22,7 +22,7 @@ logfile = ks.read_vindta_logfile("path/to/logfile.bak", methods="3C standard")
 
 !!! example "`read_vindta_logfile`: optional keyword arguments"
 
-    * `methods`: list of VINDTA method filenames used to run samples, excluding the `.mth` extensions
+    * `methods`: list of VINDTA method filenames used to run samples, excluding the `.mth` extensions.
 
 ### The dbs file
 
@@ -95,6 +95,7 @@ sessions = ks.blank_correction(
     runtime_col="run_time",
     session_col="dic_cell_id",
     use_from=6,
+    use_to=100,
 )
 ```
 
@@ -105,6 +106,7 @@ sessions = ks.blank_correction(
     * `runtime_col`: the name of the column containing the total run time for each sample.
     * `session_col`: the name of the column containing the analysis session identifiers.
     * `use_from`: which minute of the coulometric titrations to measure the blank starting from.
+    * `use_to`: which minute of the coulometric titrations to measure the blank until.
 
 The output `sessions` is a table of analysis sessions, as identified by unique values of the `session_col`.  The `dbs` is also updated with extra columns, most importantly, `"blank_here"` and `"counts_corrected"`.
 
