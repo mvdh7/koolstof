@@ -1,12 +1,14 @@
 """Make figures to assist calibrating and QCing VINDTA datasets."""
 
-import itertools, copy
+import copy
+import itertools
 from os import sep
+
 import numpy as np
-from matplotlib import pyplot as plt, dates as mdates
-from . import get, process
-from ..plot import add_credit
-from ..meta import __version__
+from matplotlib import dates as mdates, pyplot as plt
+
+from . import get
+from .meta import __version__
 
 
 markers = itertools.cycle(("o", "^", "s", "v", "D", "<", ">"))
@@ -24,6 +26,22 @@ colours = itertools.cycle(
 )
 
 
+def add_credit(ax):
+    """Add koolstof credit to figures."""
+    ax.text(
+        1.005,
+        0,
+        "koolstof v{}".format(__version__),
+        alpha=0.3,
+        c="k",
+        fontsize=7,
+        ha="left",
+        va="bottom",
+        rotation=-90,
+        transform=ax.transAxes,
+    )
+
+
 def plot_increments(
     dbs,
     logfile,
@@ -33,7 +51,7 @@ def plot_increments(
     alpha=0.6,
     dpi=300,
     figsize=[6.4, 4.8],
-    **kwargs
+    **kwargs,
 ):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional kwargs are passed to plt.plot().
@@ -45,7 +63,9 @@ def plot_increments(
     fymax = 1.0
     for i in dbs[dbs.logfile_index.notnull()].logfile_index:
         i_data = logfile.table[i]
-        i_blank = (i_data["minutes"] >= use_from) & (i_data["minutes"] <= use_to)
+        i_blank = (i_data["minutes"] >= use_from) & (
+            i_data["minutes"] <= use_to
+        )
         ax.plot(
             i_data["minutes"],
             i_data["increments"],
@@ -62,7 +82,9 @@ def plot_increments(
             s=20,
         )
         fymax = np.max([fymax, np.max(i_data["increments"][-3:])])
-        not_i_blank = (i_data["minutes"] < use_from) | (i_data["minutes"] > use_to)
+        not_i_blank = (i_data["minutes"] < use_from) | (
+            i_data["minutes"] > use_to
+        )
         ax.scatter(
             i_data["minutes"][not_i_blank],
             i_data["increments"][not_i_blank],
@@ -128,11 +150,15 @@ def plot_session_blanks(
         fig, ax = plt.subplots(dpi=300)
     # Create and draw fitted line
     fx = np.linspace(
-        dbs[l].datenum_analysis_scaled.min(), dbs[l].datenum_analysis_scaled.max(), 500
+        dbs[l].datenum_analysis_scaled.min(),
+        dbs[l].datenum_analysis_scaled.max(),
+        500,
     )
     fy = get._blank_progression(s.blank_progression, fx)
     fx = mdates.num2date(
-        get._de_centre_and_scale(fx, s.datenum_analysis_std, s.datenum_analysis_mean)
+        get._de_centre_and_scale(
+            fx, s.datenum_analysis_std, s.datenum_analysis_mean
+        )
     )
     ax.plot(fx, fy, c=c, label="Best fit")
     # Draw errorbars
@@ -155,7 +181,9 @@ def plot_session_blanks(
         marker=marker,
         label="Samples used",
     )
-    y_max = np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
+    y_max = (
+        np.max([dbs[l & dbs.blank_good].blank_here.max(), np.max(fy)]) * 1.2
+    )
     l_ignored = l & ~dbs.blank_good & (dbs.blank_here <= y_max)
     if l_ignored.any():
         dbs[l_ignored].plot.scatter(
@@ -397,7 +425,9 @@ def plot_dic_offset(
     # ax.legend(edgecolor="k", bbox_to_anchor=(1, 1))
     ax.set_xlabel("Analysis date and time")
     ax.set_ylabel(r"DIC (calibrated $-$ certified) / μmol$\cdot$kg$^{-1}$")
-    ax.set_ylim(np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1)
+    ax.set_ylim(
+        np.array([-1, 1]) * dbs[dbs.k_dic_good].dic_offset.abs().max() * 1.1
+    )
     locator = mdates.AutoDateLocator(minticks=3, maxticks=9)
     formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)

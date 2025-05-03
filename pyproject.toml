@@ -42,3 +42,13 @@ include = ["koolstof*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "koolstof.meta.__version__"}
+
+# [tool.ruff.lint]
+# ignore = [
+#     "E401",  # multiple-imports-on-one-line
+#     # "F401",  # unused-import
+#     "I",
+# ]
+
+# [tool.ruff.lint.isort]
+# force-single-line = true

@@ -1,32 +1,60 @@
-"""Miscellaneous tools for marine carbonate chemistry and other such things."""
+"""
+koolstof
+========
 
-from . import (
-    airica,
-    coulometer,
-    crm,
-    infrared,
-    meta,
-    misc,
-    molar,
-    optode,
-    parameterisations,
-    plot,
-    quaatro,
-    spectro,
-    vindta,
-)
-from .meta import __author__, __version__, hello
-from .misc import lcletter, sigfig
-from .vindta import (
-    read_dbs,
-    read_logfile,
-    plot_session_blanks,
+Import, blank-correct and calibrate DIC data.
+
+Documentation is available online at https://koolstof.hseao3.group
+
+Code examples assume that the import convention has been followed:
+
+  >>> import koolstof as ks
+
+The following subfunctions are then available:
+
+Import data (from VINDTA)
+-------------------------
+    read_vindta_dbs
+    read_vindta_logfile
+
+Process and calibrate
+---------------------
+    get_counts_at
+    blank_correction
+    calibrate_dic
+    poison_correction
+
+Data visualisation
+------------------
+    plot_increments
+    plot_blanks
+    plot_session_blanks
+    plot_dic_offset
+    plot_k_dic
+"""
+
+from .get import blank_correction, calibrate_dic, get_counts_at
+from .plot import (
     plot_blanks,
-    plot_k_dic,
     plot_dic_offset,
-    poison_correction,
+    plot_increments,
+    plot_k_dic,
+    plot_session_blanks,
 )
-from .optode import pH_optode
-from .plot import get_cluster_profile, cluster_profile
-from .parameterisations import aou_GG92, pH_tris_DD98
-from .spectro.oxygen import read_cary_oxygen
+from .process import poison_correction
+from .read import read_vindta_dbs, read_vindta_logfile
+
+
+__all__ = [
+    "read_vindta_dbs",
+    "read_vindta_logfile",
+    "get_counts_at",
+    "blank_correction",
+    "calibrate_dic",
+    "poison_correction",
+    "plot_increments",
+    "plot_blanks",
+    "plot_session_blanks",
+    "plot_dic_offset",
+    "plot_k_dic",
+]

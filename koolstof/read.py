@@ -1,9 +1,12 @@
 import re
-import numpy as np, pandas as pd
+import warnings
+
+import numpy as np
+import pandas as pd
 from matplotlib import dates as mdates
 
 
-def read_logfile(fname, methods="3C standard", ignore_lines=[]):
+def read_vindta_logfile(fname, methods="3C standard", ignore_lines=None):
     """Import a logfile.bak as a DataFrame.
 
     Parameters
@@ -14,7 +17,7 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
         VINDTA method name or list of names used for measurements, by default
         "3C standard".
     ignore_lines : list, optional
-        Which line numbers of the logfile to ignore, by default [].
+        Which line numbers of the logfile to ignore, by default None.
 
     Returns
     -------
@@ -23,9 +26,13 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
     """
     if isinstance(methods, str):
         methods = [methods]
+    if ignore_lines is None:
+        ignore_lines = []
     # Compile regexs for reading logfile
     re_method = re.compile(r"(" + r"|".join(methods) + r")\.mth run started ")
-    re_datetime = re.compile(r"started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})")
+    re_datetime = re.compile(
+        r"started (\d{2})/(\d{2})/(\d{2})  (\d{2}):(\d{2})"
+    )
     re_bottle = re.compile(r"(bottle)?\t([^\t]*)\t")
     re_crm = re.compile(r"CRM\t([^\t]*)\t")
     re_increments = re.compile(r"(\d*)\t(\d*)\t(\d*)\t")
@@ -53,7 +60,7 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
                 lbot = re_crm.findall(logf[i + 1])[0]
             elif logf[i + 1] == "other":
                 lbot = "other_{}".format(i + 1)
-            if type(lbot) == str:
+            if isinstance(lbot, str):
                 logdf["bottle"].append(lbot)
                 logdf["line_number"].append(i)
                 logdf["method"].append(re_method.findall(line)[0])
@@ -64,9 +71,15 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
                         "20" + ldt[2], ldt[0], ldt[1], ldt[3], ldt[4]
                     )
                 )
-                logdf["datetime_analysis"] = np.append(logdf["datetime_analysis"], ldt)
+                logdf["datetime_analysis"] = np.append(
+                    logdf["datetime_analysis"], ldt
+                )
                 # Get coulometer data
-                jdict = {"minutes": [0.0], "counts": [0.0], "increments": [0.0]}
+                jdict = {
+                    "minutes": [0.0],
+                    "counts": [0.0],
+                    "increments": [0.0],
+                }
                 j = 4
                 while re_increments.match(logf[i + j].strip()):
                     jinc = re_increments.findall(logf[i + j].strip())[0]
@@ -80,7 +93,9 @@ def read_logfile(fname, methods="3C standard", ignore_lines=[]):
                 logdf["run_time"].append(j - 4.0)
             else:
                 if i + 1 not in ignore_lines:
-                    print("Logfile line {}: bottle name not found!".format(i + 1))
+                    warnings.warn(
+                        "Logfile line {}: bottle name not found!".format(i + 1)
+                    )
     # Convert lists to arrays and put logfile into DataFrame
     logdf = pd.DataFrame({k: np.array(v) for k, v in logdf.items()})
     logdf.set_index("line_number", inplace=True)
@@ -148,7 +163,9 @@ def _dbs_datetime(dbs_row):
     try:
         dspl = dbs_row["date"].split("/")
         datetime_analysis = np.datetime64(
-            "-".join(("20" + dspl[2], dspl[0], dspl[1])) + "T" + dbs_row["time"]
+            "-".join(("20" + dspl[2], dspl[0], dspl[1]))
+            + "T"
+            + dbs_row["time"]
         )
     except AttributeError:
         datetime_analysis = np.datetime64("NaT")
@@ -159,7 +176,7 @@ def _dbs_datetime(dbs_row):
     )
 
 
-def read_dbs(fname, drop_cols=True):
+def read_vindta_dbs(fname, drop_cols=True):
     """Import a dbs file from a VINDTA, rename the columns, and reformat the date/time.
 
     Parameters

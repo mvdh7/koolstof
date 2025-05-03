@@ -1,0 +1,6 @@
+line-length = 79
+
+[lint.isort]
+combine-as-imports = true
+force-single-line = false
+lines-after-imports = 2
