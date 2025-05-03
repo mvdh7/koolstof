@@ -1,6 +1,6 @@
 # VINDTA DIC processing
 
-Koolstof deals with dissolved inorganic carbon (DIC) measurements only.  For total alkalinity, use [Calkulate](https://calkulate.readthedocs.io/).
+Koolstof deals with dissolved inorganic carbon (DIC) measurements only.  For total alkalinity, use [Calkulate](https://calkulate.hseao3.group/).
 
 Koolstof provides a set of functions to import VINDTA data files as [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) and then perform operations on them to process and calibrate the data, plus some plotting functions.  There are two main processing steps: (1) applying the blank correction, and (2) calibrating to CRMs.
 
