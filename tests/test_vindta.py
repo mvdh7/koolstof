@@ -1,12 +1,19 @@
-import pandas as pd, numpy as np
+import numpy as np
+import pandas as pd
+
 from koolstof import vindta as ksv
+
 
 logfile_fname = "tests/data/logfile_20200407.bak"
 dbs_fname = "tests/data/2018_Aug_RWS_CO2.dbs"
-logfile = ksv.read_logfile(logfile_fname, methods=["3C standard", "3C standardRWS"])
+logfile = ksv.read_logfile(
+    logfile_fname, methods=["3C standard", "3C standardRWS"]
+)
 dbs = ksv.read_dbs(dbs_fname)
 sessions = ksv.blank_correction(dbs, logfile)
-dbs["dic_certified"] = np.where(dbs.bottle.str.startswith("CRM"), 2029.19, np.nan)
+dbs["dic_certified"] = np.where(
+    dbs.bottle.str.startswith("CRM"), 2029.19, np.nan
+)
 ksv.calibrate_dic(dbs, sessions)
 
 
