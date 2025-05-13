@@ -6,7 +6,7 @@ from os import sep
 import numpy as np
 from matplotlib import dates as mdates, pyplot as plt
 
-from . import get
+from . import blank
 from .meta import __version__
 
 
@@ -151,9 +151,9 @@ def plot_session_blanks(
         dbs[L].datenum_analysis_scaled.max(),
         500,
     )
-    fy = get._blank_progression(s.blank_progression, fx)
+    fy = blank._blank_progression(s.blank_progression, fx)
     fx = mdates.num2date(
-        get._de_centre_and_scale(
+        blank._de_centre_and_scale(
             fx, s.datenum_analysis_std, s.datenum_analysis_mean
         )
     )

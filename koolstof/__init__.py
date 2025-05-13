@@ -33,7 +33,8 @@ Data visualisation
     plot_k_dic
 """
 
-from .get import blank_correction, calibrate_dic, get_counts_at
+from .blank import blank_correction, get_counts_at
+from .calibrate import calibrate_dic
 from .meta import __version__, hello
 from .plot import (
     plot_blanks,

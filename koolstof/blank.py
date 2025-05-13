@@ -4,47 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import least_squares
 
-from .density import seawater_1atm_MP81
-
-
-def _get_logfile_index(dbs_row, logfile):
-    """[row.apply] Get index in logfile corresponding to a given row of the dbs
-    file.
-    """
-    if dbs_row.bottle in logfile.bottle.values:
-        logfile_index = np.where(
-            (dbs_row.bottle == logfile.bottle)
-            & (dbs_row.datetime_analysis == logfile.datetime_analysis)
-        )[0]
-        if np.size(logfile_index) == 1:
-            logfile_index = logfile.index[logfile_index[0]]
-        else:
-            warnings.warn(
-                (
-                    f"{np.size(logfile_index)} name/date matches found "
-                    + f"between dbs and logfile @ dbs loc {dbs_row.name}"
-                )
-            )
-            logfile_index = np.nan
-    else:
-        logfile_index = np.nan
-    return logfile_index
-
-
-def get_logfile_index(dbs, logfile):
-    """Find the index in the logfile corresponding to each row of the dbs file
-    and add this in-place to the dbs as "logfile_index".
-
-    Parameters
-    ----------
-    dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs).
-    logfile : pd.DataFrame
-        The logfile as a pandas DataFrame (imported with read_logfile).
-    """
-    dbs["logfile_index"] = dbs.apply(
-        _get_logfile_index, args=[logfile], axis=1
-    )
+from . import vindta
 
 
 def _get_sample_blanks(dbs_row, logfile, use_from=6, use_to=100):
@@ -101,7 +61,7 @@ def get_sample_blanks(dbs, logfile, use_from=6, use_to=100):
         by default 100.
     """
     if "logfile_index" not in dbs:
-        get_logfile_index(dbs, logfile)
+        vindta.get_logfile_index(dbs, logfile)
     dbs_blanks = dbs.apply(
         _get_sample_blanks,
         args=[logfile],
@@ -276,7 +236,7 @@ def get_counts_at(
     if counts_loc is None and counts_iloc is None:
         counts_iloc = -1
     if "logfile_index" not in dbs:
-        get_logfile_index(dbs, logfile)
+        vindta.get_logfile_index(dbs, logfile)
     if counts_loc is not None:
         for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
             lt = logfile.loc[row.logfile_index].table
@@ -444,97 +404,3 @@ def blank_correction(
         use_to=use_to,
     )
     return sessions
-
-
-def get_density(dbs, temperature_analysis_dic=25.0, salinity=35.0):
-    """Calculate sample densities in kg/l.
-
-    Parameters
-    ----------
-    dbs : pd.DataFrame
-        The dbs file.
-    temperature_analysis_dic : float, optional
-        Temperature of DIC analysis in degC, by default 25.0
-    salinity : float, optional
-        Practical salinity, by default 35.0
-
-    Returns
-    -------
-    pd.DataFrame
-        The dbs DataFrame with an extra column 'density_analysis_dic'
-        containing the density during analysis in kg/l.
-    """
-    if "temperature_analysis_dic" not in dbs:
-        dbs["temperature_analysis_dic"] = temperature_analysis_dic
-        warnings.warn(
-            "dbs.temperature_analysis_dic not set; assuming {} °C.".format(
-                temperature_analysis_dic
-            )
-        )
-    if "salinity" not in dbs:
-        dbs["salinity"] = salinity
-        warnings.warn("dbs.salinity not set; assuming {}.".format(salinity))
-    dbs["density_analysis_dic"] = seawater_1atm_MP81(
-        temperature=dbs.temperature_analysis_dic, salinity=dbs.salinity
-    )
-    return dbs
-
-
-def get_standard_calibrations(dbs):
-    """Calculate the calibration factor for each CRM separately and add this
-    in-place to dbs as column "k_dic_here".
-
-    Parameters
-    ----------
-    dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs), having
-        then passed through `blank_correction`.
-    sessions : pd.DataFrame
-        A table of analysis sessions including blank correction details,
-        produced by `blank_correction`.
-    """
-    assert "dic_certified" in dbs, (
-        "You must provide some dbs.dic_certified values."
-    )
-    if "density_analysis_dic" not in dbs:
-        get_density(dbs)
-    dbs["k_dic_here"] = (
-        dbs.dic_certified * dbs.density_analysis_dic / dbs.counts_corrected
-    )
-
-
-def _get_session_calibrations(dbs_group):
-    """[group.apply] Calculate the session-averaged calibration factors."""
-    gk = dbs_group[dbs_group.k_dic_good].k_dic_here
-    return pd.Series(
-        {
-            "k_dic_mean": gk.mean(),
-            "k_dic_std": gk.std(),
-            "k_dic_count": np.sum(~np.isnan(gk)),
-        }
-    )
-
-
-def calibrate_dic(dbs, sessions):
-    """Calculate the session-averaged calibration factors and calibrate all DIC
-    measurements.
-
-    Parameters
-    ----------
-    dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs), having
-        then passed through `blank_correction`.
-    sessions : pd.DataFrame
-        A table of analysis sessions including blank correction details,
-        produced by `blank_correction`.
-    """
-    if "k_dic_here" not in dbs:
-        get_standard_calibrations(dbs)
-    if "k_dic_good" not in dbs:
-        dbs["k_dic_good"] = ~dbs.dic_certified.isnull()
-    sc = dbs.groupby(by=sessions.index.name).apply(_get_session_calibrations)
-    for k, v in sc.items():
-        sessions[k] = v
-    dbs["k_dic"] = sessions.loc[dbs[sessions.index.name]].k_dic_mean.values
-    dbs["dic"] = dbs.counts_corrected * dbs.k_dic / dbs.density_analysis_dic
-    dbs["dic_offset"] = dbs.dic - dbs.dic_certified

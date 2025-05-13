@@ -39,3 +39,37 @@ def seawater_1atm_MP81(temperature=25, salinity=35):
         * salinity**1.5
         + 4.8314e-4 * salinity**2
     ) * 1e-3
+
+
+def get_density(dbs, temperature_analysis_dic=25.0, salinity=35.0):
+    """Calculate sample densities in kg/l.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file.
+    temperature_analysis_dic : float, optional
+        Temperature of DIC analysis in degC, by default 25.0
+    salinity : float, optional
+        Practical salinity, by default 35.0
+
+    Returns
+    -------
+    pd.DataFrame
+        The dbs DataFrame with an extra column 'density_analysis_dic'
+        containing the density during analysis in kg/l.
+    """
+    if "temperature_analysis_dic" not in dbs:
+        dbs["temperature_analysis_dic"] = temperature_analysis_dic
+        warnings.warn(
+            "dbs.temperature_analysis_dic not set; assuming {} °C.".format(
+                temperature_analysis_dic
+            )
+        )
+    if "salinity" not in dbs:
+        dbs["salinity"] = salinity
+        warnings.warn("dbs.salinity not set; assuming {}.".format(salinity))
+    dbs["density_analysis_dic"] = seawater_1atm_MP81(
+        temperature=dbs.temperature_analysis_dic, salinity=dbs.salinity
+    )
+    return dbs

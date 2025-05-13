@@ -33,30 +33,30 @@ def test_read_vindta_dbs():
 def test_get_logfile_index():
     dbs = ks.read_vindta_dbs(dbs_fname)
     assert "logfile_index" not in dbs
-    ks.get.get_logfile_index(dbs, logfile)
+    ks.vindta.get_logfile_index(dbs, logfile)
     assert "logfile_index" in dbs
 
 
 def test_get_sample_blanks():
     dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.get.get_sample_blanks(dbs, logfile)
+    ks.blank.get_sample_blanks(dbs, logfile)
     assert "blank_here" in dbs
 
 
 def test_get_session_blanks():
     dbs = ks.read_vindta_dbs(dbs_fname)
-    sessions = ks.get.get_session_blanks(dbs, logfile)
+    sessions = ks.blank.get_session_blanks(dbs, logfile)
     assert isinstance(sessions, pd.DataFrame)
     assert "blank_here" in dbs
 
 
 def test_get_counts_corrected():
     dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.get.get_counts_corrected(dbs, logfile)
+    ks.blank.get_counts_corrected(dbs, logfile)
     assert "counts_corrected" in dbs
     dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.get.get_sample_blanks(dbs, logfile)
-    ks.get.get_counts_corrected(dbs)
+    ks.blank.get_sample_blanks(dbs, logfile)
+    ks.blank.get_counts_corrected(dbs)
     assert "counts_corrected" in dbs
 
 
@@ -72,7 +72,7 @@ def test_get_standard_calibrations():
     ks.blank_correction(dbs, logfile)
     dbs["dic_certified"] = np.nan
     dbs.loc[dbs.bottle.str.startswith("CRM"), "dic_certified"] = 2029.19
-    ks.get.get_standard_calibrations(dbs)
+    ks.calibrate.get_standard_calibrations(dbs)
     assert "k_dic_here" in dbs
 
 

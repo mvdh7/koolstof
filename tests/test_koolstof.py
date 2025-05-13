@@ -1,3 +1,4 @@
+# %%
 import koolstof as ks
 
 
