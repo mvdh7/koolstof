@@ -5,8 +5,14 @@ import numpy as np
 import pandas as pd
 from matplotlib import dates as mdates
 
+from .vindta import get_logfile_index
 
-def read_vindta_logfile(fname, methods="3C standard", ignore_lines=None):
+
+def read_vindta_logfile(
+    fname,
+    methods="3C standard",
+    ignore_lines=None,
+):
     """Import a logfile.bak as a DataFrame.
 
     Parameters
@@ -177,14 +183,16 @@ def _dbs_datetime(dbs_row):
 
 
 def read_vindta_dbs(fname, drop_cols=True):
-    """Import a dbs file from a VINDTA, rename the columns, and reformat the date/time.
+    """Import a dbs file from a VINDTA, rename the columns, and reformat the
+    date/time.
 
     Parameters
     ----------
     fname : str
         The filename (and path) of the dbs file.
     drop_cols : bool, optional
-        Whether to drop superfluous columns (True) or not (False), by default True.
+        Whether to drop superfluous columns (True) or not (False), by default
+        True.
 
     Returns
     -------
@@ -203,3 +211,48 @@ def read_vindta_dbs(fname, drop_cols=True):
     if drop_cols:
         dbs.drop(columns=_dbs_drop, inplace=True)
     return dbs
+
+
+def read_vindta(
+    fname_dbs,
+    fname_logfile,
+    blank_from=6,
+    drop_cols=True,
+    methods="3C standard",
+    ignore_lines=None,
+):
+    """Import a VINDTA dbs file and logfile.bak as pandas `DataFrame`s.
+
+    Parameters
+    ----------
+    fname_dbs : str
+        The filename (and path) of the dbs file.
+    fname_logfile : str
+        The filename (and path) of the logfile.
+    blank_from : float, optional
+        Which minute of each titration to start counting as the blank, by
+        default `6`.
+    drop_cols : bool, optional
+        Whether to drop superfluous columns from `dbs`, by default `True`.
+    methods : str or list, optional
+        VINDTA method name or list of names used for measurements, by default
+        `"3C standard"`.
+    ignore_lines : list, optional
+        Which line numbers of the logfile to ignore, by default `None`.
+
+    Returns
+    -------
+    dbs : pd.DataFrame
+        The dbs file as a pandas `DataFrame`.
+    logfile : pd.DataFrame
+        The logfile as a pandas `DataFrame`.
+    """
+    dbs = read_vindta_dbs(fname_dbs, drop_cols=drop_cols)
+    dbs["blank_from"] = blank_from
+    logfile = read_vindta_logfile(
+        fname_logfile,
+        methods=methods,
+        ignore_lines=ignore_lines,
+    )
+    get_logfile_index(dbs, logfile)
+    return dbs, logfile

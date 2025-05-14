@@ -129,7 +129,8 @@ def plot_session_blanks(
     marker : str, optional
         Marker for plotting, by default "o".
     figure_path : str, optional
-        File path to save a figure, by default None, in which case it is not saved.
+        File path to save a figure, by default None, in which case it is not
+        saved.
     figure_format : str, optional
         Format extension in which to save the figure, by default "png"
     show_fig : bool, optional
@@ -258,7 +259,12 @@ def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
 #         **kwargs
 #     )
 #     dbs[dbs.blank_good].plot.scatter(
-#         "datetime_analysis", "blank_here", ax=ax, c="xkcd:navy", alpha=alpha, **kwargs
+#         "datetime_analysis",
+#         "blank_here",
+#         ax=ax,
+#         c="xkcd:navy",
+#         alpha=alpha,
+#         **kwargs,
 #     )
 #     sessions_here = dbs["cell ID"].unique()
 #     for session in sessions_here:

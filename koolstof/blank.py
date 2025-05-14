@@ -7,16 +7,18 @@ from scipy.optimize import least_squares
 from . import vindta
 
 
-def _get_sample_blanks(dbs_row, logfile, use_from=6, use_to=100):
+def _get_sample_blanks(dbs_row, logfile):
     """[row.apply] Calculate each sample's DIC blank value."""
     try:
         lft = logfile.loc[dbs_row.logfile_index].table
-        use_minutes = (lft["minutes"] >= use_from) & (lft["minutes"] <= use_to)
-        blank_here = lft["increments"][use_minutes].mean()
-        blank_here_min = lft["increments"][use_minutes].min()
-        blank_here_max = lft["increments"][use_minutes].max()
-        blank_here_std = lft["increments"][use_minutes].std()
-        blank_here_count = use_minutes.sum()
+        B = lft["minutes"] >= dbs_row.blank_from
+        if "blank_to" in dbs_row:
+            B &= lft["minutes"] <= dbs_row.blank_to
+        blank_here = lft["increments"][B].mean()
+        blank_here_min = lft["increments"][B].min()
+        blank_here_max = lft["increments"][B].max()
+        blank_here_std = lft["increments"][B].std()
+        blank_here_count = B.sum()
         run_time = lft["minutes"].max()
         counts = lft["counts"].max()
     except (ValueError, KeyError):
@@ -40,7 +42,7 @@ def _get_sample_blanks(dbs_row, logfile, use_from=6, use_to=100):
     )
 
 
-def get_sample_blanks(dbs, logfile, use_from=6, use_to=100):
+def get_sample_blanks(dbs, logfile):
     """Calculate each sample's DIC blank value and add this in-place to the
     `dbs` plus some relevant statistics.
 
@@ -53,22 +55,8 @@ def get_sample_blanks(dbs, logfile, use_from=6, use_to=100):
         The dbs file as a pandas DataFrame (imported with read_dbs).
     logfile : pd.DataFrame
         The logfile as a pandas DataFrame (imported with read_logfile).
-    use_from : int, optional
-        Which minute of the titrations to begin counting as a blank
-        measurement, by default 6.
-    use_to : int, optional
-        Which minute of the titrations to stop counting as a blank measurement,
-        by default 100.
     """
-    if "logfile_index" not in dbs:
-        vindta.get_logfile_index(dbs, logfile)
-    dbs_blanks = dbs.apply(
-        _get_sample_blanks,
-        args=[logfile],
-        axis=1,
-        use_from=use_from,
-        use_to=use_to,
-    )
+    dbs_blanks = dbs.apply(_get_sample_blanks, args=[logfile], axis=1)
     for blank in dbs_blanks.columns:
         dbs[blank] = dbs_blanks[blank]
 
@@ -166,17 +154,19 @@ def get_session_blanks(
     dbs : pd.DataFrame
         The dbs file as a pandas DataFrame (imported with read_dbs).
     logfile : pd.DataFrame, optional
-        The logfile as a pandas DataFrame (imported with read_logfile), only necessary
-        if you have not run get_sample_blanks on the dbs, by default None.
+        The logfile as a pandas DataFrame (imported with read_logfile), only
+        necessary if you have not run get_sample_blanks on the dbs, by default
+        None.
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by default
         'dic_cell_id'.
     use_from : int, optional
-        Which minute of the titration to begin counting as a blank measurement, by
-        default 6.  Passed to get_sample_blanks if this has not already been run.
+        Which minute of the titration to begin counting as a blank measurement,
+        by default 6.  Passed to get_sample_blanks if this has not already been
+        run.
     use_to : int, optional
-        Which minute of the titration to stop counting as a blank measurement, by
-        default 100.
+        Which minute of the titration to stop counting as a blank measurement,
+        by default 100.
 
     Returns
     -------
@@ -185,7 +175,8 @@ def get_session_blanks(
     """
     if "blank_here" not in dbs:
         assert logfile is not None, (
-            "You must either provide a logfile or run get_sample_blanks on the dbs."
+            "You must either provide a logfile"
+            + " or run get_sample_blanks on the dbs."
         )
         get_sample_blanks(dbs, logfile, use_from=use_from, use_to=use_to)
     if "blank_good" not in dbs:
