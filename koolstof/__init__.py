@@ -14,13 +14,17 @@ The following subfunctions are then available:
 
 Import data (from VINDTA)
 -------------------------
+    read_vindta
     read_vindta_dbs
     read_vindta_logfile
 
 Process and calibrate
 ---------------------
-    get_counts_at
+    counts_at
+    blank_per_measurement
+    blank_per_session
     blank_correction
+    session_blank
     calibrate_dic
     poison_correction
 
@@ -33,7 +37,13 @@ Data visualisation
     plot_k_dic
 """
 
-from .blank import blank_correction, get_counts_at
+from .blank import (
+    blank_correction,
+    blank_per_measurement,
+    blank_per_session,
+    counts_at,
+    session_blank,
+)
 from .calibrate import calibrate_dic
 from .meta import __version__, hello
 from .plot import (
@@ -44,14 +54,18 @@ from .plot import (
     plot_session_blanks,
 )
 from .process import poison_correction
-from .read import read_vindta_dbs, read_vindta_logfile
+from .read import read_vindta, read_vindta_dbs, read_vindta_logfile
 
 
 __all__ = [
+    "read_vindta",
     "read_vindta_dbs",
     "read_vindta_logfile",
-    "get_counts_at",
+    "counts_at",
+    "blank_per_measurement",
+    "blank_per_session",
     "blank_correction",
+    "session_blank",
     "calibrate_dic",
     "poison_correction",
     "plot_increments",

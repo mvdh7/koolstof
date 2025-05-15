@@ -7,8 +7,8 @@ from scipy.optimize import least_squares
 from . import vindta
 
 
-def _get_sample_blanks(dbs_row, logfile):
-    """[row.apply] Calculate each sample's DIC blank value."""
+def _blank_per_measurement(dbs_row, logfile):
+    """[row.apply] Calculate each measurement's blank value."""
     try:
         lft = logfile.loc[dbs_row.logfile_index].table
         B = lft["minutes"] >= dbs_row.blank_from
@@ -42,7 +42,7 @@ def _get_sample_blanks(dbs_row, logfile):
     )
 
 
-def get_sample_blanks(dbs, logfile):
+def blank_per_measurement(dbs, logfile):
     """Calculate each sample's DIC blank value and add this in-place to the
     `dbs` plus some relevant statistics.
 
@@ -52,13 +52,15 @@ def get_sample_blanks(dbs, logfile):
     Parameters
     ----------
     dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs).
+        The dbs file as a pandas `DataFrame` (imported with `read_vindta`).
     logfile : pd.DataFrame
-        The logfile as a pandas DataFrame (imported with read_logfile).
+        The logfile as a pandas `DataFrame` (imported with `read_vindta`).
     """
-    dbs_blanks = dbs.apply(_get_sample_blanks, args=[logfile], axis=1)
+    dbs_blanks = dbs.apply(_blank_per_measurement, args=[logfile], axis=1)
     for blank in dbs_blanks.columns:
         dbs[blank] = dbs_blanks[blank]
+    if "blank_good" not in dbs:
+        dbs["blank_good"] = True
 
 
 def _centre_and_scale(x, x_factor=None, x_offset=None):
@@ -89,13 +91,12 @@ def _lsqfun_blank_progression(x0, datenum_scaled, blank_here):
     return _blank_progression(x0, datenum_scaled) - blank_here
 
 
-def _get_session_blanks(dbs_group):
-    """[group.apply] Calculate blanks per analysis session."""
-    x = dbs_group
-    if x.blank_here.isnull().all():
+def session_blank(session):
+    """Fit blank progression for a single analysis session."""
+    if (session.blank_here.isnull() | ~session.blank_good).all():
         warnings.warn(
             "koolstof: No good blank_here values available for session "
-            + f"'{dbs_group.name}'."
+            + f"'{session.name}'."
         )
         blank_cols = pd.Series(
             data={
@@ -109,8 +110,8 @@ def _get_session_blanks(dbs_group):
             }
         )
     else:
-        blank_here = x[x.blank_good].blank_here
-        datenum_here = x[x.blank_good].datenum_analysis
+        blank_here = session[session.blank_good].blank_here
+        datenum_here = session[session.blank_good].datenum_analysis
         L = blank_here.notnull()
         blank_here = blank_here[L]
         datenum_here = datenum_here[L]
@@ -144,9 +145,7 @@ def _get_session_blanks(dbs_group):
     return blank_cols
 
 
-def get_session_blanks(
-    dbs, logfile=None, session_col="dic_cell_id", use_from=6, use_to=100
-):
+def blank_per_session(dbs, logfile=None, session_col="dic_cell_id"):
     """Calculate blanks per analysis session.
 
     Parameters
@@ -155,18 +154,11 @@ def get_session_blanks(
         The dbs file as a pandas DataFrame (imported with read_dbs).
     logfile : pd.DataFrame, optional
         The logfile as a pandas DataFrame (imported with read_logfile), only
-        necessary if you have not run get_sample_blanks on the dbs, by default
-        None.
+        necessary if you have not run blank_per_measurement on the dbs, by
+        default None.
     session_col : str, optional
-        The column name in the dbs that identifies analysis sessions, by default
-        'dic_cell_id'.
-    use_from : int, optional
-        Which minute of the titration to begin counting as a blank measurement,
-        by default 6.  Passed to get_sample_blanks if this has not already been
-        run.
-    use_to : int, optional
-        Which minute of the titration to stop counting as a blank measurement,
-        by default 100.
+        The column name in the dbs that identifies analysis sessions, by
+        default 'dic_cell_id'.
 
     Returns
     -------
@@ -175,18 +167,27 @@ def get_session_blanks(
     """
     if "blank_here" not in dbs:
         assert logfile is not None, (
-            "You must either provide a logfile"
-            + " or run get_sample_blanks on the dbs."
+            "Either a `logfile` must be provided"
+            + " or `blank_per_measurement` first run on the `dbs`."
         )
-        get_sample_blanks(dbs, logfile, use_from=use_from, use_to=use_to)
+        blank_per_measurement(dbs, logfile)
     if "blank_good" not in dbs:
         dbs["blank_good"] = ~dbs.blank_here.isnull()
-    sessions = dbs.groupby(by=session_col).apply(_get_session_blanks)
-    sessions.sort_values("datenum_analysis_mean", inplace=True)
+    if session_col not in dbs:
+        warnings.warn(
+            f"`dbs` does not contain a column called `'{session_col}'` - "
+            + "all measurements assumed to be from the same analysis session."
+        )
+        dbs[session_col] = 0
+    sessions = (
+        dbs.groupby(by=session_col)
+        .apply(session_blank)
+        .sort_values("datenum_analysis_mean")
+    )
     return sessions
 
 
-def get_counts_at(
+def counts_at(
     dbs,
     logfile,
     col_name_counts="counts_at",
@@ -272,10 +273,10 @@ def get_counts_corrected(
         The dbs file as a pandas DataFrame (imported with read_dbs).
     logfile : pd.DataFrame, optional
         The logfile as a pandas DataFrame (imported with read_logfile),
-        necessary only if `get_sample_blanks` has not been run on the dbs,
+        necessary only if `blank_per_measurement` has not been run on the dbs,
         by default `None`.
     sessions : pd.DataFrame, optional
-        The table of analysis sessions generated by get_session_blanks, will be
+        The table of analysis sessions generated by blank_per_session, will be
         generated here if not provided, by default None.
     blank_col : str, optional
         The column name for blank values to use for corrections, by default
@@ -294,15 +295,15 @@ def get_counts_corrected(
         default "dic_cell_id".
     use_from : int, optional
         Which minute of the titrations to begin counting as a blank
-        measurement, by default 6.  Passed to `get_sample_blanks` if this has
-        not already been run.
+        measurement, by default 6.  Passed to `blank_per_measurement` if this
+        has not already been run.
     use_to : int, optional
         Which minute of the titrations to stop counting as a blank measurement,
-        by default 100.  Passed to `get_sample_blanks` if this has not already
-        been run.
+        by default 100.  Passed to `blank_per_measurement` if this has not
+        already been run.
     """
     if sessions is None:
-        sessions = get_session_blanks(
+        sessions = blank_per_session(
             dbs,
             logfile=logfile,
             session_col=session_col,
@@ -377,7 +378,7 @@ def blank_correction(
     sessions : pd.DataFrame
         A table of analysis sessions including blank correction details.
     """
-    sessions = get_session_blanks(
+    sessions = blank_per_session(
         dbs,
         logfile=logfile,
         session_col=session_col,
