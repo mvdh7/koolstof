@@ -323,8 +323,6 @@ def counts_corrected(
             dbs,
             logfile=logfile,
             session_col=session_col,
-            use_from=use_from,
-            use_to=use_to,
         )
     dbs["datenum_analysis_scaled"] = np.nan
     dbs["blank"] = np.nan
@@ -398,8 +396,6 @@ def blank_correction(
         dbs,
         logfile=logfile,
         session_col=session_col,
-        use_from=use_from,
-        use_to=use_to,
     )
     counts_corrected(
         dbs,
@@ -408,7 +404,5 @@ def blank_correction(
         counts_col=counts_col,
         runtime_col=runtime_col,
         session_col=session_col,
-        use_from=use_from,
-        use_to=use_to,
     )
     return sessions

@@ -7,10 +7,11 @@ import koolstof as ks
 
 logfile_fname = "tests/data/logfile_20200407.bak"
 dbs_fname = "tests/data/2018_Aug_RWS_CO2.dbs"
-logfile = ks.read_vindta_logfile(
-    logfile_fname, methods=["3C standard", "3C standardRWS"]
+dbs, logfile = ks.read_vindta(
+    dbs_fname,
+    logfile_fname,
+    methods=["3C standard", "3C standardRWS"],
 )
-dbs = ks.read_vindta_dbs(dbs_fname)
 sessions = ks.blank_correction(dbs, logfile)
 dbs["dic_certified"] = np.where(
     dbs.bottle.str.startswith("CRM"), 2029.19, np.nan
@@ -38,37 +39,61 @@ def test_get_logfile_index():
 
 
 def test_get_sample_blanks():
-    dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.blank.get_sample_blanks(dbs, logfile)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
+    ks.blank.blank_per_measurement(dbs, logfile)
     assert "blank_here" in dbs
 
 
 def test_get_session_blanks():
-    dbs = ks.read_vindta_dbs(dbs_fname)
-    sessions = ks.blank.get_session_blanks(dbs, logfile)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
+    sessions = ks.blank.blank_per_session(dbs, logfile)
     assert isinstance(sessions, pd.DataFrame)
     assert "blank_here" in dbs
 
 
 def test_get_counts_corrected():
-    dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.blank.get_counts_corrected(dbs, logfile)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
+    ks.blank.counts_corrected(dbs, logfile)
     assert "counts_corrected" in dbs
-    dbs = ks.read_vindta_dbs(dbs_fname)
-    ks.blank.get_sample_blanks(dbs, logfile)
-    ks.blank.get_counts_corrected(dbs)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
+    ks.blank.blank_per_measurement(dbs, logfile)
+    ks.blank.counts_corrected(dbs)
     assert "counts_corrected" in dbs
 
 
 def test_blank_correction():
-    dbs = ks.read_vindta_dbs(dbs_fname)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
     sessions = ks.blank_correction(dbs, logfile)
     assert isinstance(sessions, pd.DataFrame)
     assert "counts_corrected" in dbs
 
 
 def test_get_standard_calibrations():
-    dbs = ks.read_vindta_dbs(dbs_fname)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
     ks.blank_correction(dbs, logfile)
     dbs["dic_certified"] = np.nan
     dbs.loc[dbs.bottle.str.startswith("CRM"), "dic_certified"] = 2029.19
@@ -77,7 +102,11 @@ def test_get_standard_calibrations():
 
 
 def test_calibrate_dic():
-    dbs = ks.read_vindta_dbs(dbs_fname)
+    dbs, logfile = ks.read_vindta(
+        dbs_fname,
+        logfile_fname,
+        methods=["3C standard", "3C standardRWS"],
+    )
     sessions = ks.blank_correction(dbs, logfile)
     dbs["dic_certified"] = np.nan
     dbs.loc[dbs.bottle.str.startswith("CRM"), "dic_certified"] = 2029.19
