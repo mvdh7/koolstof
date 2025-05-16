@@ -86,9 +86,16 @@ def _blank_progression(x0, datenum_scaled):
     return blank
 
 
-def _lsqfun_blank_progression(x0, datenum_scaled, blank_here):
+def _lsqfun_blank_progression(
+    x0,
+    datenum_scaled,
+    blank_here,
+    blank_here_std,
+    blank_here_count,
+):
     """Fit the changing coulometer blank during an analysis session."""
-    return _blank_progression(x0, datenum_scaled) - blank_here
+    weights = np.sqrt(blank_here_count) / blank_here_std
+    return (_blank_progression(x0, datenum_scaled) - blank_here) * weights
 
 
 def session_blank(session):
@@ -111,6 +118,8 @@ def session_blank(session):
         )
     else:
         blank_here = session[session.blank_good].blank_here
+        blank_here_std = session[session.blank_good].blank_here_std
+        blank_here_count = session[session.blank_good].blank_here_count
         datenum_here = session[session.blank_good].datenum_analysis
         L = blank_here.notnull()
         blank_here = blank_here[L]
@@ -129,7 +138,12 @@ def session_blank(session):
             blank_prog = least_squares(
                 _lsqfun_blank_progression,
                 [30, 1, 0, 1, 1],
-                args=[datenum_scaled, blank_here],
+                args=[
+                    datenum_scaled,
+                    blank_here,
+                    blank_here_std,
+                    blank_here_count,
+                ],
             )
         blank_cols = pd.Series(
             data={
