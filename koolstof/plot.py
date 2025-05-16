@@ -60,17 +60,15 @@ def plot_increments(
     fymax = 1.0
     for i in dbs[dbs.logfile_index.notnull()].logfile_index:
         i_data = logfile.table[i]
-        i_blank = (i_data["minutes"] >= use_from) & (
-            i_data["minutes"] <= use_to
-        )
+        i_blank = (i_data["time"] >= use_from) & (i_data["time"] <= use_to)
         ax.plot(
-            i_data["minutes"],
+            i_data["time"],
             i_data["increments"],
             c="xkcd:almost black",
             alpha=0.1,
         )
         ax.scatter(
-            i_data["minutes"][i_blank],
+            i_data["time"][i_blank],
             i_data["increments"][i_blank],
             alpha=alpha,
             c="xkcd:strawberry",
@@ -79,11 +77,9 @@ def plot_increments(
             s=20,
         )
         fymax = np.max([fymax, np.max(i_data["increments"][-3:])])
-        not_i_blank = (i_data["minutes"] < use_from) | (
-            i_data["minutes"] > use_to
-        )
+        not_i_blank = (i_data["time"] < use_from) | (i_data["time"] > use_to)
         ax.scatter(
-            i_data["minutes"][not_i_blank],
+            i_data["time"][not_i_blank],
             i_data["increments"][not_i_blank],
             alpha=alpha,
             c="xkcd:navy",

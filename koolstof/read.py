@@ -82,14 +82,14 @@ def read_vindta_logfile(
                 )
                 # Get coulometer data
                 jdict = {
-                    "minutes": [0.0],
+                    "time": [0.0],
                     "counts": [0.0],
                     "increments": [0.0],
                 }
                 j = 4
                 while re_increments.match(logf[i + j].strip()):
                     jinc = re_increments.findall(logf[i + j].strip())[0]
-                    jdict["minutes"].append(float(jinc[0]))
+                    jdict["time"].append(float(jinc[0]))
                     jdict["counts"].append(float(jinc[1]))
                     jdict["increments"].append(float(jinc[2]))
                     j += 1

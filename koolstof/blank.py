@@ -11,15 +11,15 @@ def _blank_per_measurement(dbs_row, logfile):
     """[row.apply] Calculate each measurement's blank value."""
     try:
         lft = logfile.loc[dbs_row.logfile_index].table
-        B = lft["minutes"] >= dbs_row.blank_from
+        B = lft["time"] >= dbs_row.blank_from
         if "blank_to" in dbs_row:
-            B &= lft["minutes"] <= dbs_row.blank_to
+            B &= lft["time"] <= dbs_row.blank_to
         blank_here = lft["increments"][B].mean()
         blank_here_min = lft["increments"][B].min()
         blank_here_max = lft["increments"][B].max()
         blank_here_std = lft["increments"][B].std()
         blank_here_count = B.sum()
-        run_time = lft["minutes"].max()
+        run_time = lft["time"].max()
         counts = lft["counts"].max()
     except (ValueError, KeyError):
         blank_here = np.nan
@@ -94,6 +94,8 @@ def _lsqfun_blank_progression(
     blank_here_count,
 ):
     """Fit the changing coulometer blank during an analysis session."""
+    # To not use weights, can manually set dbs.blank_here_count and
+    # dbs.blank_here_std to constant values before running.
     weights = np.sqrt(blank_here_count) / blank_here_std
     return (_blank_progression(x0, datenum_scaled) - blank_here) * weights
 
@@ -247,14 +249,14 @@ def counts_at(
         for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
             lt = logfile.loc[row.logfile_index].table
             dbs.loc[i, col_name_counts] = lt["counts"][
-                lt["minutes"] == counts_loc
+                lt["time"] == counts_loc
             ]
             dbs.loc[i, col_name_runtime] = counts_loc
     elif counts_iloc is not None:
         for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
             lt = logfile.loc[row.logfile_index].table
             dbs.loc[i, col_name_counts] = lt["counts"][counts_iloc]
-            dbs.loc[i, col_name_runtime] = lt["minutes"][counts_iloc]
+            dbs.loc[i, col_name_runtime] = lt["time"][counts_iloc]
 
 
 def _get_counts_corrected(
