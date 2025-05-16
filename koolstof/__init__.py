@@ -12,8 +12,9 @@ Code examples assume that the import convention has been followed:
 
 The following subfunctions are then available:
 
-Import data (from VINDTA)
--------------------------
+Import data
+-----------
+    read_uic
     read_vindta
     read_vindta_dbs
     read_vindta_logfile
@@ -54,10 +55,11 @@ from .plot import (
     plot_session_blanks,
 )
 from .process import poison_correction
-from .read import read_vindta, read_vindta_dbs, read_vindta_logfile
+from .read import read_uic, read_vindta, read_vindta_dbs, read_vindta_logfile
 
 
 __all__ = [
+    "read_uic",
     "read_vindta",
     "read_vindta_dbs",
     "read_vindta_logfile",

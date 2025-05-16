@@ -256,3 +256,27 @@ def read_vindta(
     )
     get_logfile_index(dbs, logfile)
     return dbs, logfile
+
+
+def read_uic(fname, blank_from=10, to_datetime_kwargs=None):
+    dbs = pd.read_csv(fname).rename(columns={"Time": "run_time"})
+    if to_datetime_kwargs is None:
+        to_datetime_kwargs = {}
+    dbs["datetime_analysis"] = pd.to_datetime(dbs.Date, **to_datetime_kwargs)
+    dbs["datenum_analysis"] = mdates.date2num(
+        dbs.datetime_analysis
+    ) + dbs.run_time.cumsum() / (60 * 24)
+    dbs["datetime_analysis"] = mdates.num2date(dbs.datenum_analysis)
+    dbs["blank_from"] = blank_from
+    # Generate `logfile`
+    dbs["logfile_index"] = dbs.index.values
+    rcols = [c for c in dbs.columns if c.startswith("Read")]
+    table = {i: {} for i in dbs.index}
+    for i, row in dbs.iterrows():
+        counts = row[rcols].values.astype(float)
+        L = ~np.isnan(counts)
+        table[i]["time"] = np.arange(0, L.sum())
+        table[i]["counts"] = counts[L]
+        table[i]["increments"] = np.append([0], np.diff(counts[L]))
+    logfile = pd.DataFrame({"table": table})
+    return dbs, logfile

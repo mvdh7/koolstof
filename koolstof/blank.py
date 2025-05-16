@@ -269,7 +269,7 @@ def _get_counts_corrected(
     return dbs[counts_col] - dbs[runtime_col] * dbs[blank_col]
 
 
-def get_counts_corrected(
+def counts_corrected(
     dbs,
     logfile=None,
     sessions=None,
@@ -401,7 +401,7 @@ def blank_correction(
         use_from=use_from,
         use_to=use_to,
     )
-    get_counts_corrected(
+    counts_corrected(
         dbs,
         sessions=sessions,
         blank_col=blank_col,

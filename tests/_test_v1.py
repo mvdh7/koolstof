@@ -20,6 +20,8 @@ dbs, logfile = ks.read_vindta(
 ks.blank_per_measurement(dbs, logfile)
 
 # Calculate single session blank progression
+# dbs["blank_here_std"] = 1
+# dbs["blank_here_count"] = 1
 dbs_session = dbs[dbs.dic_cell_id == "C_Aug13-18_1008"].copy()
 session = ks.session_blank(dbs_session)
 dbs_session["datenum_analysis_scaled"] = ks.blank._centre_and_scale(

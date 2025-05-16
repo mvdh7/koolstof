@@ -159,7 +159,13 @@ def plot_session_blanks(
     ax.errorbar(
         "datetime_analysis",
         "blank_here",
-        yerr="blank_here_std",
+        # yerr="blank_here_std",
+        [
+            dbs[L & dbs.blank_good].blank_here
+            - dbs[L & dbs.blank_good].blank_here_min,
+            dbs[L & dbs.blank_good].blank_here_max
+            - dbs[L & dbs.blank_good].blank_here,
+        ],
         data=dbs[L & dbs.blank_good],
         alpha=0.3,
         ecolor=c,
@@ -205,8 +211,8 @@ def plot_session_blanks(
     ax.legend(edgecolor="k")
     ax.xaxis.set_major_locator(mdates.HourLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H"))
-    ax.set_xlabel("Time of day of analysis")
-    ax.set_ylabel(r"Coulometer blank / count$\cdot$minute$^{-1}$")
+    ax.set_xlabel("Time of analysis")
+    ax.set_ylabel(r"Coulometer blank / counts minute$^{-1}$")
     ax.set_title(session)
     ax.grid(alpha=0.2)
     add_credit(ax)
