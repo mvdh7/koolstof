@@ -95,8 +95,10 @@ def _lsqfun_blank_progression(
 ):
     """Fit the changing coulometer blank during an analysis session."""
     # To not use weights, can manually set dbs.blank_here_count and
-    # dbs.blank_here_std to constant values before running.
-    weights = np.sqrt(blank_here_count) / blank_here_std
+    # dbs.blank_here_std to constant, non-zero values before running.
+    weights = np.sqrt(blank_here_count) / np.where(
+        blank_here_std == 0, np.inf, blank_here_std
+    )
     return (_blank_progression(x0, datenum_scaled) - blank_here) * weights
 
 
