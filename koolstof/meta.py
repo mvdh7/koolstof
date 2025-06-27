@@ -1,7 +1,7 @@
 import textwrap
 
 
-__version__ = "1.0.0-alpha"
+__version__ = "1.0.0-b.1"
 __author__ = "Humphreys, Matthew P."
 
 

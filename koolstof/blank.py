@@ -115,7 +115,7 @@ def session_blank(session):
                 "datenum_analysis_std": np.nan,
                 "blank_progression": [np.nan] * 5,
                 "blank_fit_std": np.nan,
-                "blank_fit_rmse": np.nan,
+                "blank_fit_rmsd": np.nan,
             }
         )
     else:
@@ -155,7 +155,7 @@ def session_blank(session):
                 "datenum_analysis_std": datenum_std,
                 "blank_progression": blank_prog["x"],
                 "blank_fit_std": np.std(blank_prog["fun"]),
-                "blank_fit_rmse": np.sqrt(np.mean(blank_prog["fun"] ** 2)),
+                "blank_fit_rmsd": np.sqrt(np.mean(blank_prog["fun"] ** 2)),
             }
         )
     return blank_cols
