@@ -12,7 +12,12 @@ dbs, logfile = ks.read_vindta(
     logfile_fname,
     methods=["3C standard", "3C standardRWS"],
 )
-sessions = ks.blank_correction(dbs, logfile)
+sessions = ks.blank_correction(
+    dbs,
+    logfile,
+    no_linear=["C_Aug13-18_1008"],
+    no_exponential=["C_Aug13-18_1008"],
+)
 dbs["dic_certified"] = np.where(
     dbs.bottle.str.startswith("CRM"), 2029.19, np.nan
 )

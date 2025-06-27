@@ -92,6 +92,8 @@ def _lsqfun_blank_progression(
     blank_here,
     blank_here_std,
     blank_here_count,
+    allow_exponential=True,
+    allow_linear=True,
 ):
     """Fit the changing coulometer blank during an analysis session."""
     # To not use weights, can manually set dbs.blank_here_count and
@@ -99,10 +101,16 @@ def _lsqfun_blank_progression(
     weights = np.sqrt(blank_here_count) / np.where(
         blank_here_std == 0, np.inf, blank_here_std
     )
+    if not allow_linear:
+        x0[1] = 0
+    if not allow_exponential:
+        x0[2] = 0
+        x0[3] = 0
+        x0[4] = 1
     return (_blank_progression(x0, datenum_scaled) - blank_here) * weights
 
 
-def session_blank(session):
+def session_blank(session, no_linear=None, no_exponential=None):
     """Fit blank progression for a single analysis session."""
     if (session.blank_here.isnull() | ~session.blank_good).all():
         warnings.warn(
@@ -121,6 +129,16 @@ def session_blank(session):
             }
         )
     else:
+        allow_linear = True
+        if no_linear is not None:
+            if isinstance(no_linear, str):
+                no_linear = [no_linear]
+            allow_linear = session.name not in no_linear
+        allow_exponential = True
+        if no_exponential is not None:
+            if isinstance(no_exponential, str):
+                no_exponential = [no_exponential]
+            allow_exponential = session.name not in no_exponential
         blank_here = session[session.blank_good].blank_here
         blank_here_std = session[session.blank_good].blank_here_std
         blank_here_count = session[session.blank_good].blank_here_count
@@ -148,6 +166,10 @@ def session_blank(session):
                     blank_here_std,
                     blank_here_count,
                 ],
+                kwargs={
+                    "allow_linear": allow_linear,
+                    "allow_exponential": allow_exponential,
+                },
             )
         blank_cols = pd.Series(
             data={
@@ -163,7 +185,13 @@ def session_blank(session):
     return blank_cols
 
 
-def blank_per_session(dbs, logfile=None, session_col="dic_cell_id"):
+def blank_per_session(
+    dbs,
+    logfile=None,
+    session_col="dic_cell_id",
+    no_linear=None,
+    no_exponential=None,
+):
     """Calculate blanks per analysis session.
 
     Parameters
@@ -199,7 +227,11 @@ def blank_per_session(dbs, logfile=None, session_col="dic_cell_id"):
         dbs[session_col] = 0
     sessions = (
         dbs.groupby(by=session_col)
-        .apply(session_blank)
+        .apply(
+            session_blank,
+            no_linear=no_linear,
+            no_exponential=no_exponential,
+        )
         .sort_values("datenum_analysis_mean")
     )
     return sessions
@@ -354,6 +386,8 @@ def blank_correction(
     counts_col="counts",
     runtime_col="run_time",
     session_col="dic_cell_id",
+    no_exponential=None,
+    no_linear=None,
     use_from=6,
     use_to=100,
 ):
@@ -398,6 +432,8 @@ def blank_correction(
         dbs,
         logfile=logfile,
         session_col=session_col,
+        no_linear=no_linear,
+        no_exponential=no_exponential,
     )
     counts_corrected(
         dbs,
