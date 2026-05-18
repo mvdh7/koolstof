@@ -8,12 +8,13 @@ build-backend = "setuptools.build_meta"
 name = "koolstof"
 description = "Dissolved inorganic carbon measurement processing"
 readme = "README.md"
+requires-python = ">=3.11"
 classifiers =[
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python :: 3.10",
+    "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Natural Language :: English",
@@ -37,12 +38,15 @@ include = ["koolstof*"]
 [tool.setuptools.dynamic]
 version = {attr = "koolstof.meta.__version__"}
 
-# [tool.ruff.lint]
-# ignore = [
-#     "E401",  # multiple-imports-on-one-line
-#     # "F401",  # unused-import
-#     "I",
-# ]
+[tool.ruff]
+line-length = 79
 
-# [tool.ruff.lint.isort]
-# force-single-line = true
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-single-line = false
+lines-after-imports = 2
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
