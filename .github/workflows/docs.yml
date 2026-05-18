@@ -4,6 +4,7 @@ on:
     paths:
       - mkdocs.yml
       - docs/**
+      - .github/workflows/docs.yml
     branches:
       - v1
 permissions:
