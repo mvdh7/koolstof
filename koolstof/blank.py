@@ -1,0 +1,446 @@
+import warnings
+
+import numpy as np
+import pandas as pd
+from scipy.optimize import least_squares
+
+from . import vindta
+
+
+def _blank_per_measurement(dbs_row, logfile):
+    """[row.apply] Calculate each measurement's blank value."""
+    try:
+        lft = logfile.loc[dbs_row.logfile_index].table
+        B = lft["time"] >= dbs_row.blank_from
+        if "blank_to" in dbs_row:
+            B &= lft["time"] <= dbs_row.blank_to
+        blank_here = lft["increments"][B].mean()
+        blank_here_min = lft["increments"][B].min()
+        blank_here_max = lft["increments"][B].max()
+        blank_here_std = lft["increments"][B].std()
+        blank_here_count = B.sum()
+        run_time = lft["time"].max()
+        counts = lft["counts"].max()
+    except (ValueError, KeyError):
+        blank_here = np.nan
+        blank_here_min = np.nan
+        blank_here_max = np.nan
+        blank_here_std = np.nan
+        blank_here_count = 0
+        run_time = np.nan
+        counts = np.nan
+    return pd.Series(
+        {
+            "blank_here": blank_here,
+            "blank_here_min": blank_here_min,
+            "blank_here_max": blank_here_max,
+            "blank_here_std": blank_here_std,
+            "blank_here_count": blank_here_count,
+            "run_time": run_time,
+            "counts": counts,
+        }
+    )
+
+
+def blank_per_measurement(dbs, logfile):
+    """Calculate each sample's DIC blank value and add this in-place to the
+    `dbs` plus some relevant statistics.
+
+    The columns 'counts' and 'run_time' in the dbs are overwritten with the
+    maximum values for each titration from the logfile.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas `DataFrame` (imported with `read_vindta`).
+    logfile : pd.DataFrame
+        The logfile as a pandas `DataFrame` (imported with `read_vindta`).
+    """
+    dbs_blanks = dbs.apply(_blank_per_measurement, args=[logfile], axis=1)
+    for blank in dbs_blanks.columns:
+        dbs[blank] = dbs_blanks[blank]
+    if "blank_good" not in dbs:
+        dbs["blank_good"] = True
+
+
+def _centre_and_scale(x, x_factor=None, x_offset=None):
+    if x_factor is None:
+        x_factor = np.std(x)
+    if x_offset is None:
+        x_offset = np.mean(x)
+    return (x - x_offset) / x_factor
+
+
+def _de_centre_and_scale(x, x_factor, x_offset):
+    return x * x_factor + x_offset
+
+
+def _blank_progression(x0, datenum_scaled):
+    """Estimate the changing coulometer blank during an analysis session."""
+    blank = (
+        x0[0]
+        + x0[1] * datenum_scaled
+        + x0[2] * np.exp(-(datenum_scaled - x0[3]) / x0[4])
+    )
+    blank = np.where(blank < 0, 0, blank)
+    return blank
+
+
+def _lsqfun_blank_progression(
+    x0,
+    datenum_scaled,
+    blank_here,
+    blank_here_std,
+    blank_here_count,
+    allow_exponential=True,
+    allow_linear=True,
+):
+    """Fit the changing coulometer blank during an analysis session."""
+    # To not use weights, can manually set dbs.blank_here_count and
+    # dbs.blank_here_std to constant, non-zero values before running.
+    weights = np.sqrt(blank_here_count) / np.where(
+        blank_here_std == 0, np.inf, blank_here_std
+    )
+    if not allow_linear:
+        x0[1] = 0
+    if not allow_exponential:
+        x0[2] = 0
+        x0[3] = 0
+        x0[4] = 1
+    return (_blank_progression(x0, datenum_scaled) - blank_here) * weights
+
+
+def session_blank(session, no_linear=None, no_exponential=None):
+    """Fit blank progression for a single analysis session."""
+    if (session.blank_here.isnull() | ~session.blank_good).all():
+        warnings.warn(
+            "koolstof: No good blank_here values available for session "
+            + f"'{session.name}'."
+        )
+        blank_cols = pd.Series(
+            data={
+                "blank_mean": np.nan,
+                "blank_median": np.nan,
+                "datenum_analysis_mean": np.nan,
+                "datenum_analysis_std": np.nan,
+                "blank_progression": [np.nan] * 5,
+                "blank_fit_std": np.nan,
+                "blank_fit_rmsd": np.nan,
+            }
+        )
+    else:
+        allow_linear = True
+        if no_linear is not None:
+            if isinstance(no_linear, str):
+                no_linear = [no_linear]
+            allow_linear = session.name not in no_linear
+        allow_exponential = True
+        if no_exponential is not None:
+            if isinstance(no_exponential, str):
+                no_exponential = [no_exponential]
+            allow_exponential = session.name not in no_exponential
+        blank_here = session[session.blank_good].blank_here
+        blank_here_std = session[session.blank_good].blank_here_std
+        blank_here_count = session[session.blank_good].blank_here_count
+        datenum_here = session[session.blank_good].datenum_analysis
+        L = blank_here.notnull()
+        blank_here = blank_here[L]
+        datenum_here = datenum_here[L]
+        datenum_mean = datenum_here.mean()
+        datenum_std = datenum_here.std()
+        datenum_scaled = _centre_and_scale(
+            datenum_here, x_factor=datenum_std, x_offset=datenum_mean
+        )
+        if L.sum() == 1:
+            blank_prog = {
+                "x": [blank_here.values[0], 0, 0, 0, 1],
+                "fun": 0,
+            }
+        else:
+            blank_prog = least_squares(
+                _lsqfun_blank_progression,
+                [30, 1, 0, 1, 1],
+                args=[
+                    datenum_scaled,
+                    blank_here,
+                    blank_here_std,
+                    blank_here_count,
+                ],
+                kwargs={
+                    "allow_linear": allow_linear,
+                    "allow_exponential": allow_exponential,
+                },
+            )
+        blank_cols = pd.Series(
+            data={
+                "blank_mean": blank_here.mean(),
+                "blank_median": blank_here.median(),
+                "datenum_analysis_mean": datenum_mean,
+                "datenum_analysis_std": datenum_std,
+                "blank_progression": blank_prog["x"],
+                "blank_fit_std": np.std(blank_prog["fun"]),
+                "blank_fit_rmsd": np.sqrt(np.mean(blank_prog["fun"] ** 2)),
+            }
+        )
+    return blank_cols
+
+
+def blank_per_session(
+    dbs,
+    logfile=None,
+    session_col="dic_cell_id",
+    no_linear=None,
+    no_exponential=None,
+):
+    """Calculate blanks per analysis session.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs).
+    logfile : pd.DataFrame, optional
+        The logfile as a pandas DataFrame (imported with read_logfile), only
+        necessary if you have not run blank_per_measurement on the dbs, by
+        default None.
+    session_col : str, optional
+        The column name in the dbs that identifies analysis sessions, by
+        default 'dic_cell_id'.
+
+    Returns
+    -------
+    sessions : pd.DataFrame
+        A table with blank fit data for each analysis session.
+    """
+    if "blank_here" not in dbs:
+        assert logfile is not None, (
+            "Either a `logfile` must be provided"
+            + " or `blank_per_measurement` first run on the `dbs`."
+        )
+        blank_per_measurement(dbs, logfile)
+    if "blank_good" not in dbs:
+        dbs["blank_good"] = ~dbs.blank_here.isnull()
+    if session_col not in dbs:
+        warnings.warn(
+            f"`dbs` does not contain a column called `'{session_col}'` - "
+            + "all measurements assumed to be from the same analysis session."
+        )
+        dbs[session_col] = 0
+    sessions = (
+        dbs.groupby(by=session_col)
+        .apply(
+            session_blank,
+            no_linear=no_linear,
+            no_exponential=no_exponential,
+        )
+        .sort_values("datenum_analysis_mean")
+    )
+    return sessions
+
+
+def counts_at(
+    dbs,
+    logfile,
+    col_name_counts="counts_at",
+    col_name_runtime="run_time_at",
+    counts_loc=None,
+    counts_iloc=None,
+):
+    """Get counts at a particular minute of each titration from the logfile and
+    put them into a new column in the `dbs`.
+
+    One, and only one, of `counts_loc` or `counts_iloc` must be provided.
+
+    Run this first and then provide `col_name_counts` and `col_name_runtime` to
+    `blank_correction` in order to use the updated counts.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with `read_vindta_dbs`).
+    logfile : pd.DataFrame
+        The logfile as a pandas DataFrame (imported with
+        `read_vindta_logfile`).
+    col_name_counts : str, optional
+        How to name the new column with counts, by default "counts_at".
+    col_name_runtime : str, optional
+        How to name the new column with the run time corresponding to the
+        counts, by default "run_time_at".
+    counts_loc : int, optional
+        Which minute of the titration to take the counts from, by default
+        `None`.
+    counts_iloc : int, optional
+        Which index location in the titration table to take the counts from,
+        by default `None`.
+    """
+    assert counts_loc is None or counts_iloc is None, (
+        "You cannot provide both `counts_loc` and `counts_iloc`!"
+    )
+    if counts_loc is None and counts_iloc is None:
+        counts_iloc = -1
+    if "logfile_index" not in dbs:
+        vindta.get_logfile_index(dbs, logfile)
+    if counts_loc is not None:
+        for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
+            lt = logfile.loc[row.logfile_index].table
+            dbs.loc[i, col_name_counts] = lt["counts"][
+                lt["time"] == counts_loc
+            ]
+            dbs.loc[i, col_name_runtime] = counts_loc
+    elif counts_iloc is not None:
+        for i, row in dbs[dbs.logfile_index.notnull()].iterrows():
+            lt = logfile.loc[row.logfile_index].table
+            dbs.loc[i, col_name_counts] = lt["counts"][counts_iloc]
+            dbs.loc[i, col_name_runtime] = lt["time"][counts_iloc]
+
+
+def _get_counts_corrected(
+    dbs,
+    blank_col="blank",
+    counts_col="counts",
+    runtime_col="run_time",
+):
+    """Calculate the corrected counts."""
+    return dbs[counts_col] - dbs[runtime_col] * dbs[blank_col]
+
+
+def counts_corrected(
+    dbs,
+    logfile=None,
+    sessions=None,
+    blank_col="blank",
+    counts_col="counts",
+    runtime_col="run_time",
+    session_col="dic_cell_id",
+    use_from=6,
+    use_to=100,
+):
+    """Determine and apply the blank corrections to get corrected counts, which
+    are added to dbs in place as column "counts_corrected".
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs).
+    logfile : pd.DataFrame, optional
+        The logfile as a pandas DataFrame (imported with read_logfile),
+        necessary only if `blank_per_measurement` has not been run on the dbs,
+        by default `None`.
+    sessions : pd.DataFrame, optional
+        The table of analysis sessions generated by blank_per_session, will be
+        generated here if not provided, by default None.
+    blank_col : str, optional
+        The column name for blank values to use for corrections, by default
+        'blank'.
+    counts_col : str, optional
+        The column name for uncorrected counts, by default 'counts', in which
+        case the maximum counts value for each sample is read in from the
+        `logfile`, replacing whatever is currently in the counts column of the
+        `dbs`.
+    runtime_col : str, optional
+        The column name for run time, by default 'run_time', in which case the
+        maximum run time value for each sample is read in from the `logfile`,
+        replacing whatever is currently in the run_time column of the `dbs`.
+    session_col : str, optional
+        The column name in the dbs that identifies analysis sessions, by
+        default "dic_cell_id".
+    use_from : int, optional
+        Which minute of the titrations to begin counting as a blank
+        measurement, by default 6.  Passed to `blank_per_measurement` if this
+        has not already been run.
+    use_to : int, optional
+        Which minute of the titrations to stop counting as a blank measurement,
+        by default 100.  Passed to `blank_per_measurement` if this has not
+        already been run.
+    """
+    if sessions is None:
+        sessions = blank_per_session(
+            dbs,
+            logfile=logfile,
+            session_col=session_col,
+        )
+    dbs["datenum_analysis_scaled"] = np.nan
+    dbs["blank"] = np.nan
+    for session, s in sessions.iterrows():
+        L = dbs[sessions.index.name] == session
+        dbs.loc[L, "datenum_analysis_scaled"] = _centre_and_scale(
+            dbs.loc[L].datenum_analysis,
+            x_factor=s.datenum_analysis_std,
+            x_offset=s.datenum_analysis_mean,
+        )
+        dbs.loc[L, "blank"] = _blank_progression(
+            s.blank_progression,
+            dbs.loc[L].datenum_analysis_scaled,
+        )
+    dbs["counts_corrected"] = _get_counts_corrected(
+        dbs,
+        blank_col=blank_col,
+        counts_col=counts_col,
+        runtime_col=runtime_col,
+    )
+
+
+def blank_correction(
+    dbs,
+    logfile,
+    blank_col="blank",
+    counts_col="counts",
+    runtime_col="run_time",
+    session_col="dic_cell_id",
+    no_exponential=None,
+    no_linear=None,
+    use_from=6,
+    use_to=100,
+):
+    """Convenience wrapper for `get_counts_corrected`.  Returns the dbs with
+    the blanks having been determined for each analysis session and counts thus
+    corrected.
+
+    Parameters
+    ----------
+    dbs : pd.DataFrame
+        The dbs file as a pandas DataFrame (imported with read_dbs).
+    logfile : pd.DataFrame
+        The logfile as a pandas DataFrame (imported with read_logfile).
+    blank_col : str, optional
+        The column name for blank values to use for corrections, by default
+        "blank".
+    counts_col : str, optional
+        The column name for uncorrected counts, by default 'counts', in which
+        case the maximum counts value for each sample is read in from the
+        `logfile`, replacing whatever is currently in the counts column of the
+        `dbs`.
+    runtime_col : str, optional
+        The column name for run time, by default "run_time", in which case the
+        maximum run time value for each sample is read in from the `logfile`,
+        replacing whatever is currently in the run_time column of the `dbs`.
+    session_col : str, optional
+        The column name in the dbs that identifies analysis sessions, by
+        default "dic_cell_id".
+    use_from : int, optional
+        Which minute of the titrations to begin counting as a blank
+        measurement, by default 6.
+    use_to : int, optional
+        Which minute of the titrations to stop counting as a blank measurement,
+        by default 100.
+
+    Returns
+    -------
+    sessions : pd.DataFrame
+        A table of analysis sessions including blank correction details.
+    """
+    sessions = blank_per_session(
+        dbs,
+        logfile=logfile,
+        session_col=session_col,
+        no_linear=no_linear,
+        no_exponential=no_exponential,
+    )
+    counts_corrected(
+        dbs,
+        sessions=sessions,
+        blank_col=blank_col,
+        counts_col=counts_col,
+        runtime_col=runtime_col,
+        session_col=session_col,
+    )
+    return sessions
