@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "koolstof"
-description = "Dissolved inorganic carbon measurement processing"
+description = "Processing measurements of dissolved inorganic carbon"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers =[

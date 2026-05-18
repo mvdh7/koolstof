@@ -26,3 +26,5 @@ The blank correction routine in koolstof is described in the following peer-revi
 The citation for the code itself is:
 
 > Humphreys, M. P. (2025).  Processing measurements of dissolved inorganic carbon: koolstof.  *Zenodo*.  [doi:10.5281/zenodo.3999292](https://doi.org/10.5281/zenodo.3999292).
+
+Please specify exactly which version you used!
