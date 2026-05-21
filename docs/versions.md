@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### v1.0.1 (forthcoming)
+
+!!! info "v1.0.1 release notes"
+
+    * Removed obsolete kwargs in several functions.
+
 ### v1.0.0 (18 May 2026)
 
 !!! info "v1.0.0 release notes"

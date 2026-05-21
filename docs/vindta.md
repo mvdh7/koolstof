@@ -12,29 +12,19 @@ import koolstof as ks
 
 ## Import VINDTA files
 
-### The logfile.bak
-
-Import a `logfile.bak` into a standard pandas DataFrame with one row per DIC sample.
+You need to import two files from the VINDTA: the `logfile.bak` and the `.dbs` file.
 
 ```python
-logfile = ks.read_vindta_logfile("path/to/logfile.bak", methods="3C standard")
+dbs, logfile = ks.read_vindta(
+    "path/to/file.dbs",
+    "path/to/logfile.bak",
+    methods="3C standard",
+)
 ```
 
 !!! example "`read_vindta_logfile`: optional keyword arguments"
 
-    * `methods`: list of VINDTA method filenames used to run samples, excluding the `.mth` extensions.
-
-### The dbs file
-
-Import a `.dbs` file into an enhanced DataFrame and rename its columns into a friendlier format.
-
-```python
-dbs = ks.read_vindta_dbs("path/to/file.dbs", keep_all_cols=False)
-```
-
-!!! example "`read_vindta_dbs`: optional keyword arguments"
-
-    * `keep_all_cols`: retain all columns from the `.dbs` (`True`) or just the most important ones (`False`)?
+    * `methods`: list of VINDTA method filenames that were used to run samples, excluding the `.mth` extensions.
 
 ## Add sample metadata
 
@@ -58,8 +48,10 @@ import numpy as np
 import koolstof as ks
 
 # Import files from VINDTA
-logfile = ks.read_vindta_logfile("path/to/logfile.bak")
-dbs = ks.read_vindta_dbs("path/to/dbsfile.dbs")
+dbs, logfile = ks.read_vindta(
+    "path/to/dbsfile.dbs",
+    "path/to/logfile.bak",
+)
 
 # Assign certified DIC for CRMs
 # - In this example, we assume that the 'bottle' column of the dbs always
@@ -94,8 +86,8 @@ sessions = ks.blank_correction(
     counts_col="counts",
     runtime_col="run_time",
     session_col="dic_cell_id",
-    use_from=6,
-    use_to=100,
+    no_linear=None,
+    no_exponential=None,
 )
 ```
 
@@ -105,8 +97,8 @@ sessions = ks.blank_correction(
     * `counts_col`: the name of the column containing the raw counts for each sample.
     * `runtime_col`: the name of the column containing the total run time for each sample.
     * `session_col`: the name of the column containing the analysis session identifiers.
-    * `use_from`: which minute of the coulometric titrations to measure the blank starting from.
-    * `use_to`: which minute of the coulometric titrations to measure the blank until.
+    * `no_linear`: session(s) for which there should not be a linear term in the fit.
+    * `no_exponential`: session(s) for which there should not be an exponential term in the fit.
 
 The output `sessions` is a table of analysis sessions, as identified by unique values of the `session_col`.  The `dbs` is also updated with extra columns, most importantly, `"blank_here"` and `"counts_corrected"`.
 
@@ -126,7 +118,7 @@ This generates a figure like below:
 
 Here we see the count increments for every sample in the dbs.  The y-axis is automatically zoomed in on the lower values at the end of the analysis, which we use to determine the blank.  The data points currently considered as 'blanks', where the number of minutes is greater than or equal to `use_from`, are shown in red.  We need to check that all the sample has indeed passed through this point, and that there isn't a strong trend with time in the red points.
 
-In the example above, the points at minute 6 (and possibly 7) are still a bit higher than the points later on, so it would probably be better to switch to `use_from=7` (or `use_from=8`) when running `ks.blank_correction` on this dataset.
+In the example above, the points at minute 6 (and possibly 7) are still a bit higher than the points later on, so it would probably be better to switch to `use_from=7` (or `use_from=8`) on this dataset.  The `use_from` value can be set (separately for each sample, if needed) by creating a column with that name in the `dbs`.
 
 ### Plot the session blank fits
 
@@ -148,7 +140,7 @@ A DIC result will still be returned for these points, so you should check whethe
 
 ## Calibrate DIC measurements
 
-Once the blank correction is complete, you can calibrate the DIC measurements based on CRMs.
+Once the blank correction is complete, the DIC measurements can be calibrated based on any samples that have a `dbs.dic_certified` value.
 
 ```python
 ks.calibrate_dic(dbs, sessions)
@@ -199,8 +191,10 @@ import numpy as np
 import koolstof as ks
 
 # Import files from VINDTA
-logfile = ks.read_vindta_logfile("path/to/logfile.bak")
-dbs = ks.read_vindta_dbs("path/to/dbsfile.dbs")
+dbs, logfile = ks.read_vindta(
+    "path/to/file.dbs",
+    "path/to/logfile.bak",
+)
 
 # Assign certified DIC for CRMs
 # - In this example, we assume that the 'bottle' column of the dbs always
@@ -223,7 +217,7 @@ dbs["k_dic_good"] = ~dbs.dic_certified.isnull()
 # at the figures below 
 
 # Find and apply blank corrections
-sessions = ks.blank_correction(dbs, use_from=8)
+sessions = ks.blank_correction(dbs)
 
 # Visualise blank corrections
 ks.plot_increments(dbs, logfile)

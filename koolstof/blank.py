@@ -199,12 +199,18 @@ def blank_per_session(
     dbs : pd.DataFrame
         The dbs file as a pandas DataFrame (imported with read_dbs).
     logfile : pd.DataFrame, optional
-        The logfile as a pandas DataFrame (imported with read_logfile), only
-        necessary if you have not run blank_per_measurement on the dbs, by
-        default None.
+        The logfile as a pandas DataFrame (imported with read_logfile),
+        only necessary if you have not run blank_per_measurement on the
+        dbs, by default None.
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by
         default 'dic_cell_id'.
+    no_linear : str | list, optional
+        A session name or list of session names that should have no
+        linear term in the fit.
+    no_exponential : str | list, optional
+        A session name or list of session names that should have no
+        exponential term in the fit.
 
     Returns
     -------
@@ -311,8 +317,6 @@ def counts_corrected(
     counts_col="counts",
     runtime_col="run_time",
     session_col="dic_cell_id",
-    use_from=6,
-    use_to=100,
 ):
     """Determine and apply the blank corrections to get corrected counts, which
     are added to dbs in place as column "counts_corrected".
@@ -343,14 +347,6 @@ def counts_corrected(
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by
         default "dic_cell_id".
-    use_from : int, optional
-        Which minute of the titrations to begin counting as a blank
-        measurement, by default 6.  Passed to `blank_per_measurement` if this
-        has not already been run.
-    use_to : int, optional
-        Which minute of the titrations to stop counting as a blank measurement,
-        by default 100.  Passed to `blank_per_measurement` if this has not
-        already been run.
     """
     if sessions is None:
         sessions = blank_per_session(
@@ -386,10 +382,8 @@ def blank_correction(
     counts_col="counts",
     runtime_col="run_time",
     session_col="dic_cell_id",
-    no_exponential=None,
     no_linear=None,
-    use_from=6,
-    use_to=100,
+    no_exponential=None,
 ):
     """Convenience wrapper for `get_counts_corrected`.  Returns the dbs with
     the blanks having been determined for each analysis session and counts thus
@@ -398,30 +392,32 @@ def blank_correction(
     Parameters
     ----------
     dbs : pd.DataFrame
-        The dbs file as a pandas DataFrame (imported with read_dbs).
+        The .dbs file as a pandas DataFrame (imported with `read_dbs`).
     logfile : pd.DataFrame
-        The logfile as a pandas DataFrame (imported with read_logfile).
+        The logfile as a pandas DataFrame (imported with
+        `read_logfile`).
     blank_col : str, optional
-        The column name for blank values to use for corrections, by default
-        "blank".
+        The column name for blank values to use for corrections, by
+        default "blank".
     counts_col : str, optional
-        The column name for uncorrected counts, by default 'counts', in which
-        case the maximum counts value for each sample is read in from the
-        `logfile`, replacing whatever is currently in the counts column of the
-        `dbs`.
+        The column name for uncorrected counts, by default "counts", in
+        which case the maximum counts value for each sample is read in
+        from the `logfile`, replacing whatever is currently in the
+        counts column of the `dbs`.
     runtime_col : str, optional
-        The column name for run time, by default "run_time", in which case the
-        maximum run time value for each sample is read in from the `logfile`,
-        replacing whatever is currently in the run_time column of the `dbs`.
+        The column name for run time, by default "run_time", in which
+        case the maximum run time value for each sample is read in from
+        the `logfile`, replacing whatever is currently in the run_time
+        column of the `dbs`.
     session_col : str, optional
         The column name in the dbs that identifies analysis sessions, by
         default "dic_cell_id".
-    use_from : int, optional
-        Which minute of the titrations to begin counting as a blank
-        measurement, by default 6.
-    use_to : int, optional
-        Which minute of the titrations to stop counting as a blank measurement,
-        by default 100.
+    no_linear : str | list, optional
+        A session name or list of session names that should have no
+        linear term in the fit.
+    no_exponential : str | list, optional
+        A session name or list of session names that should have no
+        exponential term in the fit.
 
     Returns
     -------

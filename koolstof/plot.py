@@ -48,7 +48,6 @@ def plot_increments(
     alpha=0.6,
     dpi=300,
     figsize=[6.4, 4.8],
-    **kwargs,
 ):
     """Plot coulometer increments by the minute, focussing on the tails.
     Any additional kwargs are passed to plt.plot().
