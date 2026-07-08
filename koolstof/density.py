@@ -13,12 +13,14 @@ def seawater_1atm_MP81(temperature=25, salinity=35):
     if np.any(temperature < 0) or np.any(temperature > 40):
         warnings.warn(
             "Warning: some temperature values fall outside the valid range"
-            + "of the MP81 density equation (0-40 °C)."
+            + "of the MP81 density equation (0-40 °C).",
+            stacklevel=2,
         )
     if np.any(salinity < 0.5) or np.any(salinity > 43):
         warnings.warn(
             "Warning: some salinity values fall outside the valid range"
-            + "of the MP81 density equation (0.5-43)."
+            + "of the MP81 density equation (0.5-43).",
+            stacklevel=2,
         )
     return (
         999.842594
@@ -64,11 +66,15 @@ def get_density(dbs, temperature_analysis_dic=25.0, salinity=35.0):
         warnings.warn(
             "dbs.temperature_analysis_dic not set; assuming {} °C.".format(
                 temperature_analysis_dic
-            )
+            ),
+            stacklevel=2,
         )
     if "salinity" not in dbs:
         dbs["salinity"] = salinity
-        warnings.warn("dbs.salinity not set; assuming {}.".format(salinity))
+        warnings.warn(
+            "dbs.salinity not set; assuming {}.".format(salinity),
+            stacklevel=2,
+        )
     dbs["density_analysis_dic"] = seawater_1atm_MP81(
         temperature=dbs.temperature_analysis_dic, salinity=dbs.salinity
     )
