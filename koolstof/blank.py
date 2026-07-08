@@ -115,7 +115,8 @@ def session_blank(session, no_linear=None, no_exponential=None):
     if (session.blank_here.isnull() | ~session.blank_good).all():
         warnings.warn(
             "koolstof: No good blank_here values available for session "
-            + f"'{session.name}'."
+            + f"'{session.name}'.",
+            stacklevel=2,
         )
         blank_cols = pd.Series(
             data={
@@ -228,7 +229,8 @@ def blank_per_session(
     if session_col not in dbs:
         warnings.warn(
             f"`dbs` does not contain a column called `'{session_col}'` - "
-            + "all measurements assumed to be from the same analysis session."
+            + "all measurements assumed to be from the same analysis session.",
+            stacklevel=2,
         )
         dbs[session_col] = 0
     sessions = (

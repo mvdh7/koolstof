@@ -71,7 +71,6 @@ def plot_increments(
             i_data["increments"][i_blank],
             alpha=alpha,
             c="xkcd:strawberry",
-            clip_on=False,
             edgecolor="none",
             s=20,
         )
@@ -82,7 +81,6 @@ def plot_increments(
             i_data["increments"][not_i_blank],
             alpha=alpha,
             c="xkcd:navy",
-            clip_on=False,
             edgecolor="none",
             s=20,
         )
@@ -225,7 +223,7 @@ def plot_session_blanks(
     return fig, ax
 
 
-def plot_blanks(dbs, sessions, figure_dir=None, **kwargs):
+def plot_blanks(dbs, sessions, **kwargs):
     """Draw sample blanks and their fit for all analysis sessions.
 
     Parameters

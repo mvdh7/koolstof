@@ -60,5 +60,6 @@ def calibrate_dic(dbs, sessions):
     for k, v in sc.items():
         sessions[k] = v
     dbs["k_dic"] = sessions.loc[dbs[sessions.index.name]].k_dic_mean.values
-    dbs["dic"] = dbs.counts_corrected * dbs.k_dic / dbs.density_analysis_dic
+    dbs["dic_vol"] = dbs.counts_corrected * dbs.k_dic
+    dbs["dic"] = dbs.dic_vol / dbs.density_analysis_dic
     dbs["dic_offset"] = dbs.dic - dbs.dic_certified

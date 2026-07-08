@@ -2,11 +2,12 @@
 
 ## Version 1
 
-### v1.0.1 (forthcoming)
+### v1.0.1 (8 July 2026)
 
 !!! info "v1.0.1 release notes"
 
     * Removed obsolete kwargs in several functions.
+    * Fixed crash when logfile ended with incomplete dataset for a sample.
 
 ### v1.0.0 (18 May 2026)
 

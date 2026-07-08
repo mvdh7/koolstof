@@ -19,7 +19,8 @@ def _get_logfile_index(dbs_row, logfile):
                 (
                     f"{np.size(logfile_index)} name/date matches found "
                     + f"between dbs and logfile @ dbs loc {dbs_row.name}"
-                )
+                ),
+                stacklevel=6,
             )
             logfile_index = np.nan
     else:

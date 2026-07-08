@@ -87,20 +87,32 @@ def read_vindta_logfile(
                     "increments": [0.0],
                 }
                 j = 4
-                while re_increments.match(logf[i + j].strip()):
-                    jinc = re_increments.findall(logf[i + j].strip())[0]
-                    jdict["time"].append(float(jinc[0]))
-                    jdict["counts"].append(float(jinc[1]))
-                    jdict["increments"].append(float(jinc[2]))
-                    j += 1
-                jdict = {k: np.array(v) for k, v in jdict.items()}
-                logdf["table"].append(jdict)
-                logdf["counts"].append(jdict["counts"][-1])
-                logdf["run_time"].append(j - 4.0)
+                try:
+                    while re_increments.match(logf[i + j].strip()):
+                        jinc = re_increments.findall(logf[i + j].strip())[0]
+                        jdict["time"].append(float(jinc[0]))
+                        jdict["counts"].append(float(jinc[1]))
+                        jdict["increments"].append(float(jinc[2]))
+                        j += 1
+                    jdict = {k: np.array(v) for k, v in jdict.items()}
+                    logdf["table"].append(jdict)
+                    logdf["counts"].append(jdict["counts"][-1])
+                    logdf["run_time"].append(j - 4.0)
+                except IndexError:
+                    warnings.warn(
+                        "Final measurement in the logfile has an "
+                        + "incomplete data table, ignoring.",
+                        stacklevel=2,
+                    )
+                    jdict = {k: np.array(v) for k, v in jdict.items()}
+                    logdf["table"].append(jdict)
+                    logdf["counts"].append(np.nan)
+                    logdf["run_time"].append(np.nan)
             else:
                 if i + 1 not in ignore_lines:
                     warnings.warn(
-                        "Logfile line {}: bottle name not found!".format(i + 1)
+                        f"Logfile line {i + 1}: bottle name not found!",
+                        stacklevel=2,
                     )
     # Convert lists to arrays and put logfile into DataFrame
     logdf = pd.DataFrame({k: np.array(v) for k, v in logdf.items()})
